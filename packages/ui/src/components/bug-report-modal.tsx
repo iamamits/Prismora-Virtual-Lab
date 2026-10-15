@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertCircle, Bug, CheckCircle2, ChevronRight, Eye, RefreshCw, Send, X } from 'lucide-react';
 import { Button } from './button';
 
@@ -39,7 +40,24 @@ export function BugReportModal({
   className = '',
 }: BugReportModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState<'form' | 'preview' | 'success'>('form');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (typeof window !== 'undefined' && window.scrollX !== 0) {
+        window.scrollTo(0, window.scrollY);
+      }
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [isOpen]);
 
   // Form fields
   const [category, setCategory] = useState<BugCategory>('incorrect_result');
@@ -141,16 +159,20 @@ export function BugReportModal({
       </button>
 
       {/* Accessible Modal Overlay */}
-      {isOpen && (
+      {isOpen && mounted && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="bug-modal-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150"
+          style={{ zIndex: 999999 }}
+          className="fixed inset-0 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150"
         >
-          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-[#0f172a] rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
+          <div
+            style={{ maxHeight: 'calc(100dvh - 2rem)', height: 'auto' }}
+            className="relative w-full max-w-2xl flex flex-col bg-white dark:bg-[#0f172a] rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden my-auto"
+          >
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-md bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-600">
                   <Bug className="w-4 h-4" />
@@ -165,6 +187,7 @@ export function BugReportModal({
                 </div>
               </div>
               <button
+                type="button"
                 onClick={handleClose}
                 className="p-1 rounded-md text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 aria-label="Close dialog"
@@ -174,7 +197,10 @@ export function BugReportModal({
             </div>
 
             {/* Modal Content Scroll Area */}
-            <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
+            <div
+              style={{ minHeight: 0 }}
+              className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-4 text-xs"
+            >
               {errorMessage && (
                 <div className="flex items-start gap-2 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -403,7 +429,7 @@ export function BugReportModal({
             </div>
 
             {/* Modal Footer Controls */}
-            <div className="flex items-center justify-between px-5 py-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60">
+            <div className="flex items-center justify-between px-5 py-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 shrink-0">
               {step === 'form' && (
                 <>
                   <Button variant="outline" size="sm" onClick={handleClose}>
@@ -451,7 +477,8 @@ export function BugReportModal({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

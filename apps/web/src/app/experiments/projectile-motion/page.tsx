@@ -512,7 +512,7 @@ export default function ProjectileMotionPage() {
               </div>
 
               {/* Status Indicator Badge */}
-              <div className="hidden sm:flex items-center gap-1.5 text-xs">
+              <div className="flex items-center gap-1.5 text-xs">
                 <span
                   className={`w-2 h-2 rounded-full ${
                     controllerStatus === 'running'

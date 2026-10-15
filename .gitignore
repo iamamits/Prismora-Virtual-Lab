@@ -8,5 +8,5 @@ dist/
 coverage/
 .turbo/
 .vercel/
-*.tmp.*
-
+test-results/
+playwright-report/

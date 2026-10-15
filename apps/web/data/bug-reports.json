@@ -1,5 +1,372 @@
 [
   {
+    "id": "PRIS-BUG-2026-RAQX",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "isAnonymous": true,
+    "createdAt": "2026-10-15T07:47:54.967Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-C6JS",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "contactEmail": "tester@prismora.org",
+    "isAnonymous": false,
+    "createdAt": "2026-10-15T07:47:54.960Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-ZQW5",
+    "simulationId": "coa-riscv",
+    "moduleName": "Computer Organization & Architecture (RV32I)",
+    "url": "http://localhost:3000/experiments/coa",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Pipeline Stall Bubble Verification",
+    "description": "Verifying load-use RAW hazard bubble injection under test execution.",
+    "expectedBehavior": "ID stage should stall 1 cycle and insert NOP into EX stage.",
+    "reproductionSteps": "1. Load sample program\n2. Step clock to cycle 3\n3. Observe EX stage",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "activeTab": "datapath",
+      "selectedPreset": "fibonacci",
+      "pc": 0,
+      "cycleCount": 0,
+      "registers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pipelineCycle": 1,
+      "cacheStats": {
+        "accesses": 0,
+        "hits": 0,
+        "misses": 0,
+        "hitRate": 0,
+        "compulsoryMisses": 0,
+        "capacityMisses": 0,
+        "conflictMisses": 0
+      },
+      "cacheConfig": {
+        "cacheSize": 256,
+        "blockSize": 16,
+        "associativity": "direct",
+        "replacementPolicy": "LRU"
+      }
+    },
+    "isAnonymous": true,
+    "clientInfo": {
+      "appVersion": "0.1.0",
+      "viewport": {
+        "width": 393,
+        "height": 727
+      },
+      "devicePixelRatio": 2.75,
+      "colorScheme": "dark"
+    },
+    "createdAt": "2026-10-15T07:47:32.136Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-LHFX",
+    "simulationId": "coa-riscv",
+    "moduleName": "Computer Organization & Architecture (RV32I)",
+    "url": "http://localhost:3000/experiments/coa",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Pipeline Stall Bubble Verification",
+    "description": "Verifying load-use RAW hazard bubble injection under test execution.",
+    "expectedBehavior": "ID stage should stall 1 cycle and insert NOP into EX stage.",
+    "reproductionSteps": "1. Load sample program\n2. Step clock to cycle 3\n3. Observe EX stage",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "activeTab": "datapath",
+      "selectedPreset": "fibonacci",
+      "pc": 0,
+      "cycleCount": 0,
+      "registers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pipelineCycle": 1,
+      "cacheStats": {
+        "accesses": 0,
+        "hits": 0,
+        "misses": 0,
+        "hitRate": 0,
+        "compulsoryMisses": 0,
+        "capacityMisses": 0,
+        "conflictMisses": 0
+      },
+      "cacheConfig": {
+        "cacheSize": 256,
+        "blockSize": 16,
+        "associativity": "direct",
+        "replacementPolicy": "LRU"
+      }
+    },
+    "isAnonymous": true,
+    "clientInfo": {
+      "appVersion": "0.1.0",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "devicePixelRatio": 1,
+      "colorScheme": "dark"
+    },
+    "createdAt": "2026-10-15T07:47:22.841Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-QA2K",
+    "simulationId": "coa-riscv",
+    "moduleName": "Computer Organization & Architecture (RV32I)",
+    "url": "http://localhost:3000/experiments/coa",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Pipeline Stall Bubble Verification",
+    "description": "Verifying load-use RAW hazard bubble injection under test execution.",
+    "expectedBehavior": "ID stage should stall 1 cycle and insert NOP into EX stage.",
+    "reproductionSteps": "1. Load sample program\n2. Step clock to cycle 3\n3. Observe EX stage",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "activeTab": "datapath",
+      "selectedPreset": "fibonacci",
+      "pc": 0,
+      "cycleCount": 0,
+      "registers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pipelineCycle": 1,
+      "cacheStats": {
+        "accesses": 0,
+        "hits": 0,
+        "misses": 0,
+        "hitRate": 0,
+        "compulsoryMisses": 0,
+        "capacityMisses": 0,
+        "conflictMisses": 0
+      },
+      "cacheConfig": {
+        "cacheSize": 256,
+        "blockSize": 16,
+        "associativity": "direct",
+        "replacementPolicy": "LRU"
+      }
+    },
+    "isAnonymous": true,
+    "clientInfo": {
+      "appVersion": "0.1.0",
+      "viewport": {
+        "width": 393,
+        "height": 727
+      },
+      "devicePixelRatio": 2.75,
+      "colorScheme": "dark"
+    },
+    "createdAt": "2026-10-15T07:42:27.877Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-UEBH",
+    "simulationId": "coa-riscv",
+    "moduleName": "Computer Organization & Architecture (RV32I)",
+    "url": "http://localhost:3000/experiments/coa",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Pipeline Stall Bubble Verification",
+    "description": "Verifying load-use RAW hazard bubble injection under test execution.",
+    "expectedBehavior": "ID stage should stall 1 cycle and insert NOP into EX stage.",
+    "reproductionSteps": "1. Load sample program\n2. Step clock to cycle 3\n3. Observe EX stage",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "activeTab": "datapath",
+      "selectedPreset": "fibonacci",
+      "pc": 0,
+      "cycleCount": 0,
+      "registers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pipelineCycle": 1,
+      "cacheStats": {
+        "accesses": 0,
+        "hits": 0,
+        "misses": 0,
+        "hitRate": 0,
+        "compulsoryMisses": 0,
+        "capacityMisses": 0,
+        "conflictMisses": 0
+      },
+      "cacheConfig": {
+        "cacheSize": 256,
+        "blockSize": 16,
+        "associativity": "direct",
+        "replacementPolicy": "LRU"
+      }
+    },
+    "isAnonymous": true,
+    "clientInfo": {
+      "appVersion": "0.1.0",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "devicePixelRatio": 1,
+      "colorScheme": "dark"
+    },
+    "createdAt": "2026-10-15T07:33:38.706Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-RWSX",
+    "simulationId": "coa-riscv",
+    "moduleName": "Computer Organization & Architecture (RV32I)",
+    "url": "http://localhost:3000/experiments/coa",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Pipeline Stall Bubble Verification",
+    "description": "Verifying load-use RAW hazard bubble injection under test execution.",
+    "expectedBehavior": "ID stage should stall 1 cycle and insert NOP into EX stage.",
+    "reproductionSteps": "1. Load sample program\n2. Step clock to cycle 3\n3. Observe EX stage",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "activeTab": "datapath",
+      "selectedPreset": "fibonacci",
+      "pc": 0,
+      "cycleCount": 0,
+      "registers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pipelineCycle": 1,
+      "cacheStats": {
+        "accesses": 0,
+        "hits": 0,
+        "misses": 0,
+        "hitRate": 0,
+        "compulsoryMisses": 0,
+        "capacityMisses": 0,
+        "conflictMisses": 0
+      },
+      "cacheConfig": {
+        "cacheSize": 256,
+        "blockSize": 16,
+        "associativity": "direct",
+        "replacementPolicy": "LRU"
+      }
+    },
+    "isAnonymous": true,
+    "clientInfo": {
+      "appVersion": "0.1.0",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "devicePixelRatio": 1,
+      "colorScheme": "dark"
+    },
+    "createdAt": "2026-10-15T07:31:46.958Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-AABF",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "isAnonymous": true,
+    "createdAt": "2026-10-15T07:09:32.151Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-8NNU",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "contactEmail": "tester@prismora.org",
+    "isAnonymous": false,
+    "createdAt": "2026-10-15T07:09:32.144Z",
+    "status": "open"
+  },
+  {
     "id": "PRIS-BUG-2026-QASR",
     "simulationId": "projectile-motion",
     "moduleName": "Physics Laboratory",

@@ -19,8 +19,18 @@ test.describe('Immersive Projectile Motion Virtual Laboratory', () => {
     await expect(page.getByLabel('Zoom Out')).toBeVisible();
   });
 
-  test('should switch environmental presets and celestial bodies', async ({ page }) => {
+  test('should switch environmental presets and celestial bodies', async ({ page, isMobile }) => {
     await page.goto('/experiments/projectile-motion');
+
+    if (isMobile) {
+      // Mobile uses preset scenario selector
+      const scenarioSelect = page.getByRole('combobox', { name: 'Preset challenge scenario' });
+      await expect(scenarioSelect).toBeVisible();
+      await scenarioSelect.selectOption('moon-mission');
+      const gravityInput = page.getByRole('textbox', { name: 'Gravitational Accel (g)' });
+      await expect(gravityInput).toHaveValue('1.62');
+      return;
+    }
 
     // Click Moon environment button
     const moonBtn = page.getByRole('button', { name: 'Moon' });
@@ -28,17 +38,18 @@ test.describe('Immersive Projectile Motion Virtual Laboratory', () => {
     await moonBtn.click();
 
     // Gravity should now update to Moon gravity 1.62
-    await expect(page.getByText('1.62')).toBeVisible();
+    const gravityInput = page.getByRole('textbox', { name: 'Gravitational Accel (g)' });
+    await expect(gravityInput).toHaveValue('1.62');
 
     // Click Mars environment button
     const marsBtn = page.getByRole('button', { name: 'Mars' });
     await marsBtn.click();
-    await expect(page.getByText('3.71')).toBeVisible();
+    await expect(gravityInput).toHaveValue('3.71');
 
     // Click Earth to restore
     const earthBtn = page.getByRole('button', { name: 'Earth' });
     await earthBtn.click();
-    await expect(page.getByText('9.81')).toBeVisible();
+    await expect(gravityInput).toHaveValue('9.81');
   });
 
   test('should toggle scientific probe and tape tools', async ({ page }) => {
@@ -122,12 +133,12 @@ test.describe('Immersive Projectile Motion Virtual Laboratory', () => {
   test('explore discovery catalog should search and filter', async ({ page }) => {
     await page.goto('/explore');
 
-    await expect(page.getByText('Ideal Projectile Motion')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Ideal Projectile Motion', exact: true })).toBeVisible();
 
     // Search filter
-    const searchInput = page.getByPlaceholder('Search simulations or tags...');
+    const searchInput = page.getByPlaceholder('Search experiments or tags...');
     await searchInput.fill('kinematics');
-    await expect(page.getByText('Ideal Projectile Motion')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Ideal Projectile Motion', exact: true })).toBeVisible();
 
     // Non-matching search
     await searchInput.fill('quantum-teleportation-nonexistent');

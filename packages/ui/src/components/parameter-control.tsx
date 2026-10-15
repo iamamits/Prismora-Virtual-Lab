@@ -43,6 +43,7 @@ function ParameterControl({
           )}
         </div>
         <NumericInput
+          label={label}
           value={value}
           min={min}
           max={max}

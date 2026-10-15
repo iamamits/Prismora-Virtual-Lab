@@ -309,6 +309,7 @@ export default function DigitalElectronicsLabPage() {
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-2">
                           <button
+                            aria-label="Toggle Input A"
                             onClick={() => setInputA(inputA === 1 ? 0 : 1)}
                             className={`w-10 h-10 rounded-lg font-mono font-bold text-sm border-2 transition-all flex items-center justify-center shadow-md ${
                               inputA === 1
@@ -324,6 +325,7 @@ export default function DigitalElectronicsLabPage() {
                         {gateInputsCount >= 2 && (
                           <div className="flex items-center gap-2">
                             <button
+                              aria-label="Toggle Input B"
                               onClick={() => setInputB(inputB === 1 ? 0 : 1)}
                               className={`w-10 h-10 rounded-lg font-mono font-bold text-sm border-2 transition-all flex items-center justify-center shadow-md ${
                                 inputB === 1
@@ -340,6 +342,7 @@ export default function DigitalElectronicsLabPage() {
                         {gateInputsCount >= 3 && (
                           <div className="flex items-center gap-2">
                             <button
+                              aria-label="Toggle Input C"
                               onClick={() => setInputC(inputC === 1 ? 0 : 1)}
                               className={`w-10 h-10 rounded-lg font-mono font-bold text-sm border-2 transition-all flex items-center justify-center shadow-md ${
                                 inputC === 1
@@ -363,6 +366,7 @@ export default function DigitalElectronicsLabPage() {
                       {/* Output Indicator */}
                       <div className="flex items-center gap-3">
                         <div
+                          data-testid="gate-output"
                           className={`w-12 h-12 rounded-xl font-mono font-black text-lg border-2 flex items-center justify-center shadow-lg transition-all ${
                             gateOutput === 1
                               ? 'bg-[#2563EB] text-white border-blue-400 shadow-blue-900/60'
