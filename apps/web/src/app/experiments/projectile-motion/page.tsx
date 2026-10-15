@@ -16,6 +16,7 @@ import {
   VectorDisplay,
   Button,
   Badge,
+  BugReportModal,
 } from '@prismora/ui';
 import { ImmersiveProjectileScene, type EnvironmentTheme } from '@/components/simulation/immersive-projectile-scene';
 import { LiveEquations } from '@/components/simulation/live-equations';
@@ -347,6 +348,24 @@ export default function ProjectileMotionPage() {
             <Share2 className="w-3.5 h-3.5 mr-1" />
             <span>Config</span>
           </Button>
+
+          <BugReportModal
+            simulationId="projectile-motion"
+            moduleName="Projectile Motion Physics Lab"
+            diagnosticSnapshot={{
+              initialSpeed: params.initialSpeed,
+              launchAngle: params.launchAngle,
+              gravity: params.gravity,
+              initialHeight: params.initialHeight,
+              time: state.time,
+              position: state.position,
+              speed: state.speed,
+              terminated: state.terminated,
+              maxHeight,
+              range,
+              theme,
+            }}
+          />
 
           {/* Toggle Analytical Drawer Button */}
           <button

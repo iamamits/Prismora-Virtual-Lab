@@ -16,31 +16,73 @@ Prismora/
 │   └── web/                      # Next.js App Router frontend application
 │       ├── src/app/              # Route handlers, layouts, and pages
 │       │   ├── page.tsx          # Explore & simulation discovery catalog
-│       │   ├── experiments/      # Flagship simulation workspaces
-│       │   │   └── projectile-motion/page.tsx # Flagship Projectile Motion
+│       │   ├── experiments/      # Simulation workspaces
+│       │   │   ├── projectile-motion/page.tsx # Flagship Physics Laboratory
+│       │   │   ├── digital-electronics/page.tsx # Digital Electronics & Logic
+│       │   │   ├── coa/page.tsx                 # Computer Org & RISC-V CPU
+│       │   │   └── toc/page.tsx                 # Theory of Computation & Automata
 │       │   ├── studio/           # Mathematical & 2D/3D studio
 │       │   ├── labs/             # Virtual instrumentation & experiments
 │       │   ├── library/          # Saved configurations & curriculum
-│       │   └── api/              # Server-side endpoints & validation
+│       │   └── api/              # Server-side endpoints, bug reports & validation
+│       │       ├── experiments/  # Simulation configurations
+│       │       └── bug-reports/  # Bug reporting API with atomic persistence
 │       ├── src/components/       # UI components (Canvas, Graphs, Equations)
-│       └── src/lib/auth/         # RBAC, permissions & session definitions
+│       └── src/lib/              # RBAC, Bug reporting store & sanitization
 │
 ├── packages/
-│   ├── simulation-core/          # Pure TypeScript scientific engine
+│   ├── simulation-core/          # Pure TypeScript scientific & engineering engine
 │   │   ├── src/models/           # Analytical physics models (Projectile Motion)
+│   │   ├── src/digital/          # Gates, K-map minimizer, combinational, sequential, timing
+│   │   ├── src/coa/              # RISC-V RV32I ISA, single-cycle CPU, pipeline, cache simulator
+│   │   ├── src/toc/              # DFA, NFA, subset construction, regex Thompson, CYK, Turing machine
 │   │   ├── src/engine/           # Simulation clock, controller, snapshots
-│   │   ├── src/validation/       # Runtime parameter validation & constraints
-│   │   ├── src/utils/            # SI units, angle conversions, invariants
-│   │   └── __tests__/            # 63 unit & physics validation tests
+│   │   └── __tests__/            # 91 unit & algorithm validation tests
 │   │
 │   └── ui/                       # Design system & scientific UI components
-│       ├── src/components/       # Sliders, controls, readouts, cards, theme
+│       ├── src/components/       # Sliders, controls, readouts, bug report modal, logo
 │       └── src/lib/              # Design tokens, themes, utilities
 │
 ├── pnpm-workspace.yaml
 ├── package.json
 └── tsconfig.json
 ```
+
+---
+
+## Interactive B.Tech Engineering Simulation Library
+
+Prismora includes a comprehensive suite of scientifically accurate, interactive engineering simulation laboratories:
+
+### 1. Digital Electronics & Micro-Logic Workbench (`/experiments/digital-electronics`)
+- **Logic Gates & Truth Tables:** Interactive evaluation of 8 primitives (AND, OR, NOT, NAND, NOR, XOR, XNOR, BUFFER) with dynamic 2-3 input switching and real-time truth table row tracking.
+- **Karnaugh Map Minimization:** 2, 3, and 4-variable Gray-code matrices with Quine-McCluskey tabular reduction, prime implicant identification, and minimal SOP/POS outputs.
+- **Combinational Units & ALU:** 1-bit Full Adders/Subtractors, 4:1 Multiplexers, 3-to-8 Decoders, and 4-bit ALU with arithmetic operations and status flags ($Z, S, C, V$).
+- **Sequential Circuits & Flip-Flops:** Clocked SR, D, JK, and T flip-flops with toggle modes, 4-bit universal shift registers, and synchronous up/down counters.
+- **Timing & Static 1-Hazards:** Multi-channel waveform viewer simulating inverter propagation delays ($\tau_{pd}$) and static 1-hazard glitches during transitions.
+
+### 2. Computer Organization & Architecture Lab (`/experiments/coa`)
+- **Single-Cycle Datapath & RV32I CPU:** Instruction memory, PC, register file ($x0 - x31$), ALU, data memory, control unit signals (`RegWrite`, `ALUSrc`, `MemRead`, `MemWrite`, `MemToReg`, `Branch`, `Jump`), and bus inspection.
+- **5-Stage Pipeline Simulator:** IF, ID, EX, MEM, and WB stages with pipeline latches, load-use RAW hazard detection, stall bubble insertion, forwarding paths, branch misprediction flushing, and live CPI metric.
+- **Code Execution & Assembly:** Assembly editor with educational presets (Fibonacci, Factorial, Memory Array Sum), register file inspection, and memory readouts.
+- **Cache Memory Hierarchy:** L1 Cache simulator supporting Direct Mapped, 2-Way, 4-Way, and Fully Associative cache, LRU/FIFO replacement, address bit breakdown (Tag, Index, Offset), and live hit/miss analysis.
+
+### 3. Theory of Computation & Formal Languages (`/experiments/toc`)
+- **Finite Automata (DFA & NFA):** Visual state transition graphs, step-by-step character stepping, NFA to DFA Subset Construction (Powerset algorithm), and Hopcroft DFA minimization.
+- **Regular Expressions:** Regex parser with Thompson's Construction algorithm generating equivalent $\varepsilon$-NFAs and testing string membership.
+- **Context-Free Grammars & CYK Parsing:** $O(n^3)$ Cocke-Younger-Kasami dynamic programming parse tables for CNF grammars (e.g. $L = \{ a^n b^n \mid n \ge 1 \}$).
+- **Deterministic Turing Machines:** Bidirectional infinite tape, movable read/write tape head, step-by-step execution, and preset machines (Binary Incrementer, Palindrome Tester).
+
+---
+
+## Universal Bug Reporting System
+
+Every simulation workspace in Prismora includes a built-in, accessible **Report a Bug** dialog:
+- **Categories:** Incorrect Simulation Result, Broken Interaction, Rendering/UI, Performance, Accessibility, Other.
+- **Severity Levels:** Low, Medium, High, Critical.
+- **Diagnostics:** Opt-in sanitized diagnostic snapshot (current parameters, active state, viewport, user agent).
+- **Security & Privacy:** Support for safe anonymous submissions, input sanitization, rate-limiting (sliding window per IP/client), and zero credential leaks.
+- **Backend Persistence:** Reports are atomically stored with unique reference IDs (`PRIS-BUG-YYYY-XXXX`) via `/api/bug-reports`.
 
 ---
 

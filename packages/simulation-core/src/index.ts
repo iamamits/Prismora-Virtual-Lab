@@ -37,3 +37,14 @@ export { validateProjectileParameters } from './validation/parameter-validator';
 // Utils
 export { degreesToRadians, radiansToDegrees, isFiniteNumber, clamp } from './utils/math-helpers';
 export { SI_UNITS, formatValue, formatWithUnit } from './utils/units';
+
+// Advanced Engineering Modules
+export * as DigitalElectronics from './digital';
+export * from './digital';
+
+export * as COA from './coa';
+export * from './coa';
+
+export * as TOC from './toc';
+export * from './toc';
+

@@ -15,4 +15,5 @@ export { ParameterControl, type ParameterControlProps } from './components/param
 export { SimulationControls, type SimulationControlsProps } from './components/simulation-controls';
 export { ThemeProvider, useTheme } from './components/theme-provider';
 export { PrismoraLogo, PrismoraIcon, type PrismoraLogoProps } from './components/prismora-logo';
+export { BugReportModal, type BugReportModalProps } from './components/bug-report-modal';
 

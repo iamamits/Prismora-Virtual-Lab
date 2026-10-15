@@ -10,10 +10,9 @@ import {
   Menu,
   X,
   Compass,
-  LineChart,
-  FlaskConical,
-  Library,
   Atom,
+  Zap,
+  Cpu,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -23,10 +22,10 @@ export const Navbar: React.FC = () => {
 
   const navItems = [
     { label: 'Explore', href: '/explore', icon: Compass, color: '#2563EB' },
-    { label: 'Projectile Motion', href: '/experiments/projectile-motion', icon: Atom, color: '#06B6D4' },
-    { label: 'Studio', href: '/studio', icon: LineChart, color: '#8B5CF6' },
-    { label: 'Labs', href: '/labs', icon: FlaskConical, color: '#22C55E' },
-    { label: 'Library', href: '/library', icon: Library, color: '#F43F5E' },
+    { label: 'Physics', href: '/experiments/projectile-motion', icon: Atom, color: '#2563EB' },
+    { label: 'Digital Logic', href: '/experiments/digital-electronics', icon: Zap, color: '#F43F5E' },
+    { label: 'COA RISC-V', href: '/experiments/coa', icon: Cpu, color: '#06B6D4' },
+    { label: 'TOC Automata', href: '/experiments/toc', icon: Compass, color: '#8B5CF6' },
   ];
 
   const toggleTheme = () => {

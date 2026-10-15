@@ -39,20 +39,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
 
-    if (body.modelId !== 'projectile-motion') {
+    const supportedModels = ['projectile-motion', 'digital-electronics', 'coa-riscv', 'toc-automata'];
+    if (!supportedModels.includes(body.modelId)) {
       return NextResponse.json(
-        { error: `Unsupported model "${body.modelId}". Must be "projectile-motion".` },
+        { error: `Unsupported model "${body.modelId}". Must be one of: ${supportedModels.join(', ')}.` },
         { status: 400 },
       );
     }
 
-    // Validate parameters against physics model
-    const validation = projectileMotionModel.validateParameters(body.parameters);
-    if (!validation.valid) {
-      return NextResponse.json(
-        { error: 'Parameter validation failed', details: validation.errors },
-        { status: 422 },
-      );
+    // Validate parameters if projectile-motion
+    if (body.modelId === 'projectile-motion' && body.parameters) {
+      const validation = projectileMotionModel.validateParameters(body.parameters);
+      if (!validation.valid) {
+        return NextResponse.json(
+          { error: 'Parameter validation failed', details: validation.errors },
+          { status: 422 },
+        );
+      }
     }
 
     const id = `exp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;

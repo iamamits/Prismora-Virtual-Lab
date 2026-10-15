@@ -1,0 +1,125 @@
+[
+  {
+    "id": "PRIS-BUG-2026-QASR",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "isAnonymous": true,
+    "createdAt": "2026-10-15T07:07:43.030Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-Y9WM",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "contactEmail": "tester@prismora.org",
+    "isAnonymous": false,
+    "createdAt": "2026-10-15T07:07:43.024Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-H7US",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "isAnonymous": true,
+    "createdAt": "2026-10-15T07:05:46.537Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-JBUP",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "contactEmail": "tester@prismora.org",
+    "isAnonymous": false,
+    "createdAt": "2026-10-15T07:05:46.530Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-82DQ",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "isAnonymous": true,
+    "createdAt": "2026-10-15T06:58:00.777Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-Q5W3",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "contactEmail": "tester@prismora.org",
+    "isAnonymous": false,
+    "createdAt": "2026-10-15T06:58:00.769Z",
+    "status": "open"
+  }
+]

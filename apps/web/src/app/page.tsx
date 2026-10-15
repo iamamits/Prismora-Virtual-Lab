@@ -107,6 +107,45 @@ const SIMULATIONS: SimulationItem[] = [
     disciplineColor: '#22C55E', // Green
   },
   {
+    id: 'digital-electronics',
+    title: 'Digital Electronics & Logic Design',
+    description:
+      'Interactive logic gates, truth tables, Quine-McCluskey K-map minimization, full adders, multiplexers, flip-flops, counters, ALU, and static hazard glitch simulation.',
+    subject: 'Engineering',
+    difficulty: 'Intermediate',
+    status: 'Available Now',
+    href: '/experiments/digital-electronics',
+    tags: ['Logic Gates', 'K-Map', 'ALU', 'Flip-Flops', 'Timing Analysis'],
+    disciplineColor: '#F43F5E', // Coral
+    featured: true,
+  },
+  {
+    id: 'coa-riscv',
+    title: 'Computer Organization & Architecture',
+    description:
+      'RISC-V 32-bit (RV32I) microarchitecture lab with single-cycle datapath, 5-stage pipeline, forwarding unit, RAW load-use hazard detection, and associative cache mapping.',
+    subject: 'Engineering',
+    difficulty: 'Advanced',
+    status: 'Available Now',
+    href: '/experiments/coa',
+    tags: ['RISC-V', 'CPU Datapath', 'Pipelining', 'Hazards', 'Cache Memory'],
+    disciplineColor: '#06B6D4', // Cyan
+    featured: true,
+  },
+  {
+    id: 'toc-automata',
+    title: 'Theory of Computation & Automata',
+    description:
+      'Formal language systems featuring interactive DFA/NFA state graph execution, subset construction, Hopcroft minimization, regex Thompson NFA, CYK parsing, and Turing machine.',
+    subject: 'Mathematics',
+    difficulty: 'Advanced',
+    status: 'Available Now',
+    href: '/experiments/toc',
+    tags: ['DFA/NFA', 'Regex', 'CYK Parser', 'Turing Machine', 'Formal Languages'],
+    disciplineColor: '#8B5CF6', // Violet
+    featured: true,
+  },
+  {
     id: 'truss-structural-analysis',
     title: 'Planar Truss Structural Stress',
     description:
