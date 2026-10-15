@@ -14,52 +14,70 @@ import {
   ParameterControl,
   MeasurementDisplay,
   VectorDisplay,
-  SimulationControls,
   Button,
   Badge,
 } from '@prismora/ui';
-import { ProjectileCanvas } from '@/components/simulation/projectile-canvas';
+import { ImmersiveProjectileScene, type EnvironmentTheme } from '@/components/simulation/immersive-projectile-scene';
 import { LiveEquations } from '@/components/simulation/live-equations';
 import { TrajectoryGraph } from '@/components/simulation/trajectory-graph';
 import { ObservationPanel, type Observation } from '@/components/simulation/observation-panel';
 import { ExportDialog } from '@/components/simulation/export-dialog';
 import {
+  Play,
+  Pause,
   RotateCcw,
+  SkipForward,
   Share2,
   Sliders,
-  Eye,
   BookOpen,
-  Info,
+  LineChart,
+  Bookmark,
+  ChevronRight,
+  ChevronLeft,
+  Gauge,
+  Globe2,
+  Moon,
+  Sparkles,
+  Flame,
   CheckCircle2,
+  Maximize2,
+  PanelRightClose,
+  PanelRightOpen,
 } from 'lucide-react';
 
-// Preset physical scenarios
-const PRESETS: Record<string, { name: string; params: Partial<ProjectileMotionParameters> }> = {
-  standard: {
-    name: 'Earth 45° Max Range',
-    params: { initialSpeed: 20, launchAngle: Math.PI / 4, gravity: 9.81, initialHeight: 0 },
+// Preset physical scenarios and targets
+const SCENARIOS = [
+  {
+    id: 'target-30',
+    name: '🎯 Target Challenge (30m)',
+    theme: 'earth' as EnvironmentTheme,
+    params: { initialSpeed: 18, launchAngle: degreesToRadians(45), gravity: 9.81, initialHeight: 0 },
   },
-  cliff: {
-    name: 'High Cliff Launch (25m)',
-    params: { initialSpeed: 15, launchAngle: degreesToRadians(30), gravity: 9.81, initialHeight: 25 },
+  {
+    id: 'cliff-drop',
+    name: '⛰️ High Cliff Launch (20m)',
+    theme: 'earth' as EnvironmentTheme,
+    params: { initialSpeed: 15, launchAngle: degreesToRadians(20), gravity: 9.81, initialHeight: 20 },
   },
-  horizontal: {
-    name: 'Pure Horizontal Drop',
-    params: { initialSpeed: 25, launchAngle: 0, gravity: 9.81, initialHeight: 20 },
-  },
-  moon: {
-    name: 'Moon Gravity (1.62 m/s²)',
+  {
+    id: 'moon-mission',
+    name: '🌕 Lunar Trajectory (1.62 m/s²)',
+    theme: 'moon' as EnvironmentTheme,
     params: { initialSpeed: 20, launchAngle: degreesToRadians(45), gravity: 1.62, initialHeight: 0 },
   },
-  mars: {
-    name: 'Mars Gravity (3.71 m/s²)',
+  {
+    id: 'mars-rover',
+    name: '🪐 Martian Surface (3.71 m/s²)',
+    theme: 'mars' as EnvironmentTheme,
     params: { initialSpeed: 20, launchAngle: degreesToRadians(45), gravity: 3.71, initialHeight: 0 },
   },
-  zerog: {
-    name: 'Zero-G Orbital Path',
-    params: { initialSpeed: 15, launchAngle: degreesToRadians(30), gravity: 0, initialHeight: 10 },
+  {
+    id: 'zero-g',
+    name: '✨ Orbital Zero-G Drift',
+    theme: 'space' as EnvironmentTheme,
+    params: { initialSpeed: 12, launchAngle: degreesToRadians(15), gravity: 0, initialHeight: 10 },
   },
-};
+];
 
 export default function ProjectileMotionPage() {
   // Controller singleton ref
@@ -86,13 +104,23 @@ export default function ProjectileMotionPage() {
   const [playbackSpeed, setPlaybackSpeed] = useState(controller.playbackSpeed);
   const [snapshots, setSnapshots] = useState<readonly ProjectileMotionState[]>(controller.snapshots);
 
+  // Environmental Theme
+  const [theme, setTheme] = useState<EnvironmentTheme>('earth');
+
   // Visualization options
   const [showVelocity, setShowVelocity] = useState(true);
   const [showAcceleration, setShowAcceleration] = useState(true);
   const [showTrajectory, setShowTrajectory] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
-  const [vectorScale, setVectorScale] = useState(1.0);
-  const [activeTab, setActiveTab] = useState<'controls' | 'equations' | 'graphs' | 'observations'>('controls');
+
+  // Analytical Drawer state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState<'controls' | 'equations' | 'graphs' | 'data' | 'notes'>('controls');
+
+  // Kinematics sampled probe points
+  const [probeDataPoints, setProbeDataPoints] = useState<
+    Array<{ t: number; x: number; y: number; vx: number; vy: number; speed: number }>
+  >([]);
 
   // Observations log
   const [observations, setObservations] = useState<Observation[]>([]);
@@ -132,7 +160,7 @@ export default function ProjectileMotionPage() {
     };
   }, [loop]);
 
-  // Parameter change handler
+  // Parameter update handler
   const handleUpdateParameter = (field: keyof ProjectileMotionParameters, value: number) => {
     const newParams = { ...params, [field]: value };
     controller.updateParameters(newParams);
@@ -183,13 +211,26 @@ export default function ProjectileMotionPage() {
     setPlaybackSpeed(speed);
   };
 
-  // Preset selector
-  const handleApplyPreset = (presetKey: string) => {
-    const preset = PRESETS[presetKey];
-    if (!preset) return;
+  // Environment & Gravity Quick Selector
+  const handleSelectEnvironment = (selectedTheme: EnvironmentTheme) => {
+    setTheme(selectedTheme);
+    let g = 9.81;
+    if (selectedTheme === 'moon') g = 1.62;
+    if (selectedTheme === 'mars') g = 3.71;
+    if (selectedTheme === 'space') g = 0;
+
+    handleUpdateParameter('gravity', g);
+  };
+
+  // Preset Scenario selector
+  const handleSelectScenario = (scenarioId: string) => {
+    const scenario = SCENARIOS.find((s) => s.id === scenarioId);
+    if (!scenario) return;
+
+    setTheme(scenario.theme);
     const newParams: ProjectileMotionParameters = {
       ...params,
-      ...preset.params,
+      ...scenario.params,
     };
     controller.initialize(newParams);
     setParams(newParams);
@@ -197,6 +238,16 @@ export default function ProjectileMotionPage() {
     setState(controller.currentState);
     setSnapshots([...controller.snapshots]);
     setControllerStatus(controller.status);
+  };
+
+  // Kinematics Probe sample recorder
+  const handleProbeSample = (sample: { t: number; x: number; y: number; vx: number; vy: number; speed: number }) => {
+    // Avoid duplicate stamps
+    setProbeDataPoints((prev) => {
+      const exists = prev.some((p) => Math.abs(p.t - sample.t) < 0.05);
+      if (exists) return prev;
+      return [sample, ...prev.slice(0, 19)]; // Keep latest 20 points
+    });
   };
 
   // Import handler
@@ -213,289 +264,353 @@ export default function ProjectileMotionPage() {
     return false;
   };
 
+  const maxTime = terminalTime ?? 10;
+  const progressPercent = maxTime > 0 ? (state.time / maxTime) * 100 : 0;
+
   return (
-    <div className="flex-1 flex flex-col bg-zinc-50 dark:bg-[#070b12] text-zinc-900 dark:text-zinc-100 min-h-screen">
-      {/* Top Header Strip */}
-      <div className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-bold tracking-tight">Ideal Projectile Motion</h1>
-              <Badge variant="default" className="text-[10px] font-mono uppercase bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
-                Flagship Model
-              </Badge>
-              <Badge variant="outline" className="text-[10px] text-zinc-500 font-mono">
-                SI Units
-              </Badge>
+    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-zinc-950 text-zinc-100">
+      {/* Top Workspace Bar */}
+      <div className="h-11 border-b border-zinc-800 bg-zinc-950 px-3 flex items-center justify-between text-xs gap-2 select-none z-20">
+        <div className="flex items-center gap-2.5">
+          <h1 className="font-bold text-sm text-zinc-100 flex items-center gap-2">
+            <span>Projectile Motion Lab</span>
+            <Badge variant="default" className="text-[10px] bg-indigo-600 text-white font-mono">
+              Virtual Apparatus
+            </Badge>
+          </h1>
+
+          <div className="hidden md:flex items-center gap-1 pl-2 border-l border-zinc-800">
+            <span className="text-[11px] text-zinc-400">Environment:</span>
+            <div className="flex items-center bg-zinc-900 rounded p-0.5 border border-zinc-800">
+              <button
+                onClick={() => handleSelectEnvironment('earth')}
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1 ${
+                  theme === 'earth' ? 'bg-indigo-600 text-white font-semibold' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Globe2 className="w-3 h-3" />
+                <span>Earth</span>
+              </button>
+              <button
+                onClick={() => handleSelectEnvironment('moon')}
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1 ${
+                  theme === 'moon' ? 'bg-indigo-600 text-white font-semibold' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Moon className="w-3 h-3" />
+                <span>Moon</span>
+              </button>
+              <button
+                onClick={() => handleSelectEnvironment('mars')}
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1 ${
+                  theme === 'mars' ? 'bg-indigo-600 text-white font-semibold' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Flame className="w-3 h-3 text-orange-400" />
+                <span>Mars</span>
+              </button>
+              <button
+                onClick={() => handleSelectEnvironment('space')}
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1 ${
+                  theme === 'space' ? 'bg-indigo-600 text-white font-semibold' : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Sparkles className="w-3 h-3 text-cyan-400" />
+                <span>Zero-G</span>
+              </button>
             </div>
-            <p className="text-xs text-zinc-400">
-              Analytical kinematics simulation without drag under uniform gravitational acceleration.
-            </p>
           </div>
         </div>
 
-        {/* Preset scenarios & Share/Export buttons */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 text-xs">
-            <span className="text-zinc-400 text-[11px] hidden sm:inline">Presets:</span>
-            <select
-              aria-label="Preset physical scenarios"
-              onChange={(e) => handleApplyPreset(e.target.value)}
-              className="text-xs font-medium py-1 px-2 rounded border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              defaultValue="standard"
-            >
-              {Object.entries(PRESETS).map(([key, val]) => (
-                <option key={key} value={key}>
-                  {val.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <Button variant="outline" size="sm" onClick={handleReset} className="h-8 text-xs">
-            <RotateCcw className="w-3.5 h-3.5 mr-1" />
-            Reset
-          </Button>
+        {/* Right Action buttons */}
+        <div className="flex items-center gap-2">
+          {/* Preset Challenge selector */}
+          <select
+            aria-label="Preset challenge scenario"
+            onChange={(e) => handleSelectScenario(e.target.value)}
+            className="text-xs font-medium py-1 px-2 rounded border border-zinc-800 bg-zinc-900 text-zinc-200 focus:outline-none"
+            defaultValue="target-30"
+          >
+            {SCENARIOS.map((sc) => (
+              <option key={sc.id} value={sc.id}>
+                {sc.name}
+              </option>
+            ))}
+          </select>
 
           <Button
-            variant="default"
+            variant="outline"
             size="sm"
             onClick={() => setIsExportOpen(true)}
-            className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
+            className="h-7 text-xs border-zinc-800 text-zinc-300 hover:bg-zinc-800"
           >
             <Share2 className="w-3.5 h-3.5 mr-1" />
-            Export / Import
+            <span>Config</span>
           </Button>
+
+          {/* Toggle Analytical Drawer Button */}
+          <button
+            onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+            className="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            title={isDrawerOpen ? 'Collapse Analytical Tools' : 'Open Analytical Tools'}
+            aria-label="Toggle Analytical Panel"
+          >
+            {isDrawerOpen ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
+          </button>
         </div>
       </div>
 
-      {/* Main Workspace Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Left / Center Viewport (Interactive Canvas & Primary Strip) */}
-        <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-200 dark:border-zinc-800">
-          {/* Canvas Area */}
-          <div className="flex-1 relative min-h-[380px] lg:min-h-[480px] bg-[#090d16] overflow-hidden flex flex-col">
-            <ProjectileCanvas
-              currentState={state}
-              trajectoryHistory={snapshots}
-              initialHeight={params.initialHeight}
-              launchAngle={params.launchAngle}
-              maxRange={range}
-              maxHeight={maxHeight}
-              showVelocityVector={showVelocity}
-              showAccelerationVector={showAcceleration}
-              showTrajectoryTrace={showTrajectory}
-              showGrid={showGrid}
-              vectorScale={vectorScale}
-            />
+      {/* Main Workspace Body */}
+      <div className="flex-1 flex relative overflow-hidden">
+        {/* Dominant Scene Canvas Viewport */}
+        <div className="flex-1 flex flex-col relative h-full min-w-0 bg-[#090d16]">
+          <ImmersiveProjectileScene
+            currentState={state}
+            trajectoryHistory={snapshots}
+            initialHeight={params.initialHeight}
+            launchAngle={params.launchAngle}
+            initialSpeed={params.initialSpeed}
+            gravity={params.gravity}
+            flightTime={flightTime}
+            maxHeight={maxHeight}
+            maxRange={range}
+            onUpdateHeight={(h) => handleUpdateParameter('initialHeight', h)}
+            onUpdateAngle={(rad) => {
+              setAngleDegrees(Math.round(radiansToDegrees(rad)));
+              handleUpdateParameter('launchAngle', rad);
+            }}
+            onProbeSample={handleProbeSample}
+            theme={theme}
+            showVelocityVector={showVelocity}
+            showAccelerationVector={showAcceleration}
+            showTrajectoryTrace={showTrajectory}
+            showGrid={showGrid}
+            className="flex-1"
+          />
 
-            {/* In-canvas HUD quick metrics overlay */}
-            <div className="absolute top-3 left-3 flex flex-wrap gap-2 pointer-events-none">
-              <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded text-[11px] font-mono text-zinc-300 border border-white/10 flex items-center gap-2">
-                <span className="text-zinc-500">t:</span>
-                <span className="text-white font-bold">{state.time.toFixed(2)}s</span>
-              </div>
-              <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded text-[11px] font-mono text-zinc-300 border border-white/10 flex items-center gap-2">
-                <span className="text-zinc-500">pos:</span>
-                <span className="text-white">({state.position.x.toFixed(1)}m, {state.position.y.toFixed(1)}m)</span>
-              </div>
-              <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded text-[11px] font-mono text-zinc-300 border border-white/10 flex items-center gap-2">
-                <span className="text-zinc-500">|v|:</span>
-                <span className="text-blue-400 font-bold">{state.speed.toFixed(1)} m/s</span>
-              </div>
-              {state.terminated && (
-                <div className="bg-emerald-950/80 backdrop-blur-md px-2.5 py-1 rounded text-[11px] font-mono text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Ground Contact</span>
-                </div>
-              )}
+          {/* Floating Live Telemetry HUD Bar (Top Center) */}
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-xs font-mono shadow-xl pointer-events-none">
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-500">t:</span>
+              <span className="text-white font-bold">{state.time.toFixed(2)}s</span>
             </div>
-
-            {/* Quick View toggles bar */}
-            <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-md p-1 rounded-md border border-white/10 text-xs">
-              <button
-                onClick={() => setShowVelocity(!showVelocity)}
-                className={`px-2 py-0.5 rounded text-[10px] font-mono transition-colors ${
-                  showVelocity ? 'bg-blue-600 text-white' : 'text-zinc-400 hover:text-white'
-                }`}
-                title="Toggle Velocity Vector"
-              >
-                v-vector
-              </button>
-              <button
-                onClick={() => setShowAcceleration(!showAcceleration)}
-                className={`px-2 py-0.5 rounded text-[10px] font-mono transition-colors ${
-                  showAcceleration ? 'bg-orange-600 text-white' : 'text-zinc-400 hover:text-white'
-                }`}
-                title="Toggle Acceleration Vector"
-              >
-                a-vector
-              </button>
-              <button
-                onClick={() => setShowTrajectory(!showTrajectory)}
-                className={`px-2 py-0.5 rounded text-[10px] font-mono transition-colors ${
-                  showTrajectory ? 'bg-cyan-600 text-white' : 'text-zinc-400 hover:text-white'
-                }`}
-                title="Toggle Trajectory Trace"
-              >
-                trace
-              </button>
-              <button
-                onClick={() => setShowGrid(!showGrid)}
-                className={`px-2 py-0.5 rounded text-[10px] font-mono transition-colors ${
-                  showGrid ? 'bg-zinc-700 text-white' : 'text-zinc-400 hover:text-white'
-                }`}
-                title="Toggle Coordinate Grid"
-              >
-                grid
-              </button>
+            <div className="w-px h-3.5 bg-white/20" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-500">x:</span>
+              <span className="text-white font-bold">{state.position.x.toFixed(2)}m</span>
+            </div>
+            <div className="w-px h-3.5 bg-white/20" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-500">y:</span>
+              <span className="text-emerald-400 font-bold">{state.position.y.toFixed(2)}m</span>
+            </div>
+            <div className="w-px h-3.5 bg-white/20" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-500">|v|:</span>
+              <span className="text-blue-400 font-bold">{state.speed.toFixed(2)}m/s</span>
             </div>
           </div>
 
-          {/* Bottom Simulation Controls Bar */}
-          <div className="p-3 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800">
-            <SimulationControls
-              status={controllerStatus}
-              currentTime={state.time}
-              terminalTime={terminalTime}
-              playbackSpeed={playbackSpeed}
-              onPlay={handlePlay}
-              onPause={handlePause}
-              onStep={handleStep}
-              onReset={handleReset}
-              onSeek={handleSeek}
-              onSpeedChange={handleSpeedChange}
-            />
-          </div>
+          {/* Floating Bottom Tactile Transport Controls Island */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[95%] max-w-2xl bg-zinc-900/90 backdrop-blur-md border border-white/15 p-2.5 rounded-xl shadow-2xl flex flex-col gap-2 z-20">
+            {/* Timeline Scrub Slider */}
+            <div className="flex items-center gap-2.5 px-1">
+              <span className="text-[11px] font-mono text-zinc-400 w-12 text-right">
+                {state.time.toFixed(2)}s
+              </span>
+              <div
+                className="flex-1 h-2 rounded-full bg-zinc-800 cursor-pointer relative overflow-hidden"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const fraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                  handleSeek(fraction * maxTime);
+                }}
+                role="slider"
+                aria-label="Simulation timeline scrub"
+                aria-valuemin={0}
+                aria-valuemax={maxTime}
+                aria-valuenow={state.time}
+                tabIndex={0}
+              >
+                <div
+                  className="absolute inset-y-0 left-0 bg-indigo-500 rounded-full transition-all duration-75"
+                  style={{ width: `${Math.min(100, progressPercent)}%` }}
+                />
+              </div>
+              <span className="text-[11px] font-mono text-zinc-400 w-12">
+                {terminalTime !== null ? `${terminalTime.toFixed(2)}s` : '∞'}
+              </span>
+            </div>
 
-          {/* Key Analytical Measurements Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 bg-zinc-50 dark:bg-zinc-900/60 border-t border-zinc-200 dark:border-zinc-800">
-            <MeasurementDisplay
-              label="Flight Time (tf)"
-              value={flightTime ?? 0}
-              unit="s"
-              precision={3}
-              highlight={true}
-              size="sm"
-            />
-            <MeasurementDisplay
-              label="Max Height (h_max)"
-              value={maxHeight}
-              unit="m"
-              precision={3}
-              highlight={true}
-              size="sm"
-            />
-            <MeasurementDisplay
-              label="Range (R)"
-              value={range}
-              unit="m"
-              precision={3}
-              highlight={true}
-              size="sm"
-            />
-            <MeasurementDisplay
-              label="Current Speed"
-              value={state.speed}
-              unit="m/s"
-              precision={2}
-              size="sm"
-            />
+            {/* Playback Buttons & Speeds */}
+            <div className="flex items-center justify-between pt-0.5">
+              <div className="flex items-center gap-2">
+                {/* Primary Fire / Play Button */}
+                {controllerStatus === 'running' ? (
+                  <Button
+                    size="sm"
+                    onClick={handlePause}
+                    className="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-4 h-8"
+                  >
+                    <Pause className="w-4 h-4 mr-1.5" />
+                    <span>Pause</span>
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={handlePlay}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 h-8 shadow-md"
+                  >
+                    <Play className="w-4 h-4 mr-1.5 fill-current" />
+                    <span>Launch</span>
+                  </Button>
+                )}
+
+                {/* Step Forward */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleStep}
+                  disabled={state.terminated}
+                  className="h-8 border-zinc-700 hover:bg-zinc-800 text-zinc-200"
+                  aria-label="Step forward 1 frame"
+                >
+                  <SkipForward className="w-3.5 h-3.5 mr-1" />
+                  <span>Step</span>
+                </Button>
+
+                {/* Reset */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReset}
+                  className="h-8 border-zinc-700 hover:bg-zinc-800 text-zinc-200"
+                  aria-label="Reset experiment"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                  <span>Reset</span>
+                </Button>
+              </div>
+
+              {/* Status Indicator Badge */}
+              <div className="hidden sm:flex items-center gap-1.5 text-xs">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    controllerStatus === 'running'
+                      ? 'bg-emerald-400 animate-pulse'
+                      : controllerStatus === 'completed'
+                      ? 'bg-blue-400'
+                      : 'bg-zinc-400'
+                  }`}
+                />
+                <span className="text-zinc-300 font-medium capitalize">{controllerStatus}</span>
+              </div>
+
+              {/* Speed Multiplier */}
+              <div className="flex items-center gap-1 bg-zinc-800/80 p-0.5 rounded border border-zinc-700 text-xs">
+                {[0.1, 0.5, 1.0, 2.0].map((spd) => (
+                  <button
+                    key={spd}
+                    onClick={() => handleSpeedChange(spd)}
+                    className={`px-2 py-0.5 rounded font-mono text-[11px] transition-colors ${
+                      playbackSpeed === spd ? 'bg-indigo-600 text-white font-bold' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    {spd === 0.1 ? '0.1× Slow' : `${spd}×`}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Right Sidebar: Parameters, Equations, Graphs, Observations */}
-        <div className="w-full lg:w-96 flex flex-col bg-white dark:bg-zinc-950 overflow-y-auto">
-          {/* Tab Navigation */}
-          <div className="flex border-b border-zinc-200 dark:border-zinc-800 text-xs font-semibold">
-            <button
-              onClick={() => setActiveTab('controls')}
-              className={`flex-1 py-2.5 text-center flex items-center justify-center gap-1.5 border-b-2 transition-colors ${
-                activeTab === 'controls'
-                  ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-950/20'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
-              }`}
-            >
-              <Sliders className="w-3.5 h-3.5" />
-              <span>Params</span>
-            </button>
+        {/* Collapsible Analytical & Lab Drawer (Right Side) */}
+        {isDrawerOpen && (
+          <aside className="w-80 md:w-96 border-l border-zinc-800 bg-zinc-950 flex flex-col h-full z-10 animate-in slide-in-from-right-4 duration-200">
+            {/* Tab Header Strip */}
+            <div className="flex border-b border-zinc-800 text-xs font-semibold bg-zinc-900/60">
+              <button
+                onClick={() => setActiveTab('controls')}
+                className={`flex-1 py-2.5 text-center flex items-center justify-center gap-1 border-b-2 transition-colors ${
+                  activeTab === 'controls'
+                    ? 'border-indigo-500 text-indigo-400 font-bold bg-indigo-950/20'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Controls</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('equations')}
+                className={`flex-1 py-2.5 text-center flex items-center justify-center gap-1 border-b-2 transition-colors ${
+                  activeTab === 'equations'
+                    ? 'border-indigo-500 text-indigo-400 font-bold bg-indigo-950/20'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Formulas</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('graphs')}
+                className={`flex-1 py-2.5 text-center flex items-center justify-center gap-1 border-b-2 transition-colors ${
+                  activeTab === 'graphs'
+                    ? 'border-indigo-500 text-indigo-400 font-bold bg-indigo-950/20'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <LineChart className="w-3.5 h-3.5" />
+                <span>Plot</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('data')}
+                className={`flex-1 py-2.5 text-center flex items-center justify-center gap-1 border-b-2 transition-colors ${
+                  activeTab === 'data'
+                    ? 'border-indigo-500 text-indigo-400 font-bold bg-indigo-950/20'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <Bookmark className="w-3.5 h-3.5" />
+                <span>Data</span>
+              </button>
+            </div>
 
-            <button
-              onClick={() => setActiveTab('equations')}
-              className={`flex-1 py-2.5 text-center flex items-center justify-center gap-1.5 border-b-2 transition-colors ${
-                activeTab === 'equations'
-                  ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-950/20'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
-              }`}
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Equations</span>
-            </button>
+            {/* Tab Contents */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {activeTab === 'controls' && (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-xs uppercase font-bold tracking-wider text-zinc-400 mb-1">
+                      Initial Launch Conditions
+                    </h3>
+                    <p className="text-[11px] text-zinc-500">
+                      You can also drag the cannon barrel directly in the scene to rotate or adjust elevation.
+                    </p>
+                  </div>
 
-            <button
-              onClick={() => setActiveTab('graphs')}
-              className={`flex-1 py-2.5 text-center flex items-center justify-center gap-1.5 border-b-2 transition-colors ${
-                activeTab === 'graphs'
-                  ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-950/20'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
-              }`}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Plot</span>
-            </button>
+                  {/* Initial Speed */}
+                  <ParameterControl
+                    label="Initial Speed (v₀)"
+                    value={params.initialSpeed}
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    unit="m/s"
+                    onChange={(val) => handleUpdateParameter('initialSpeed', val)}
+                  />
 
-            <button
-              onClick={() => setActiveTab('observations')}
-              className={`flex-1 py-2.5 text-center flex items-center justify-center gap-1.5 border-b-2 transition-colors ${
-                activeTab === 'observations'
-                  ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-950/20'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
-              }`}
-            >
-              <Info className="w-3.5 h-3.5" />
-              <span>Notes</span>
-            </button>
-          </div>
+                  {/* Launch Angle */}
+                  <ParameterControl
+                    label="Launch Angle (θ)"
+                    value={angleDegrees}
+                    min={-90}
+                    max={90}
+                    step={1}
+                    unit="°"
+                    onChange={handleAngleChange}
+                  />
 
-          {/* Tab Content Panels */}
-          <div className="p-4 space-y-4 flex-1">
-            {activeTab === 'controls' && (
-              <div className="space-y-4">
-                <div className="border-b border-zinc-100 dark:border-zinc-800 pb-2">
-                  <h3 className="text-xs uppercase font-bold tracking-wider text-zinc-500 mb-0.5">
-                    Launch Parameters
-                  </h3>
-                  <p className="text-[11px] text-zinc-400">
-                    Adjust speed, angle, gravity, and launch platform height.
-                  </p>
-                </div>
-
-                {/* Initial Speed */}
-                <ParameterControl
-                  label="Initial Speed (v₀)"
-                  value={params.initialSpeed}
-                  min={0}
-                  max={100}
-                  step={0.5}
-                  unit="m/s"
-                  onChange={(val) => handleUpdateParameter('initialSpeed', val)}
-                  description="Magnitude of initial launch velocity vector"
-                />
-
-                {/* Launch Angle */}
-                <ParameterControl
-                  label="Launch Angle (θ)"
-                  value={angleDegrees}
-                  min={-90}
-                  max={90}
-                  step={1}
-                  unit="°"
-                  onChange={handleAngleChange}
-                  description="Angle relative to horizontal plane"
-                />
-
-                {/* Gravity */}
-                <div className="space-y-1.5">
+                  {/* Gravity */}
                   <ParameterControl
                     label="Gravitational Accel (g)"
                     value={params.gravity}
@@ -505,142 +620,185 @@ export default function ProjectileMotionPage() {
                     unit="m/s²"
                     precision={2}
                     onChange={(val) => handleUpdateParameter('gravity', val)}
-                    description="Downward vertical acceleration"
                   />
-                  {/* Quick celestial bodies buttons */}
-                  <div className="flex gap-1 pt-1">
-                    <button
-                      onClick={() => handleUpdateParameter('gravity', 9.81)}
-                      className={`text-[10px] px-2 py-0.5 rounded border ${
-                        params.gravity === 9.81
-                          ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold'
-                          : 'border-zinc-200 dark:border-zinc-800 text-zinc-500'
-                      }`}
-                    >
-                      Earth (9.81)
-                    </button>
-                    <button
-                      onClick={() => handleUpdateParameter('gravity', 1.62)}
-                      className={`text-[10px] px-2 py-0.5 rounded border ${
-                        params.gravity === 1.62
-                          ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold'
-                          : 'border-zinc-200 dark:border-zinc-800 text-zinc-500'
-                      }`}
-                    >
-                      Moon (1.62)
-                    </button>
-                    <button
-                      onClick={() => handleUpdateParameter('gravity', 3.71)}
-                      className={`text-[10px] px-2 py-0.5 rounded border ${
-                        params.gravity === 3.71
-                          ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold'
-                          : 'border-zinc-200 dark:border-zinc-800 text-zinc-500'
-                      }`}
-                    >
-                      Mars (3.71)
-                    </button>
-                    <button
-                      onClick={() => handleUpdateParameter('gravity', 0)}
-                      className={`text-[10px] px-2 py-0.5 rounded border ${
-                        params.gravity === 0
-                          ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold'
-                          : 'border-zinc-200 dark:border-zinc-800 text-zinc-500'
-                      }`}
-                    >
-                      Zero-G (0)
-                    </button>
+
+                  {/* Launch Height */}
+                  <ParameterControl
+                    label="Launch Platform Height (y₀)"
+                    value={params.initialHeight}
+                    min={0}
+                    max={80}
+                    step={0.5}
+                    unit="m"
+                    onChange={(val) => handleUpdateParameter('initialHeight', val)}
+                  />
+
+                  {/* Vector Component Displays */}
+                  <div className="pt-2 border-t border-zinc-800 space-y-2">
+                    <h4 className="text-xs uppercase font-bold tracking-wider text-zinc-400">
+                      Live Physical Vectors
+                    </h4>
+                    <VectorDisplay
+                      label="Velocity Vector (v)"
+                      x={state.velocity.x}
+                      y={state.velocity.y}
+                      unit="m/s"
+                      color="#3b82f6"
+                    />
+                    <VectorDisplay
+                      label="Acceleration Vector (a)"
+                      x={state.acceleration.x}
+                      y={state.acceleration.y}
+                      unit="m/s²"
+                      color="#f97316"
+                      showMagnitude={false}
+                    />
+                  </div>
+
+                  {/* Visibility Toggles */}
+                  <div className="pt-2 border-t border-zinc-800 space-y-2">
+                    <h4 className="text-xs uppercase font-bold tracking-wider text-zinc-400">
+                      Visual Overlays
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <label className="flex items-center gap-2 cursor-pointer text-zinc-300">
+                        <input
+                          type="checkbox"
+                          checked={showVelocity}
+                          onChange={(e) => setShowVelocity(e.target.checked)}
+                          className="rounded bg-zinc-800 border-zinc-700 text-indigo-600 focus:ring-0"
+                        />
+                        <span>Velocity Vector</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer text-zinc-300">
+                        <input
+                          type="checkbox"
+                          checked={showAcceleration}
+                          onChange={(e) => setShowAcceleration(e.target.checked)}
+                          className="rounded bg-zinc-800 border-zinc-700 text-orange-600 focus:ring-0"
+                        />
+                        <span>Accel Vector</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer text-zinc-300">
+                        <input
+                          type="checkbox"
+                          checked={showTrajectory}
+                          onChange={(e) => setShowTrajectory(e.target.checked)}
+                          className="rounded bg-zinc-800 border-zinc-700 text-cyan-600 focus:ring-0"
+                        />
+                        <span>Trajectory Trail</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer text-zinc-300">
+                        <input
+                          type="checkbox"
+                          checked={showGrid}
+                          onChange={(e) => setShowGrid(e.target.checked)}
+                          className="rounded bg-zinc-800 border-zinc-700 text-indigo-600 focus:ring-0"
+                        />
+                        <span>Coordinate Grid</span>
+                      </label>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                {/* Initial Height */}
-                <ParameterControl
-                  label="Launch Height (y₀)"
-                  value={params.initialHeight}
-                  min={0}
-                  max={100}
-                  step={1}
-                  unit="m"
-                  onChange={(val) => handleUpdateParameter('initialHeight', val)}
-                  description="Initial elevation above ground level"
-                />
-
-                {/* Vectors Readout */}
-                <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
-                  <h4 className="text-xs uppercase font-bold tracking-wider text-zinc-500">
-                    Live Vector Components
-                  </h4>
-                  <VectorDisplay
-                    label="Instantaneous Velocity (v)"
-                    x={state.velocity.x}
-                    y={state.velocity.y}
-                    unit="m/s"
-                    color="#3b82f6"
-                  />
-                  <VectorDisplay
-                    label="Instantaneous Acceleration (a)"
-                    x={state.acceleration.x}
-                    y={state.acceleration.y}
-                    unit="m/s²"
-                    color="#f97316"
-                    showMagnitude={false}
-                  />
-                </div>
-
-                {/* Vector Scale Control */}
-                <div className="pt-1">
-                  <label className="text-xs text-zinc-500 block mb-1">Vector Arrow Visual Scale</label>
-                  <input
-                    type="range"
-                    aria-label="Vector Arrow Visual Scale"
-                    min={0.5}
-                    max={2.5}
-                    step={0.1}
-                    value={vectorScale}
-                    onChange={(e) => setVectorScale(parseFloat(e.target.value))}
-                    className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded appearance-none cursor-pointer"
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'equations' && (
-              <LiveEquations
-                parameters={params}
-                state={state}
-                flightTime={flightTime}
-                maxHeight={maxHeight}
-                range={range}
-              />
-            )}
-
-            {activeTab === 'graphs' && (
-              <div className="space-y-4">
-                <TrajectoryGraph
-                  history={snapshots}
-                  currentTime={state.time}
-                  terminalTime={terminalTime}
+              {activeTab === 'equations' && (
+                <LiveEquations
+                  parameters={params}
+                  state={state}
+                  flightTime={flightTime}
                   maxHeight={maxHeight}
+                  range={range}
                 />
-                <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded border border-zinc-100 dark:border-zinc-800 text-xs text-zinc-500 space-y-1">
-                  <div className="font-semibold text-zinc-700 dark:text-zinc-300">Phase Space Invariants:</div>
-                  <div>• Horizontal velocity is conserved: v_x(t) = {state.velocity.x.toFixed(2)} m/s (constant)</div>
-                  <div>• Kinetic energy per unit mass: {state.kineticEnergyPerMass.toFixed(1)} J/kg</div>
-                  <div>• Potential energy per unit mass: {state.potentialEnergyPerMass.toFixed(1)} J/kg</div>
-                </div>
-              </div>
-            )}
+              )}
 
-            {activeTab === 'observations' && (
-              <ObservationPanel
-                parameters={params}
-                currentState={state}
-                observations={observations}
-                onAddObservation={(obs) => setObservations([obs, ...observations])}
-                onDeleteObservation={(id) => setObservations(observations.filter((o) => o.id !== id))}
+              {activeTab === 'graphs' && (
+                <div className="space-y-4">
+                  <TrajectoryGraph
+                    history={snapshots}
+                    currentTime={state.time}
+                    terminalTime={terminalTime}
+                    maxHeight={maxHeight}
+                  />
+                  <div className="p-3 bg-zinc-900 rounded border border-zinc-800 text-xs text-zinc-400 space-y-1">
+                    <div className="font-semibold text-zinc-200">Analytical Invariants:</div>
+                    <div>• Horizontal momentum is conserved: v_x = {state.velocity.x.toFixed(2)} m/s</div>
+                    <div>• Specific kinetic energy: {state.kineticEnergyPerMass.toFixed(1)} J/kg</div>
+                    <div>• Specific potential energy: {state.potentialEnergyPerMass.toFixed(1)} J/kg</div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'data' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs uppercase font-bold text-zinc-400">Sampled Sensor Points</h4>
+                    <span className="text-[11px] text-zinc-500 font-mono">{probeDataPoints.length} samples</span>
+                  </div>
+                  <p className="text-[11px] text-zinc-500">
+                    Drag the Kinematics Probe over any trajectory dot in the scene to record experimental readings.
+                  </p>
+
+                  <div className="max-h-60 overflow-y-auto space-y-1.5">
+                    {probeDataPoints.length === 0 ? (
+                      <p className="text-xs text-zinc-600 italic text-center py-6">
+                        No sensor data collected yet. Toggle Probe in the scene toolbar.
+                      </p>
+                    ) : (
+                      probeDataPoints.map((pt, idx) => (
+                        <div
+                          key={idx}
+                          className="p-2 rounded bg-zinc-900 border border-zinc-800 font-mono text-[11px] grid grid-cols-2 gap-x-2 gap-y-0.5"
+                        >
+                          <span className="text-indigo-400">t = {pt.t.toFixed(2)}s</span>
+                          <span className="text-blue-400">|v| = {pt.speed.toFixed(2)}m/s</span>
+                          <span className="text-zinc-400">x = {pt.x.toFixed(1)}m</span>
+                          <span className="text-emerald-400">y = {pt.y.toFixed(1)}m</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {probeDataPoints.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setProbeDataPoints([])}
+                      className="w-full text-xs h-7 border-zinc-800 text-zinc-400"
+                    >
+                      Clear Data Table
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Analytical Summary Strip at bottom of drawer */}
+            <div className="p-3 border-t border-zinc-800 bg-zinc-900/80 grid grid-cols-3 gap-2">
+              <MeasurementDisplay
+                label="Flight Time"
+                value={flightTime ?? 0}
+                unit="s"
+                precision={2}
+                size="sm"
               />
-            )}
-          </div>
-        </div>
+              <MeasurementDisplay
+                label="Max Height"
+                value={maxHeight}
+                unit="m"
+                precision={2}
+                size="sm"
+              />
+              <MeasurementDisplay
+                label="Range"
+                value={range}
+                unit="m"
+                precision={2}
+                size="sm"
+              />
+            </div>
+          </aside>
+        )}
       </div>
 
       {/* Export / Import Configuration Dialog */}

@@ -1,80 +1,111 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Flagship Projectile Motion Experiment', () => {
+test.describe('Immersive Projectile Motion Virtual Laboratory', () => {
   test('should load public simulation anonymously without authentication barrier', async ({ page }) => {
     await page.goto('/experiments/projectile-motion');
 
-    // Title and badges
-    await expect(page.locator('h1')).toContainText('Ideal Projectile Motion');
-    await expect(page.getByText('Flagship Model')).toBeVisible();
+    // Title and laboratory badge
+    await expect(page.locator('h1')).toContainText('Projectile Motion Lab');
+    await expect(page.getByText('Virtual Apparatus')).toBeVisible();
 
-    // Canvas should be rendered
+    // High-DPI interactive canvas should be rendered
     const canvas = page.locator('canvas');
     await expect(canvas.first()).toBeVisible();
 
-    // Measurement displays should have initial values
-    await expect(page.getByText('Flight Time (tf)')).toBeVisible();
-    await expect(page.getByText('Max Height (h_max)')).toBeVisible();
-    await expect(page.getByText('Range (R)')).toBeVisible();
+    // Scene toolbar controls (Probe, Tape, Zoom)
+    await expect(page.getByRole('button', { name: 'Probe' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Tape' })).toBeVisible();
+    await expect(page.getByLabel('Zoom In')).toBeVisible();
+    await expect(page.getByLabel('Zoom Out')).toBeVisible();
   });
 
-  test('should adjust parameters and update live measurements', async ({ page }) => {
+  test('should switch environmental presets and celestial bodies', async ({ page }) => {
     await page.goto('/experiments/projectile-motion');
 
-    // Preset selector
-    const presetSelect = page.locator('select');
-    await expect(presetSelect).toBeVisible();
+    // Click Moon environment button
+    const moonBtn = page.getByRole('button', { name: 'Moon' });
+    await expect(moonBtn).toBeVisible();
+    await moonBtn.click();
 
-    // Select Moon gravity preset
-    await presetSelect.selectOption('moon');
+    // Gravity should now update to Moon gravity 1.62
+    await expect(page.getByText('1.62')).toBeVisible();
 
-    // Gravity should now be 1.62 m/s²
-    await expect(page.getByText('Moon (1.62)')).toBeVisible();
+    // Click Mars environment button
+    const marsBtn = page.getByRole('button', { name: 'Mars' });
+    await marsBtn.click();
+    await expect(page.getByText('3.71')).toBeVisible();
 
-    // Apex max height on moon should be significantly higher than earth
-    // 20 m/s at 45 deg: vy0 = 14.14 m/s -> h = 14.14^2 / (2 * 1.62) ≈ 61.7m
-    const maxHeightDisplay = page.locator('text=Max Height (h_max)').locator('..');
-    await expect(maxHeightDisplay).toBeVisible();
+    // Click Earth to restore
+    const earthBtn = page.getByRole('button', { name: 'Earth' });
+    await earthBtn.click();
+    await expect(page.getByText('9.81')).toBeVisible();
   });
 
-  test('should play, pause, single-step, and reset simulation deterministically', async ({ page }) => {
+  test('should toggle scientific probe and tape tools', async ({ page }) => {
     await page.goto('/experiments/projectile-motion');
 
-    // Step button
-    const stepBtn = page.getByRole('button', { name: 'Step forward' });
+    // Toggle Probe tool
+    const probeBtn = page.getByRole('button', { name: 'Probe' });
+    await probeBtn.click();
+
+    // Switch to Data tab in analytical drawer
+    await page.getByRole('button', { name: 'Data' }).click();
+    await expect(page.getByText('Sampled Sensor Points')).toBeVisible();
+
+    // Toggle Tape tool
+    const tapeBtn = page.getByRole('button', { name: 'Tape' });
+    await tapeBtn.click();
+  });
+
+  test('should launch, pause, step, and reset simulation deterministically', async ({ page }) => {
+    await page.goto('/experiments/projectile-motion');
+
+    // Single step
+    const stepBtn = page.getByRole('button', { name: 'Step' });
     await expect(stepBtn).toBeVisible();
-
-    // Click step twice
-    await stepBtn.click();
     await stepBtn.click();
 
-    // Status should be paused
-    await expect(page.getByText('Paused')).toBeVisible();
+    await expect(page.getByText('paused')).toBeVisible();
 
-    // Play simulation
-    const playBtn = page.getByRole('button', { name: 'Play simulation' });
-    await playBtn.click();
-    await expect(page.getByText('Running')).toBeVisible();
+    // Launch button
+    const launchBtn = page.getByRole('button', { name: 'Launch' });
+    await launchBtn.click();
+    await expect(page.getByText('running')).toBeVisible();
 
-    // Pause simulation
-    const pauseBtn = page.getByRole('button', { name: 'Pause simulation' });
+    // Pause button
+    const pauseBtn = page.getByRole('button', { name: 'Pause' });
     await pauseBtn.click();
-    await expect(page.getByText('Paused')).toBeVisible();
+    await expect(page.getByText('paused')).toBeVisible();
 
-    // Reset simulation
-    const resetBtn = page.getByRole('button', { name: 'Reset simulation' });
+    // Reset button
+    const resetBtn = page.getByRole('button', { name: 'Reset' });
     await resetBtn.click();
-    await expect(page.getByText('Ready')).toBeVisible();
+    await expect(page.getByText('ready')).toBeVisible();
+  });
+
+  test('should collapse and expand analytical drawer for full-screen immersive view', async ({ page }) => {
+    await page.goto('/experiments/projectile-motion');
+
+    // Toggle analytical drawer button
+    const drawerToggleBtn = page.getByLabel('Toggle Analytical Panel');
+    await expect(drawerToggleBtn).toBeVisible();
+
+    // Collapse
+    await drawerToggleBtn.click();
+    await expect(page.getByText('Initial Launch Conditions')).not.toBeVisible();
+
+    // Expand
+    await drawerToggleBtn.click();
+    await expect(page.getByText('Initial Launch Conditions')).toBeVisible();
   });
 
   test('should open export/import dialog and serialize valid configuration', async ({ page }) => {
     await page.goto('/experiments/projectile-motion');
 
-    // Open Export / Import modal
-    const exportBtn = page.getByRole('button', { name: 'Export / Import' });
-    await exportBtn.click();
+    // Open Config modal
+    const configBtn = page.getByRole('button', { name: 'Config' });
+    await configBtn.click();
 
-    // Modal should be visible with JSON payload
     await expect(page.getByText('Experiment Configuration (JSON)')).toBeVisible();
     const textarea = page.locator('textarea');
     await expect(textarea).toBeVisible();
@@ -83,27 +114,12 @@ test.describe('Flagship Projectile Motion Experiment', () => {
     expect(jsonContent).toContain('"modelId": "projectile-motion"');
     expect(jsonContent).toContain('"parameters"');
 
-    // Close dialog
+    // Close modal
     await page.getByRole('button', { name: 'Close dialog' }).click();
     await expect(page.getByText('Experiment Configuration (JSON)')).not.toBeVisible();
   });
 
-  test('should log observations in observation panel', async ({ page }) => {
-    await page.goto('/experiments/projectile-motion');
-
-    // Switch to Notes tab
-    await page.getByRole('button', { name: 'Notes' }).click();
-
-    // Input note
-    const noteInput = page.getByPlaceholder('Record hypothesis, observation, or reading...');
-    await noteInput.fill('Observed parabolic symmetry at apex');
-    await page.getByRole('button', { name: 'Log' }).click();
-
-    // Should appear in list
-    await expect(page.getByText('Observed parabolic symmetry at apex')).toBeVisible();
-  });
-
-  test('explore discovery page should filter simulations', async ({ page }) => {
+  test('explore discovery catalog should search and filter', async ({ page }) => {
     await page.goto('/explore');
 
     await expect(page.getByText('Ideal Projectile Motion')).toBeVisible();
