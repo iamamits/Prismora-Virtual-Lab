@@ -30,20 +30,21 @@ function ParameterControl({
   description,
 }: ParameterControlProps) {
   return (
-    <div className={cn('space-y-2', className)}>
-      <div className="flex items-center justify-between">
-        <div>
-          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+    <div className={cn('space-y-1.5 p-2 rounded-lg bg-zinc-900/40 border border-zinc-800/80', className)}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 block truncate" title={label}>
             {label}
           </label>
           {description && (
-            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5 truncate">
               {description}
             </p>
           )}
         </div>
         <NumericInput
           label={label}
+          showLabel={false}
           value={value}
           min={min}
           max={max}
@@ -52,7 +53,7 @@ function ParameterControl({
           onChange={onChange}
           disabled={disabled}
           precision={precision}
-          className="w-28"
+          className="w-32 shrink-0"
         />
       </div>
       <Slider

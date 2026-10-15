@@ -10,6 +10,7 @@ export interface NumericInputProps {
   step?: number;
   onChange: (value: number) => void;
   label?: string;
+  showLabel?: boolean;
   unit?: string;
   disabled?: boolean;
   className?: string;
@@ -17,7 +18,22 @@ export interface NumericInputProps {
 }
 
 const NumericInput = React.forwardRef<HTMLDivElement, NumericInputProps>(
-  ({ value, min, max, step = 1, onChange, label, unit, disabled, className, precision }, ref) => {
+  (
+    {
+      value,
+      min,
+      max,
+      step = 1,
+      onChange,
+      label,
+      showLabel = true,
+      unit,
+      disabled,
+      className,
+      precision,
+    },
+    ref,
+  ) => {
     const [localValue, setLocalValue] = React.useState(value.toString());
     const [isFocused, setIsFocused] = React.useState(false);
 
@@ -65,12 +81,20 @@ const NumericInput = React.forwardRef<HTMLDivElement, NumericInputProps>(
 
     return (
       <div ref={ref} className={cn('space-y-1', className)}>
-        {label && (
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        {showLabel && label && (
+          <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
             {label}
           </label>
         )}
-        <div className="relative flex items-center">
+        <div
+          className={cn(
+            'flex items-center rounded-md border overflow-hidden transition-colors bg-white dark:bg-zinc-900',
+            'border-zinc-300 dark:border-zinc-700',
+            'focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500',
+            'dark:focus-within:border-indigo-400 dark:focus-within:ring-indigo-400',
+            disabled && 'opacity-50 cursor-not-allowed',
+          )}
+        >
           <input
             type="text"
             inputMode="decimal"
@@ -81,18 +105,14 @@ const NumericInput = React.forwardRef<HTMLDivElement, NumericInputProps>(
             onKeyDown={handleKeyDown}
             disabled={disabled}
             className={cn(
-              'w-full rounded-md border bg-white px-3 py-1.5 text-sm font-mono tabular-nums',
-              'border-zinc-300 text-zinc-900 placeholder:text-zinc-400',
-              'focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500',
-              'dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100',
-              'dark:focus:border-indigo-400 dark:focus:ring-indigo-400',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-              unit && 'pr-12',
+              'flex-1 min-w-0 bg-transparent px-2.5 py-1 text-xs font-mono font-medium tabular-nums text-right',
+              'text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none',
+              'disabled:cursor-not-allowed',
             )}
             aria-label={label}
           />
           {unit && (
-            <span className="absolute right-3 text-xs text-zinc-400 dark:text-zinc-500 pointer-events-none">
+            <span className="shrink-0 px-2 py-1 text-[11px] font-mono font-semibold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/90 border-l border-zinc-200 dark:border-zinc-700 select-none">
               {unit}
             </span>
           )}

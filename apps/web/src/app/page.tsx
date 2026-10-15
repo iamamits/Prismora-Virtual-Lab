@@ -16,146 +16,71 @@ import {
   Share2,
   GraduationCap,
   Layers,
+  Zap,
+  Cpu,
+  Binary,
+  Code2,
+  Wrench,
+  Sparkles,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button, PrismoraLogo, PrismoraIcon } from '@prismora/ui';
+import { InteractiveHeroSimulation } from '@/components/landing/interactive-hero-simulation';
+import { SIMULATION_REGISTRY, LABORATORIES } from '@/lib/simulations/registry';
 
-interface SimulationItem {
-  id: string;
-  title: string;
-  description: string;
-  subject: 'Physics' | 'Mathematics' | 'Chemistry' | 'Biology' | 'Astronomy' | 'Engineering';
-  difficulty: 'Introductory' | 'Intermediate' | 'Advanced';
-  status: 'Available Now' | 'In Development' | 'Planned';
-  href: string;
-  tags: string[];
-  disciplineColor: string;
-  featured?: boolean;
-}
-
-const SIMULATIONS: SimulationItem[] = [
+const SUBJECT_IDENTITIES = [
   {
-    id: 'projectile-motion',
-    title: 'Ideal Projectile Motion',
-    description:
-      'Scientifically validated kinematic trajectory model with articulated launcher, live vector components, variable celestial gravity, target hit detection, and kinematics probe.',
-    subject: 'Physics',
-    difficulty: 'Introductory',
-    status: 'Available Now',
-    href: '/experiments/projectile-motion',
-    tags: ['Kinematics', 'Gravity', 'Trajectories', 'Vectors'],
-    disciplineColor: '#2563EB', // Electric Blue
-    featured: true,
+    id: 'physics',
+    name: 'Physics',
+    tagline: 'Kinematics, Dynamics & Celestial Gravity',
+    color: '#2563EB', // Electric Blue
+    icon: Atom,
+    featuredRoute: '/experiments/projectile-motion',
+    availableCount: 1,
   },
   {
-    id: 'harmonic-oscillator',
-    title: 'Simple Harmonic Oscillator',
-    description:
-      'Mass-spring and pendulum dynamics with viscous damping, driving frequency, phase space portraits, and resonance analysis.',
-    subject: 'Physics',
-    difficulty: 'Intermediate',
-    status: 'In Development',
-    href: '/experiments/projectile-motion',
-    tags: ['Oscillations', 'Springs', 'Energy Conservation'],
-    disciplineColor: '#2563EB',
+    id: 'digital',
+    name: 'Digital Electronics',
+    tagline: 'Logic Gates, K-Maps, Adders & Flip-Flops',
+    color: '#F43F5E', // Coral
+    icon: Zap,
+    featuredRoute: '/experiments/digital-electronics',
+    availableCount: 1,
   },
   {
-    id: 'vector-field-studio',
-    title: '2D/3D Vector Field Studio',
-    description:
-      'Visualize curl, divergence, field flux lines, and line integrals on interactive 2D coordinate manifolds.',
-    subject: 'Mathematics',
-    difficulty: 'Advanced',
-    status: 'In Development',
-    href: '/experiments/projectile-motion',
-    tags: ['Calculus', 'Vector Fields', 'Differential Geometry'],
-    disciplineColor: '#8B5CF6', // Violet
+    id: 'coa',
+    name: 'Computer Architecture',
+    tagline: 'RV32I Datapath, Pipeline Hazards & L1 Cache',
+    color: '#06B6D4', // Cyan
+    icon: Cpu,
+    featuredRoute: '/experiments/coa',
+    availableCount: 1,
   },
   {
-    id: 'orbital-mechanics',
-    title: 'Two-Body & Keplerian Orbits',
-    description:
-      'Gravitational attraction, orbital eccentricity, escape velocity, and satellite transfer ellipses.',
-    subject: 'Astronomy',
-    difficulty: 'Intermediate',
-    status: 'Planned',
-    href: '/experiments/projectile-motion',
-    tags: ['Kepler', 'Gravity', 'Orbits'],
-    disciplineColor: '#06B6D4', // Cyan
+    id: 'toc',
+    name: 'Theory of Computation',
+    tagline: 'DFA/NFA, Hopcroft, CYK & Turing Machines',
+    color: '#8B5CF6', // Royal Violet
+    icon: Binary,
+    featuredRoute: '/experiments/toc',
+    availableCount: 1,
   },
   {
-    id: 'acid-base-titration',
-    title: 'Acid-Base Titration Curves',
-    description:
-      'Dynamic pH measurement, buffer capacity, indicator color transitions, and equivalence point stoichiometric calculations.',
-    subject: 'Chemistry',
-    difficulty: 'Intermediate',
-    status: 'Planned',
-    href: '/experiments/projectile-motion',
-    tags: ['Equilibrium', 'pH', 'Titration'],
-    disciplineColor: '#FBBF24', // Amber
+    id: 'math',
+    name: 'Mathematics Studio',
+    tagline: 'Calculus, Vector Fields & Coordinate Geometry',
+    color: '#8B5CF6',
+    icon: LineChart,
+    featuredRoute: '/studio',
+    availableCount: 0,
   },
   {
-    id: 'population-dynamics',
-    title: 'Lotka-Volterra Predator-Prey',
-    description:
-      'Non-linear ecological equilibrium dynamics with phase planes, carrying capacity limits, and perturbation stability.',
-    subject: 'Biology',
-    difficulty: 'Introductory',
-    status: 'Planned',
-    href: '/experiments/projectile-motion',
-    tags: ['Ecology', 'Differential Equations'],
-    disciplineColor: '#22C55E', // Green
-  },
-  {
-    id: 'digital-electronics',
-    title: 'Digital Electronics & Logic Design',
-    description:
-      'Interactive logic gates, truth tables, Quine-McCluskey K-map minimization, full adders, multiplexers, flip-flops, counters, ALU, and static hazard glitch simulation.',
-    subject: 'Engineering',
-    difficulty: 'Intermediate',
-    status: 'Available Now',
-    href: '/experiments/digital-electronics',
-    tags: ['Logic Gates', 'K-Map', 'ALU', 'Flip-Flops', 'Timing Analysis'],
-    disciplineColor: '#F43F5E', // Coral
-    featured: true,
-  },
-  {
-    id: 'coa-riscv',
-    title: 'Computer Organization & Architecture',
-    description:
-      'RISC-V 32-bit (RV32I) microarchitecture lab with single-cycle datapath, 5-stage pipeline, forwarding unit, RAW load-use hazard detection, and associative cache mapping.',
-    subject: 'Engineering',
-    difficulty: 'Advanced',
-    status: 'Available Now',
-    href: '/experiments/coa',
-    tags: ['RISC-V', 'CPU Datapath', 'Pipelining', 'Hazards', 'Cache Memory'],
-    disciplineColor: '#06B6D4', // Cyan
-    featured: true,
-  },
-  {
-    id: 'toc-automata',
-    title: 'Theory of Computation & Automata',
-    description:
-      'Formal language systems featuring interactive DFA/NFA state graph execution, subset construction, Hopcroft minimization, regex Thompson NFA, CYK parsing, and Turing machine.',
-    subject: 'Mathematics',
-    difficulty: 'Advanced',
-    status: 'Available Now',
-    href: '/experiments/toc',
-    tags: ['DFA/NFA', 'Regex', 'CYK Parser', 'Turing Machine', 'Formal Languages'],
-    disciplineColor: '#8B5CF6', // Violet
-    featured: true,
-  },
-  {
-    id: 'truss-structural-analysis',
-    title: 'Planar Truss Structural Stress',
-    description:
-      'Method of joints and sections for bridge trusses, tension-compression distribution, and failure analysis.',
-    subject: 'Engineering',
-    difficulty: 'Intermediate',
-    status: 'Planned',
-    href: '/experiments/projectile-motion',
-    tags: ['Statics', 'Stress', 'Structures'],
-    disciplineColor: '#F43F5E', // Coral
+    id: 'engineering',
+    name: 'Virtual Engineering',
+    tagline: 'Sensors, Instrumentation & Circuit Analysis',
+    color: '#F43F5E',
+    icon: Wrench,
+    featuredRoute: '/labs',
+    availableCount: 0,
   },
 ];
 
@@ -167,150 +92,154 @@ export default function HomePage() {
   const [selectedSubject, setSelectedSubject] = useState<string>('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('All');
 
-  const filteredSimulations = SIMULATIONS.filter((sim) => {
-    const matchesSearch =
-      sim.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sim.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sim.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Filter registry
+  const filteredSimulations = SIMULATION_REGISTRY.filter((sim) => {
+    const lab = LABORATORIES[sim.laboratoryId];
+    const subjectName = lab.shortName === 'Physics' ? 'Physics'
+      : lab.shortName === 'Chemistry' ? 'Chemistry'
+      : lab.shortName === 'Biology' ? 'Biology'
+      : lab.shortName === 'Math Studio' ? 'Mathematics'
+      : lab.shortName === 'Astronomy' ? 'Astronomy'
+      : 'Engineering';
 
-    const matchesSubject = selectedSubject === 'All' || sim.subject === selectedSubject;
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      sim.title.toLowerCase().includes(q) ||
+      sim.shortTitle.toLowerCase().includes(q) ||
+      sim.description.toLowerCase().includes(q) ||
+      sim.tags.some((tag) => tag.toLowerCase().includes(q));
+
+    const matchesSubject = selectedSubject === 'All' || subjectName === selectedSubject || (selectedSubject === 'Engineering' && (sim.laboratoryId === 'digital-electronics' || sim.laboratoryId === 'coa' || sim.laboratoryId === 'engineering'));
     const matchesDifficulty = selectedDifficulty === 'All' || sim.difficulty === selectedDifficulty;
 
     return matchesSearch && matchesSubject && matchesDifficulty;
   });
 
   return (
-    <div className="flex-1 flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-[#172033] dark:text-[#F8FAFC]">
-      {/* Hero Section (Solid Colors, Zero Gradients) */}
-      <section className="relative border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0F172A] py-14 sm:py-20 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto text-center space-y-6">
-          {/* Brand Eyebrow Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-bold text-[#172033] dark:text-zinc-200">
-            <PrismoraIcon size={18} minimal />
-            <span>Open-Source Scientific Simulation &amp; Experimentation</span>
+    <div className="flex-1 flex flex-col bg-[#F8FAFC] dark:bg-[#090D16] text-[#172033] dark:text-[#F8FAFC]">
+      {/* Hero Section with Embedded Working Simulation */}
+      <section className="relative border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0F172A] py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto space-y-10">
+          {/* Hero Header Text */}
+          <div className="max-w-4xl mx-auto text-center space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-bold text-[#172033] dark:text-zinc-200 shadow-sm">
+              <PrismoraIcon size={16} minimal />
+              <span>Interactive Open-Source Scientific Computing Platform</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-[#172033] dark:text-white uppercase font-sans">
+              Explore. Experiment.{' '}
+              <span className="text-[#2563EB] dark:text-[#38BDF8]">Understand.</span>
+            </h1>
+
+            <p className="max-w-2xl mx-auto text-sm sm:text-base text-zinc-600 dark:text-zinc-300 font-medium leading-relaxed">
+              Prismora unifies real-time numerical simulation, interactive physics apparatus, digital micro-logic, and formal automata theory in a vibrant, accessible laboratory environment.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <Link href="/labs">
+                <Button size="lg" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-md font-bold px-6">
+                  <FlaskConical className="w-4 h-4 mr-2" />
+                  Explore All Laboratories
+                </Button>
+              </Link>
+              <a href="#discovery">
+                <Button variant="outline" size="lg" className="border-2 border-zinc-300 dark:border-zinc-700 font-semibold">
+                  <Search className="w-4 h-4 mr-2 text-[#2563EB]" />
+                  Search Catalog
+                </Button>
+              </a>
+            </div>
           </div>
 
-          {/* Primary Headline */}
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-[#172033] dark:text-white uppercase font-sans">
-            Explore. Experiment.{' '}
-            <span className="text-[#2563EB] dark:text-[#38BDF8]">Understand.</span>
-          </h1>
-
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-zinc-600 dark:text-zinc-300 font-medium leading-relaxed">
-            Prismora unifies interactive scientific computing, mathematical visualization, and hands-on virtual experimentation in a vibrant, accessible platform.
-          </p>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link href="/experiments/projectile-motion">
-              <Button size="lg" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-md font-bold px-6">
-                <Play className="w-4 h-4 mr-2 fill-current" />
-                Launch Flagship Lab
-              </Button>
-            </Link>
-            <a href="#discovery">
-              <Button variant="outline" size="lg" className="border-2 border-zinc-300 dark:border-zinc-700 font-semibold">
-                <Compass className="w-4 h-4 mr-2 text-[#2563EB]" />
-                Browse Catalog
-              </Button>
-            </a>
-          </div>
-
-          {/* Value Props Strip in Distinct Solid Scientific Accents */}
-          <div className="pt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left max-w-4xl mx-auto">
-            <div className="p-3.5 rounded-lg border-2 border-[#2563EB]/20 bg-white dark:bg-[#172033] shadow-sm">
-              <div className="font-bold text-xs text-[#2563EB] flex items-center gap-1.5 mb-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Analytical Rigor</span>
-              </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                Independent physics core decoupled from UI, DOM, and Canvas.
-              </p>
+          {/* Real Embedded Interactive Hero Simulation */}
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-2 flex items-center justify-between text-xs">
+              <span className="font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                <span>Live Interactive Simulation Preview</span>
+              </span>
+              <span className="text-zinc-500">
+                Directly adjust parameters below to simulate physical motion in real-time
+              </span>
             </div>
-
-            <div className="p-3.5 rounded-lg border-2 border-[#8B5CF6]/20 bg-white dark:bg-[#172033] shadow-sm">
-              <div className="font-bold text-xs text-[#8B5CF6] flex items-center gap-1.5 mb-1">
-                <Gauge className="w-3.5 h-3.5" />
-                <span>Deterministic Time</span>
-              </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                Fixed-step simulation clock with single-step, pause, seek, and slow-mo.
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-lg border-2 border-[#06B6D4]/20 bg-white dark:bg-[#172033] shadow-sm">
-              <div className="font-bold text-xs text-[#0891B2] dark:text-[#06B6D4] flex items-center gap-1.5 mb-1">
-                <Share2 className="w-3.5 h-3.5" />
-                <span>Reproducibility</span>
-              </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                Portable JSON schema configuration for labs, notes, and sharing.
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-lg border-2 border-[#22C55E]/20 bg-white dark:bg-[#172033] shadow-sm">
-              <div className="font-bold text-xs text-[#16A34A] dark:text-[#22C55E] flex items-center gap-1.5 mb-1">
-                <GraduationCap className="w-3.5 h-3.5" />
-                <span>Open Access</span>
-              </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                Full scientific access for anyone without accounts or paywalls.
-              </p>
-            </div>
+            <InteractiveHeroSimulation />
           </div>
         </div>
       </section>
 
-      {/* Featured Flagship Experiment Highlight Card (Solid Color Accents) */}
-      <section className="py-8 px-4 sm:px-6 max-w-6xl mx-auto w-full">
-        <div className="rounded-xl border-2 border-[#2563EB] bg-white dark:bg-[#172033] p-5 sm:p-7 shadow-md relative overflow-hidden">
-          {/* Solid Color Top Accent Line */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#2563EB]" />
-
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="space-y-2.5 max-w-2xl">
-              <div className="flex items-center gap-2">
-                <Badge variant="physics" className="text-xs font-bold uppercase tracking-wider">
-                  FLAGSHIP SIMULATION
-                </Badge>
-                <span className="text-xs font-mono font-bold text-[#2563EB] dark:text-[#38BDF8]">
-                  Physics • Kinematics
-                </span>
-              </div>
-              <h2 className="text-2xl font-black tracking-tight text-[#172033] dark:text-white">
-                Ideal Projectile Motion Virtual Laboratory
-              </h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                Hands-on kinematics environment with an articulated launcher, direct barrel rotation, adjustable elevation lift, draggable target with hit detection, kinematics sampling probe, celestial gravity presets (Earth, Moon, Mars, Zero-G), and live analytical equation substitution.
-              </p>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 font-semibold">
-                  Initial Speed v₀
-                </span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 font-semibold">
-                  Launch Angle θ
-                </span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 font-semibold">
-                  Celestial Gravity g
-                </span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 font-semibold">
-                  Elevation y₀
-                </span>
-              </div>
-            </div>
-
-            <Link href="/experiments/projectile-motion" className="w-full md:w-auto">
-              <Button size="lg" className="w-full md:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold">
-                <span>Enter Laboratory</span>
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+      {/* Vibrant Subject Exploration Hub */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-4">
+          <div>
+            <h2 className="text-xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
+              <Layers className="w-5 h-5 text-[#2563EB]" />
+              <span>Scientific &amp; Engineering Disciplines</span>
+            </h2>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Select a specialized domain to investigate verified equations, datapaths, and virtual experiments.
+            </p>
           </div>
+          <Link href="/labs" className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1">
+            <span>View Full Curriculum</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        {/* 6 Core Discipline Cards with Distinct Solid-Color Accents */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {SUBJECT_IDENTITIES.map((sub) => {
+            const Icon = sub.icon;
+            return (
+              <Link key={sub.id} href={sub.featuredRoute} className="group">
+                <div
+                  className="p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0F172A] hover:shadow-lg transition-all relative overflow-hidden h-full flex flex-col justify-between"
+                  style={{ borderLeftWidth: '4px', borderLeftColor: sub.color }}
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div
+                        className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-white shadow-sm"
+                        style={{ backgroundColor: sub.color }}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      {sub.availableCount > 0 ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1 font-mono">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <span>Lab Available</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+                          In Development
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white group-hover:text-[#2563EB] transition-colors">
+                        {sub.name}
+                      </h3>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                        {sub.tagline}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs font-bold text-zinc-600 dark:text-zinc-300 mt-4">
+                    <span>Enter Laboratory</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
       {/* Discovery & Simulation Catalog Section */}
-      <section id="discovery" className="py-10 px-4 sm:px-6 max-w-6xl mx-auto w-full space-y-6">
+      <section id="discovery" className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-6">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5">
           <div>
             <h2 className="text-xl font-black tracking-tight text-[#172033] dark:text-white flex items-center gap-2">
@@ -392,76 +321,81 @@ export default function HomePage() {
 
         {/* Simulation Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-          {filteredSimulations.map((sim) => (
-            <Card
-              key={sim.id}
-              className="flex flex-col justify-between hover:shadow-md transition-all border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#172033] relative overflow-hidden"
-            >
-              {/* Top solid color discipline strip */}
-              <div
-                className="h-1 w-full"
-                style={{ backgroundColor: sim.disciplineColor }}
-              />
+          {filteredSimulations.map((sim) => {
+            const lab = LABORATORIES[sim.laboratoryId];
+            const isAvailable = sim.status === 'available';
 
-              <CardHeader className="p-4 pb-2">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span
-                    className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
-                    style={{
-                      backgroundColor: `${sim.disciplineColor}15`,
-                      color: sim.disciplineColor,
-                      border: `1px solid ${sim.disciplineColor}40`,
-                    }}
-                  >
-                    {sim.subject}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      sim.status === 'Available Now'
-                        ? 'bg-[#22C55E]/15 text-[#16A34A] dark:text-[#4ADE80] border border-[#22C55E]/30'
-                        : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                    }`}
-                  >
-                    {sim.status}
-                  </span>
-                </div>
-                <CardTitle className="text-base font-bold text-[#172033] dark:text-white">
-                  {sim.title}
-                </CardTitle>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-3 pt-1">
-                  {sim.description}
-                </p>
-              </CardHeader>
+            return (
+              <Card
+                key={sim.id}
+                className="flex flex-col justify-between hover:shadow-md transition-all border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#172033] relative overflow-hidden"
+              >
+                {/* Top solid color discipline strip */}
+                <div
+                  className="h-1 w-full"
+                  style={{ backgroundColor: sim.disciplineColor }}
+                />
 
-              <CardContent className="p-4 pt-2 space-y-3">
-                <div className="flex flex-wrap gap-1">
-                  {sim.tags.map((tag) => (
+                <CardHeader className="p-4 pb-2">
+                  <div className="flex items-center justify-between gap-2 mb-2">
                     <span
-                      key={tag}
-                      className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700"
+                      className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
+                      style={{
+                        backgroundColor: `${sim.disciplineColor}15`,
+                        color: sim.disciplineColor,
+                        border: `1px solid ${sim.disciplineColor}40`,
+                      }}
                     >
-                      #{tag}
+                      {lab.shortName}
                     </span>
-                  ))}
-                </div>
-
-                <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                    Level: {sim.difficulty}
-                  </span>
-                  <Link href={sim.href}>
-                    <Button
-                      size="sm"
-                      variant={sim.status === 'Available Now' ? 'default' : 'outline'}
-                      className="text-xs h-7 px-3 font-semibold"
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        isAvailable
+                          ? 'bg-[#22C55E]/15 text-[#16A34A] dark:text-[#4ADE80] border border-[#22C55E]/30'
+                          : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                      }`}
                     >
-                      {sim.status === 'Available Now' ? 'Launch Lab' : 'Preview'}
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                      {isAvailable ? 'Available Now' : sim.status === 'in_development' ? 'In Development' : 'Planned'}
+                    </span>
+                  </div>
+                  <CardTitle className="text-base font-bold text-[#172033] dark:text-white">
+                    {sim.title}
+                  </CardTitle>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-3 pt-1">
+                    {sim.description}
+                  </p>
+                </CardHeader>
+
+                <CardContent className="p-4 pt-2 space-y-3">
+                  <div className="flex flex-wrap gap-1">
+                    {sim.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                      Level: {sim.difficulty}
+                    </span>
+                    <Link href={sim.route}>
+                      <Button
+                        size="sm"
+                        variant={isAvailable ? 'default' : 'outline'}
+                        className="text-xs h-7 px-3 font-semibold"
+                      >
+                        {isAvailable ? 'Launch Lab' : 'Preview'}
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Empty state if search yields no results */}
@@ -491,8 +425,8 @@ export default function HomePage() {
       </section>
 
       {/* Module Architecture Section (Solid Discipline Color Blocks) */}
-      <section className="py-12 px-4 sm:px-6 bg-zinc-100 dark:bg-[#0F172A] border-t border-zinc-200 dark:border-zinc-800">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-zinc-100 dark:bg-[#0F172A] border-t border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-7xl mx-auto space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-1">
             <h3 className="text-xl font-black tracking-tight text-[#172033] dark:text-white">
               The Prismora Scientific Architecture
@@ -503,7 +437,6 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Explore */}
             <div className="p-4 rounded-lg bg-white dark:bg-[#172033] border-2 border-[#2563EB]/30 space-y-2 shadow-sm">
               <div className="w-8 h-8 rounded bg-[#2563EB] text-white flex items-center justify-center font-bold">
                 <Atom className="w-4 h-4" />
@@ -514,7 +447,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Studio */}
             <div className="p-4 rounded-lg bg-white dark:bg-[#172033] border-2 border-[#8B5CF6]/30 space-y-2 shadow-sm">
               <div className="w-8 h-8 rounded bg-[#8B5CF6] text-white flex items-center justify-center font-bold">
                 <LineChart className="w-4 h-4" />
@@ -525,7 +457,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Labs */}
             <div className="p-4 rounded-lg bg-white dark:bg-[#172033] border-2 border-[#22C55E]/30 space-y-2 shadow-sm">
               <div className="w-8 h-8 rounded bg-[#22C55E] text-white flex items-center justify-center font-bold">
                 <FlaskConical className="w-4 h-4" />
@@ -536,7 +467,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Library */}
             <div className="p-4 rounded-lg bg-white dark:bg-[#172033] border-2 border-[#F43F5E]/30 space-y-2 shadow-sm">
               <div className="w-8 h-8 rounded bg-[#F43F5E] text-white flex items-center justify-center font-bold">
                 <Library className="w-4 h-4" />
@@ -558,7 +488,7 @@ export default function HomePage() {
         <p className="font-semibold text-zinc-700 dark:text-zinc-300">
           Scientific Simulation &amp; Experimentation Platform
         </p>
-        <p>Explore. Experiment. Understand. • Open Source under MIT License</p>
+        <p>Explore. Experiment. Understand. &bull; Open Source under MIT License</p>
       </footer>
     </div>
   );

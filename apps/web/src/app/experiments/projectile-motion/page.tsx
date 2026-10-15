@@ -44,6 +44,7 @@ import {
   Maximize2,
   PanelRightClose,
   PanelRightOpen,
+  X,
 } from 'lucide-react';
 
 // Preset physical scenarios and targets
@@ -269,7 +270,7 @@ export default function ProjectileMotionPage() {
   const progressPercent = maxTime > 0 ? (state.time / maxTime) * 100 : 0;
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-zinc-950 text-zinc-100">
+    <div className="flex-1 flex flex-col h-[calc(100dvh-3.5rem)] overflow-hidden bg-zinc-950 text-zinc-100">
       {/* Top Workspace Bar */}
       <div className="h-11 border-b border-zinc-800 bg-zinc-950 px-3 flex items-center justify-between text-xs gap-2 select-none z-20">
         <div className="flex items-center gap-2.5">
@@ -545,9 +546,9 @@ export default function ProjectileMotionPage() {
 
         {/* Collapsible Analytical & Lab Drawer (Right Side) */}
         {isDrawerOpen && (
-          <aside className="w-80 md:w-96 border-l border-zinc-800 bg-zinc-950 flex flex-col h-full z-10 animate-in slide-in-from-right-4 duration-200">
+          <aside className="w-80 md:w-96 border-l border-zinc-800 bg-zinc-950 flex flex-col h-full z-10 shrink-0 animate-in slide-in-from-right-4 duration-200">
             {/* Tab Header Strip */}
-            <div className="flex border-b border-zinc-800 text-xs font-semibold bg-zinc-900/60">
+            <div className="flex items-center border-b border-zinc-800 text-xs font-semibold bg-zinc-900/60 shrink-0">
               <button
                 onClick={() => setActiveTab('controls')}
                 className={`flex-1 py-2.5 text-center flex items-center justify-center gap-1 border-b-2 transition-colors ${
@@ -592,10 +593,17 @@ export default function ProjectileMotionPage() {
                 <Bookmark className="w-3.5 h-3.5" />
                 <span>Data</span>
               </button>
+              <button
+                onClick={() => setIsDrawerOpen(false)}
+                className="md:hidden px-3 py-2.5 text-zinc-400 hover:text-white border-l border-zinc-800"
+                aria-label="Close analytical drawer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Tab Contents */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 overscroll-y-contain min-h-0">
               {activeTab === 'controls' && (
                 <div className="space-y-4">
                   <div>
@@ -793,7 +801,7 @@ export default function ProjectileMotionPage() {
             </div>
 
             {/* Quick Analytical Summary Strip at bottom of drawer */}
-            <div className="p-3 border-t border-zinc-800 bg-zinc-900/80 grid grid-cols-3 gap-2">
+            <div className="p-3 border-t border-zinc-800 bg-zinc-900/80 grid grid-cols-3 gap-2 shrink-0">
               <MeasurementDisplay
                 label="Flight Time"
                 value={flightTime ?? 0}

@@ -13,6 +13,8 @@ import {
   Atom,
   Zap,
   Cpu,
+  FlaskConical,
+  Binary,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -22,10 +24,11 @@ export const Navbar: React.FC = () => {
 
   const navItems = [
     { label: 'Explore', href: '/explore', icon: Compass, color: '#2563EB' },
+    { label: 'Labs', href: '/labs', icon: FlaskConical, color: '#22C55E' },
     { label: 'Physics', href: '/experiments/projectile-motion', icon: Atom, color: '#2563EB' },
     { label: 'Digital Logic', href: '/experiments/digital-electronics', icon: Zap, color: '#F43F5E' },
     { label: 'COA RISC-V', href: '/experiments/coa', icon: Cpu, color: '#06B6D4' },
-    { label: 'TOC Automata', href: '/experiments/toc', icon: Compass, color: '#8B5CF6' },
+    { label: 'TOC Automata', href: '/experiments/toc', icon: Binary, color: '#8B5CF6' },
   ];
 
   const toggleTheme = () => {
