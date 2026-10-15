@@ -25,9 +25,9 @@ export const Navbar: React.FC = () => {
   const navItems = [
     { label: 'Explore', href: '/explore', icon: Compass, color: '#2563EB' },
     { label: 'Labs', href: '/labs', icon: FlaskConical, color: '#22C55E' },
+    { label: 'ECE Lab', href: '/experiments/ece', icon: Cpu, color: '#06B6D4' },
     { label: 'Physics', href: '/experiments/projectile-motion', icon: Atom, color: '#2563EB' },
-    { label: 'Digital Logic', href: '/experiments/digital-electronics', icon: Zap, color: '#F43F5E' },
-    { label: 'COA RISC-V', href: '/experiments/coa', icon: Cpu, color: '#06B6D4' },
+    { label: 'COA RISC-V', href: '/experiments/coa', icon: Zap, color: '#06B6D4' },
     { label: 'TOC Automata', href: '/experiments/toc', icon: Binary, color: '#8B5CF6' },
   ];
 

@@ -48,3 +48,7 @@ export * from './coa';
 export * as TOC from './toc';
 export * from './toc';
 
+// ECE Virtual Lab (Circuits, Adders, Automated Verifier)
+export * as ECE from './ece';
+export * from './ece';
+
