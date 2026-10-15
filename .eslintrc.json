@@ -1,0 +1,8 @@
+{
+  "root": true,
+  "extends": ["eslint:recommended"],
+  "ignorePatterns": ["node_modules/", "dist/", ".next/"],
+  "parserOptions": {
+    "ecmaVersion": 2022
+  }
+}
