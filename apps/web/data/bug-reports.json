@@ -1,5 +1,201 @@
 [
   {
+    "id": "PRIS-BUG-2026-J254",
+    "simulationId": "coa-riscv",
+    "moduleName": "Computer Organization & Architecture (RV32I)",
+    "url": "http://localhost:3000/experiments/coa",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Pipeline Stall Bubble Verification",
+    "description": "Verifying load-use RAW hazard bubble injection under test execution.",
+    "expectedBehavior": "ID stage should stall 1 cycle and insert NOP into EX stage.",
+    "reproductionSteps": "1. Load sample program\n2. Step clock to cycle 3\n3. Observe EX stage",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "activeTab": "datapath",
+      "selectedPreset": "fibonacci",
+      "pc": 0,
+      "cycleCount": 0,
+      "registers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pipelineCycle": 1,
+      "cacheStats": {
+        "accesses": 0,
+        "hits": 0,
+        "misses": 0,
+        "hitRate": 0,
+        "compulsoryMisses": 0,
+        "capacityMisses": 0,
+        "conflictMisses": 0
+      },
+      "cacheConfig": {
+        "cacheSize": 256,
+        "blockSize": 16,
+        "associativity": "direct",
+        "replacementPolicy": "LRU"
+      }
+    },
+    "isAnonymous": true,
+    "clientInfo": {
+      "appVersion": "0.1.0",
+      "viewport": {
+        "width": 393,
+        "height": 727
+      },
+      "devicePixelRatio": 2.75,
+      "colorScheme": "light"
+    },
+    "createdAt": "2026-10-15T09:08:19.824Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-P6CZ",
+    "simulationId": "coa-riscv",
+    "moduleName": "Computer Organization & Architecture (RV32I)",
+    "url": "http://localhost:3000/experiments/coa",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Pipeline Stall Bubble Verification",
+    "description": "Verifying load-use RAW hazard bubble injection under test execution.",
+    "expectedBehavior": "ID stage should stall 1 cycle and insert NOP into EX stage.",
+    "reproductionSteps": "1. Load sample program\n2. Step clock to cycle 3\n3. Observe EX stage",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "activeTab": "datapath",
+      "selectedPreset": "fibonacci",
+      "pc": 0,
+      "cycleCount": 0,
+      "registers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pipelineCycle": 1,
+      "cacheStats": {
+        "accesses": 0,
+        "hits": 0,
+        "misses": 0,
+        "hitRate": 0,
+        "compulsoryMisses": 0,
+        "capacityMisses": 0,
+        "conflictMisses": 0
+      },
+      "cacheConfig": {
+        "cacheSize": 256,
+        "blockSize": 16,
+        "associativity": "direct",
+        "replacementPolicy": "LRU"
+      }
+    },
+    "isAnonymous": true,
+    "clientInfo": {
+      "appVersion": "0.1.0",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "devicePixelRatio": 1,
+      "colorScheme": "light"
+    },
+    "createdAt": "2026-10-15T09:08:13.610Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-K9WS",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "isAnonymous": true,
+    "createdAt": "2026-10-15T09:08:04.431Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-K7XP",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "contactEmail": "tester@prismora.org",
+    "isAnonymous": false,
+    "createdAt": "2026-10-15T09:08:04.425Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-ZATA",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "isAnonymous": true,
+    "createdAt": "2026-10-15T08:58:39.556Z",
+    "status": "open"
+  },
+  {
+    "id": "PRIS-BUG-2026-7QFU",
+    "simulationId": "projectile-motion",
+    "moduleName": "Physics Laboratory",
+    "url": "http://localhost:3000/experiments/projectile-motion",
+    "category": "incorrect_result",
+    "severity": "medium",
+    "title": "Discrepancy at 45 degree angle apex",
+    "description": "The maximum height calculation shows slight rounding discrepancy compared to analytical equation.",
+    "expectedBehavior": "Apex height should match v0^2 sin^2(theta) / 2g exactly.",
+    "reproductionSteps": "1. Set angle to 45 deg\n2. Set velocity to 20 m/s\n3. Launch",
+    "includeDiagnostics": true,
+    "diagnosticSnapshot": {
+      "initialSpeed": 20,
+      "launchAngle": 0.785398
+    },
+    "contactEmail": "tester@prismora.org",
+    "isAnonymous": false,
+    "createdAt": "2026-10-15T08:58:39.551Z",
+    "status": "open"
+  },
+  {
     "id": "PRIS-BUG-2026-RAQX",
     "simulationId": "projectile-motion",
     "moduleName": "Physics Laboratory",

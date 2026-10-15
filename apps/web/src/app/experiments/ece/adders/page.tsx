@@ -205,33 +205,33 @@ export default function AddersVirtualLabPage() {
   }, [graph, evalResult, isFullAdder]);
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-3.5rem)] w-full bg-[#0B1120] text-zinc-100 overflow-hidden select-none">
+    <div className="flex flex-col h-[calc(100dvh-3.5rem)] w-full bg-[#F8FAFC] text-[#172033] overflow-hidden select-none">
       {/* Top Laboratory Control Bar */}
-      <header className="h-12 border-b border-zinc-800 bg-[#0F172A] px-4 flex items-center justify-between shrink-0 z-40">
+      <header className="h-12 border-b border-zinc-200 bg-white px-4 flex items-center justify-between shrink-0 z-40 shadow-xs">
         {/* Left: Breadcrumbs & Title */}
         <div className="flex items-center gap-3">
-          <nav className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium">
-            <Link href="/labs" className="hover:text-white transition-colors">
+          <nav className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
+            <Link href="/labs" className="hover:text-zinc-900 transition-colors">
               Labs
             </Link>
-            <ChevronRight className="w-3 h-3 text-zinc-600" />
-            <Link href="/labs?lab=ece" className="text-cyan-400 font-bold hover:underline">
+            <ChevronRight className="w-3 h-3 text-zinc-400" />
+            <Link href="/experiments/ece" className="text-blue-600 font-bold hover:underline">
               ECE Virtual Lab
             </Link>
-            <ChevronRight className="w-3 h-3 text-zinc-600" />
-            <span className="text-white font-bold">Adders</span>
+            <ChevronRight className="w-3 h-3 text-zinc-400" />
+            <span className="text-[#172033] font-bold">Adders</span>
           </nav>
 
-          <div className="w-[1px] h-4 bg-zinc-700 mx-1 hidden sm:block" />
+          <div className="w-[1px] h-4 bg-zinc-200 mx-1 hidden sm:block" />
 
           {/* Mode Switcher Tabs */}
-          <div className="flex items-center bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
+          <div className="flex items-center bg-zinc-100 p-0.5 rounded-lg border border-zinc-200">
             <button
               onClick={() => handleModeChange('half-adder')}
               className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
                 mode === 'half-adder'
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
               Half Adder
@@ -240,8 +240,8 @@ export default function AddersVirtualLabPage() {
               onClick={() => handleModeChange('full-adder')}
               className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
                 mode === 'full-adder'
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
               Full Adder
@@ -253,28 +253,28 @@ export default function AddersVirtualLabPage() {
         <div className="hidden md:flex items-center gap-2">
           <button
             onClick={() => handleLoadPreset('canonical')}
-            className="px-2.5 py-1 rounded-md text-xs font-bold bg-[#182030] hover:bg-[#1E293B] border border-zinc-700 text-zinc-200 transition-colors flex items-center gap-1.5"
+            className="px-2.5 py-1 rounded-md text-xs font-semibold bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 transition-colors flex items-center gap-1.5 shadow-xs"
             title="Load Reference Canonical Circuit"
           >
-            <Sparkles className="w-3 h-3 text-cyan-400" />
+            <Sparkles className="w-3 h-3 text-blue-600" />
             <span>Reference Circuit</span>
           </button>
           {mode === 'half-adder' && (
             <button
               onClick={() => handleLoadPreset('nand')}
-              className="px-2.5 py-1 rounded-md text-xs font-bold bg-[#182030] hover:bg-[#1E293B] border border-zinc-700 text-zinc-200 transition-colors flex items-center gap-1.5"
+              className="px-2.5 py-1 rounded-md text-xs font-semibold bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 transition-colors flex items-center gap-1.5 shadow-xs"
               title="Load 5-NAND Universal Realization"
             >
-              <Cpu className="w-3 h-3 text-emerald-400" />
+              <Cpu className="w-3 h-3 text-emerald-600" />
               <span>Universal NAND</span>
             </button>
           )}
           <button
             onClick={() => handleLoadPreset('clear')}
-            className="px-2.5 py-1 rounded-md text-xs font-bold bg-[#182030] hover:bg-[#1E293B] border border-zinc-700 text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+            className="px-2.5 py-1 rounded-md text-xs font-semibold bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-600 hover:text-zinc-900 transition-colors flex items-center gap-1.5 shadow-xs"
             title="Reset to blank canvas"
           >
-            <RotateCcw className="w-3 h-3" />
+            <RotateCcw className="w-3 h-3 text-zinc-500" />
             <span>Sandbox Mode</span>
           </button>
         </div>
@@ -285,10 +285,10 @@ export default function AddersVirtualLabPage() {
             onClick={() => setShowPalette(!showPalette)}
             title="Toggle Component Palette"
             aria-label="Toggle Component Palette"
-            className={`px-2.5 py-1 rounded-md text-xs font-bold border transition-colors flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold border transition-colors flex items-center gap-1.5 ${
               showPalette
-                ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
-                : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:text-white'
+                ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -299,10 +299,10 @@ export default function AddersVirtualLabPage() {
             onClick={() => setShowTruthTable(!showTruthTable)}
             title="Toggle Truth Table Panel"
             aria-label="Toggle Truth Table"
-            className={`px-2.5 py-1 rounded-md text-xs font-bold border transition-colors flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold border transition-colors flex items-center gap-1.5 ${
               showTruthTable
-                ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
-                : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:text-white'
+                ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -313,10 +313,10 @@ export default function AddersVirtualLabPage() {
             onClick={() => setProbeActive(!probeActive)}
             title="Toggle Logic Probe Cursor"
             aria-label="Toggle Logic Probe"
-            className={`px-2.5 py-1 rounded-md text-xs font-bold border transition-colors flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold border transition-colors flex items-center gap-1.5 ${
               probeActive
-                ? 'bg-amber-600 border-amber-500 text-white shadow-sm'
-                : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:text-white'
+                ? 'bg-amber-600 border-amber-600 text-white shadow-sm'
+                : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
             }`}
           >
             <Zap className="w-3.5 h-3.5" />
@@ -327,10 +327,10 @@ export default function AddersVirtualLabPage() {
             onClick={() => setShowAnalyzer(!showAnalyzer)}
             title="Toggle Logic Analyzer Waveforms"
             aria-label="Toggle Logic Analyzer"
-            className={`px-2.5 py-1 rounded-md text-xs font-bold border transition-colors flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold border transition-colors flex items-center gap-1.5 ${
               showAnalyzer
-                ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
-                : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:text-white'
+                ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
@@ -341,10 +341,10 @@ export default function AddersVirtualLabPage() {
             onClick={() => setShowTheory(!showTheory)}
             title="Toggle Theory & Procedure Drawer"
             aria-label="Toggle Theory & Procedure"
-            className={`px-2.5 py-1 rounded-md text-xs font-bold border transition-colors flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold border transition-colors flex items-center gap-1.5 ${
               showTheory
-                ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
-                : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:text-white'
+                ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />

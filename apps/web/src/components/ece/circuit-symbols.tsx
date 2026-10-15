@@ -14,8 +14,8 @@ interface GateSymbolProps {
 }
 
 export const GateSymbol: React.FC<GateSymbolProps> = ({ type, width, height, isActive = false }) => {
-  const strokeColor = isActive ? '#22C55E' : '#94A3B8';
-  const fillColor = isActive ? '#064E3B' : '#1E293B';
+  const strokeColor = isActive ? '#16A34A' : '#475569';
+  const fillColor = isActive ? '#DCFCE7' : '#F1F5F9';
 
   switch (type) {
     case 'AND':

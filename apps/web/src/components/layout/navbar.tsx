@@ -19,7 +19,6 @@ import {
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -31,17 +30,13 @@ export const Navbar: React.FC = () => {
     { label: 'TOC Automata', href: '/experiments/toc', icon: Binary, color: '#8B5CF6' },
   ];
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0B1120] select-none">
+    <header className="sticky top-0 z-40 w-full border-b border-zinc-200 bg-white select-none shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         {/* Brand / Official Prismora Logo Lockup */}
         <Link href="/" className="flex items-center gap-3 group">
           <PrismoraLogo variant="full" size="md" />
-          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[#2563EB] dark:text-[#38BDF8] border border-zinc-200 dark:border-zinc-700">
+          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-50 text-[#2563EB] border border-blue-200">
             v0.1
           </span>
         </Link>
@@ -57,8 +52,8 @@ export const Navbar: React.FC = () => {
                 href={item.href}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
                   isActive
-                    ? 'bg-[#172033] text-white dark:bg-zinc-800 dark:text-white'
-                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800/60'
+                    ? 'bg-[#172033] text-white shadow-xs'
+                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
                 }`}
               >
                 <Icon
@@ -73,19 +68,10 @@ export const Navbar: React.FC = () => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2">
-          {/* Theme switcher */}
-          <button
-            onClick={toggleTheme}
-            className="w-8 h-8 rounded-md flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-[#FBBF24]" /> : <Moon className="w-4 h-4 text-[#2563EB]" />}
-          </button>
-
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden w-8 h-8 rounded-md flex items-center justify-center text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="md:hidden w-8 h-8 rounded-md flex items-center justify-center text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
             aria-label="Toggle mobile menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -95,7 +81,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0B1120] px-4 py-3 space-y-1">
+        <div className="md:hidden border-b border-zinc-200 bg-white px-4 py-3 space-y-1 shadow-md">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -104,13 +90,13 @@ export const Navbar: React.FC = () => {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
                   isActive
-                    ? 'bg-[#172033] text-white dark:bg-zinc-800 dark:text-white'
-                    : 'text-zinc-600 dark:text-zinc-400'
+                    ? 'bg-[#172033] text-white shadow-sm'
+                    : 'text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900'
                 }`}
               >
-                <Icon className="w-4 h-4" style={{ color: item.color }} />
+                <Icon className="w-4 h-4" style={{ color: isActive ? '#FFFFFF' : item.color }} />
                 <span>{item.label}</span>
               </Link>
             );

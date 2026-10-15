@@ -5,6 +5,8 @@
  * Explore discovery, search, filtering, and breadcrumb navigation.
  */
 
+import { ECE_CURRICULUM_SPECIFICATIONS } from './ece-curriculum';
+
 export type LaboratoryId =
   | 'ece'
   | 'physics'
@@ -164,107 +166,8 @@ export const LABORATORIES: Record<LaboratoryId, LaboratoryDef> = {
 };
 
 export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
-  // 0. ECE: Half Adder & Full Adder Virtual Laboratory (Flagship Working Experiment)
-  {
-    id: 'half-full-adder',
-    title: 'Half Adder & Full Adder Virtual Laboratory',
-    shortTitle: 'Adders Lab',
-    description:
-      'Genuinely interactive 2D circuit editor and digital arithmetic lab featuring gate-level Half Adder and Full Adder construction, real-time signal propagation, interactive switches, output LEDs, live truth tables, automated N-bit verification, and multi-channel logic analysis.',
-    laboratoryId: 'ece',
-    category: 'Digital Electronics and Logic Design',
-    difficulty: 'Introductory',
-    status: 'available',
-    route: '/experiments/ece/adders',
-    disciplineColor: '#06B6D4',
-    featured: true,
-    tags: ['Adders', 'Half Adder', 'Full Adder', 'Combinational Logic', 'XOR', 'AND', 'NAND Universal', 'Truth Table', 'Circuit Editor', 'IIT Roorkee'],
-    learningObjectives: [
-      'Understand binary addition of bits and carry propagation mechanisms',
-      'Construct Half Adder using XOR and AND gates',
-      'Construct Full Adder using two cascaded Half Adders and an OR gate',
-      'Evaluate universal NAND gate implementations',
-      'Verify circuit behavior across all 2^N input combinations with automated discrepancy detection',
-    ],
-    capabilities: [
-      'Interactive 2D Component Drag-and-Drop Canvas',
-      'Real-time topological signal propagation (HIGH, LOW, FLOATING, INVALID)',
-      'Automated Truth Table Verification against analytical boolean model',
-      'Multi-channel digital logic analyzer / oscilloscope waveforms',
-      'Digital Logic Probe with voltage and rise-time measurement',
-      'Interactive input switches and LED state visualization',
-      'Guided reference circuit loader and freeform sandbox mode',
-    ],
-    equations: [
-      'S_{HA} = A \\oplus B',
-      'C_{HA} = A \\cdot B',
-      'S_{FA} = A \\oplus B \\oplus C_{in}',
-      'C_{out} = (A \\cdot B) + (C_{in} \\cdot (A \\oplus B))',
-    ],
-  },
-
-  // ECE: Analog & Basic Electronics (In Development)
-  {
-    id: 'rc-rlc-bode',
-    title: 'RLC Circuit Resonance & Frequency Response (Bode Plotter)',
-    shortTitle: 'RLC Frequency Response',
-    description:
-      'AC circuit analysis with sinusoidal signal generator, reactive impedance calculations, resonant frequency peak, Q-factor, and interactive magnitude/phase Bode plots.',
-    laboratoryId: 'ece',
-    category: 'Basic and Analog Electronics',
-    difficulty: 'Intermediate',
-    status: 'in_development',
-    route: '/experiments/ece/adders',
-    disciplineColor: '#06B6D4',
-    tags: ['RLC', 'Resonance', 'Bode Plot', 'Frequency Response', 'Analog Filter'],
-    learningObjectives: [
-      'Calculate series and parallel RLC resonant frequency and quality factor',
-      'Plot logarithmic amplitude ratio and phase angle versus angular frequency',
-    ],
-    capabilities: ['Virtual Function Generator', 'AC Phasor Diagram', 'Interactive Bode Magnitude & Phase Plot'],
-  },
-
-  // ECE: Analog & Digital Communication (In Development)
-  {
-    id: 'am-fm-modulation',
-    title: 'Analog Communication (AM & FM Modulation Workbench)',
-    shortTitle: 'AM/FM Modulation',
-    description:
-      'Carrier modulation laboratory featuring double-sideband suppressed carrier (DSB-SC), frequency modulation index, modulation envelope detector, and spectral harmonics.',
-    laboratoryId: 'ece',
-    category: 'Analog and Digital Communication',
-    difficulty: 'Intermediate',
-    status: 'in_development',
-    route: '/experiments/ece/adders',
-    disciplineColor: '#06B6D4',
-    tags: ['AM', 'FM', 'Carrier Modulation', 'Spectrum', 'Demodulation'],
-    learningObjectives: [
-      'Observe envelope variation as a function of modulation index m',
-      'Analyze frequency deviation and Carson bandwidth rule for FM signals',
-    ],
-    capabilities: ['Carrier Waveform Generator', 'Envelope Detector', 'FFT Spectral Analyzer'],
-  },
-
-  // ECE: Digital Signal Processing (Planned)
-  {
-    id: 'dsp-fft-filter',
-    title: 'Digital Signal Processing (Sampling, Aliasing & FIR Filter)',
-    shortTitle: 'DSP & Filtering',
-    description:
-      'Discrete-time signal operations exploring Nyquist-Shannon sampling theorem, spectral folding aliasing, DFT/FFT computation, and windowed sinc FIR low-pass filters.',
-    laboratoryId: 'ece',
-    category: 'Digital Signal Processing',
-    difficulty: 'Advanced',
-    status: 'planned',
-    route: '/experiments/ece/adders',
-    disciplineColor: '#06B6D4',
-    tags: ['DSP', 'Sampling', 'Aliasing', 'FFT', 'FIR Filter'],
-    learningObjectives: [
-      'Visualize aliasing when sampling below the Nyquist rate',
-      'Design linear-phase FIR filters using rectangular and Hamming windows',
-    ],
-    capabilities: ['Discrete Signal Sampler', 'Interactive FFT Spectrogram', 'Filter Pole-Zero Z-Plane'],
-  },
+  // Comprehensive ECE Virtual Lab Curriculum Specifications (200 Topics)
+  ...ECE_CURRICULUM_SPECIFICATIONS,
 
   // 1. Projectile Motion
   {

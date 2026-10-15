@@ -131,19 +131,19 @@ export const TruthTableView: React.FC<TruthTableViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#111827] border-l border-zinc-800 p-3 select-none w-80 shrink-0">
+    <div className="flex flex-col h-full bg-white border-l border-zinc-200 p-3 select-none w-80 shrink-0">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800">
+      <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-200">
         <div className="flex items-center gap-1.5">
-          <Sparkles className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-bold uppercase tracking-wider text-zinc-300">
+          <Sparkles className="w-4 h-4 text-[#06B6D4]" />
+          <span className="text-xs font-bold uppercase tracking-wider text-zinc-900">
             {isFullAdder ? 'Full Adder' : 'Half Adder'} Truth Table
           </span>
         </div>
         <button
           onClick={handleStepNext}
           title="Step to next input combination"
-          className="text-[11px] font-bold text-zinc-400 hover:text-cyan-400 px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 transition-colors flex items-center gap-1"
+          className="text-[11px] font-bold text-zinc-600 hover:text-zinc-900 px-2 py-0.5 rounded bg-zinc-100 hover:bg-zinc-200 transition-colors flex items-center gap-1 border border-zinc-200"
         >
           <span>Step</span>
           <ChevronRight className="w-3 h-3" />
@@ -153,16 +153,16 @@ export const TruthTableView: React.FC<TruthTableViewProps> = ({
       {/* Verification Status Banner */}
       {verificationReport && (
         <div
-          className={`p-2 rounded-lg mb-2.5 border text-xs flex items-start gap-2 shadow-sm ${
+          className={`p-2 rounded-lg mb-2.5 border text-xs flex items-start gap-2 shadow-xs ${
             verificationReport.allPassed
-              ? 'bg-emerald-950/80 border-emerald-600/80 text-emerald-200'
-              : 'bg-red-950/80 border-red-600/80 text-red-200'
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+              : 'bg-red-50 border-red-300 text-red-800'
           }`}
         >
           {verificationReport.allPassed ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
           ) : (
-            <XCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+            <XCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
           )}
           <div className="flex flex-col">
             <span className="font-bold">
@@ -178,28 +178,28 @@ export const TruthTableView: React.FC<TruthTableViewProps> = ({
       )}
 
       {/* Table Container */}
-      <div className="flex-1 overflow-y-auto pr-0.5 custom-scrollbar min-h-0 border border-zinc-800 rounded-lg overflow-hidden bg-[#182030]">
+      <div className="flex-1 overflow-y-auto pr-0.5 custom-scrollbar min-h-0 border border-zinc-200 rounded-lg overflow-hidden bg-white">
         <table className="w-full text-xs text-left border-collapse">
           <thead>
-            <tr className="bg-[#0F172A] border-b border-zinc-700/80 text-zinc-400 font-mono text-[11px]">
+            <tr className="bg-zinc-50 border-b border-zinc-200 text-zinc-600 font-mono text-[11px]">
               <th className="py-1.5 px-2 text-center w-6">#</th>
               {spec.inputNames.map((name) => (
-                <th key={name} className="py-1.5 px-2 text-center font-bold text-cyan-400">
+                <th key={name} className="py-1.5 px-2 text-center font-bold text-[#0891B2]">
                   {name}
                 </th>
               ))}
-              <th className="py-1.5 px-1 text-zinc-600 text-center font-normal">|</th>
+              <th className="py-1.5 px-1 text-zinc-400 text-center font-normal">|</th>
               {spec.outputNames.map((name) => (
-                <th key={name} className="py-1.5 px-2 text-center font-bold text-emerald-400">
+                <th key={name} className="py-1.5 px-2 text-center font-bold text-[#16A34A]">
                   {name}
                 </th>
               ))}
               {verificationReport && (
-                <th className="py-1.5 px-2 text-center w-8 text-zinc-400 font-normal">Check</th>
+                <th className="py-1.5 px-2 text-center w-8 text-zinc-500 font-normal">Check</th>
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800/80 font-mono text-[11px]">
+          <tbody className="divide-y divide-zinc-200 font-mono text-[11px]">
             {rows.map((row) => {
               const reportRow = verificationReport?.rows[row.index];
 
@@ -209,28 +209,28 @@ export const TruthTableView: React.FC<TruthTableViewProps> = ({
                   onClick={() => onSetInputs(row.inputs)}
                   className={`cursor-pointer transition-colors ${
                     row.isActive
-                      ? 'bg-cyan-950/90 text-white font-bold ring-1 ring-cyan-500/80'
-                      : 'hover:bg-zinc-800/60 text-zinc-300'
+                      ? 'bg-blue-50 text-blue-950 font-bold ring-1 ring-blue-300'
+                      : 'hover:bg-zinc-50 text-zinc-700'
                   }`}
                   title="Click to apply these inputs to circuit"
                 >
-                  <td className="py-1 px-2 text-center text-[10px] text-zinc-500">{row.index}</td>
+                  <td className="py-1 px-2 text-center text-[10px] text-zinc-400">{row.index}</td>
                   {spec.inputNames.map((name) => (
                     <td
                       key={name}
                       className={`py-1 px-2 text-center ${
-                        row.inputs[name] === 1 ? 'text-white' : 'text-zinc-500'
+                        row.inputs[name] === 1 ? 'text-zinc-900 font-bold' : 'text-zinc-400'
                       }`}
                     >
                       {row.inputs[name]}
                     </td>
                   ))}
-                  <td className="py-1 px-1 text-center text-zinc-700">&bull;</td>
+                  <td className="py-1 px-1 text-center text-zinc-300">&bull;</td>
                   {spec.outputNames.map((name) => (
                     <td
                       key={name}
                       className={`py-1 px-2 text-center ${
-                        row.expected[name] === 1 ? 'text-emerald-400 font-bold' : 'text-zinc-500'
+                        row.expected[name] === 1 ? 'text-[#16A34A] font-bold' : 'text-zinc-400'
                       }`}
                     >
                       {row.expected[name]}
@@ -239,9 +239,9 @@ export const TruthTableView: React.FC<TruthTableViewProps> = ({
                   {verificationReport && (
                     <td className="py-1 px-2 text-center">
                       {reportRow?.passed ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 inline" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 inline" />
                       ) : (
-                        <XCircle className="w-3.5 h-3.5 text-red-400 inline" />
+                        <XCircle className="w-3.5 h-3.5 text-red-600 inline" />
                       )}
                     </td>
                   )}
@@ -253,17 +253,17 @@ export const TruthTableView: React.FC<TruthTableViewProps> = ({
       </div>
 
       {/* Current Live Output Telemetry Box */}
-      <div className="mt-2.5 p-2 rounded-lg bg-[#182030] border border-zinc-800 flex items-center justify-between text-xs">
-        <span className="text-[11px] font-bold text-zinc-400">Observed Output:</span>
+      <div className="mt-2.5 p-2 rounded-lg bg-zinc-50 border border-zinc-200 flex items-center justify-between text-xs">
+        <span className="text-[11px] font-bold text-zinc-600">Observed Output:</span>
         <div className="flex items-center gap-2 font-mono">
           {spec.outputNames.map((name) => {
             const val = currentOutputs[name];
             return (
               <span
                 key={name}
-                className="px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-zinc-200"
+                className="px-1.5 py-0.5 rounded bg-white border border-zinc-200 text-zinc-800 shadow-2xs"
               >
-                {name}: <strong className="text-emerald-400">{val ?? '—'}</strong>
+                {name}: <strong className="text-[#16A34A]">{val ?? '—'}</strong>
               </span>
             );
           })}
@@ -274,7 +274,7 @@ export const TruthTableView: React.FC<TruthTableViewProps> = ({
       <button
         onClick={handleVerify}
         disabled={isVerifying}
-        className="mt-2.5 w-full py-2 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-colors"
+        className="mt-2.5 w-full py-2 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"
       >
         <Sparkles className="w-3.5 h-3.5" />
         <span>{isVerifying ? 'Verifying...' : 'Verify Truth Table'}</span>

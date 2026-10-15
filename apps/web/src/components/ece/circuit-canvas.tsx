@@ -320,28 +320,28 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
       onMouseDown={handleCanvasMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      className="relative w-full h-full min-h-[500px] bg-[#090D16] overflow-hidden select-none cursor-crosshair"
+      className="relative w-full h-full min-h-[500px] bg-[#F8FAFC] overflow-hidden select-none cursor-crosshair"
       style={{
         backgroundImage: snapToGrid
-          ? 'radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)'
+          ? 'radial-gradient(circle, rgba(0,0,0,0.12) 1.2px, transparent 1.2px)'
           : 'none',
         backgroundSize: `${GRID_SIZE * zoom}px ${GRID_SIZE * zoom}px`,
         backgroundPosition: `${pan.x}px ${pan.y}px`,
       }}
     >
       {/* Floating Canvas Controls */}
-      <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-[#172033]/90 backdrop-blur-md p-1 rounded-lg border border-zinc-700/80 shadow-lg text-white">
+      <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-lg border border-zinc-200 shadow-md text-zinc-800">
         <button
           onClick={() => setZoom((z) => Math.min(z + 0.15, 2.5))}
           title="Zoom In"
-          className="p-1.5 hover:bg-zinc-700/60 rounded text-zinc-300 hover:text-white transition-colors"
+          className="p-1.5 hover:bg-zinc-100 rounded text-zinc-600 hover:text-zinc-900 transition-colors"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={() => setZoom((z) => Math.max(z - 0.15, 0.4))}
           title="Zoom Out"
-          className="p-1.5 hover:bg-zinc-700/60 rounded text-zinc-300 hover:text-white transition-colors"
+          className="p-1.5 hover:bg-zinc-100 rounded text-zinc-600 hover:text-zinc-900 transition-colors"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
@@ -351,16 +351,16 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
             setPan({ x: 40, y: 30 });
           }}
           title="Fit / Reset View"
-          className="p-1.5 hover:bg-zinc-700/60 rounded text-zinc-300 hover:text-white transition-colors text-xs font-mono px-2"
+          className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 hover:text-zinc-900 transition-colors text-xs font-mono px-2 font-bold"
         >
           {Math.round(zoom * 100)}%
         </button>
-        <div className="w-[1px] h-4 bg-zinc-700 mx-1" />
+        <div className="w-[1px] h-4 bg-zinc-300 mx-1" />
         <button
           onClick={handleUndo}
           disabled={historyIdx === 0}
           title="Undo (Ctrl+Z)"
-          className="p-1.5 hover:bg-zinc-700/60 disabled:opacity-40 rounded text-zinc-300 hover:text-white transition-colors"
+          className="p-1.5 hover:bg-zinc-100 disabled:opacity-30 rounded text-zinc-600 hover:text-zinc-900 transition-colors"
         >
           <Undo2 className="w-4 h-4" />
         </button>
@@ -368,16 +368,16 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           onClick={handleRedo}
           disabled={historyIdx >= history.length - 1}
           title="Redo (Ctrl+Y)"
-          className="p-1.5 hover:bg-zinc-700/60 disabled:opacity-40 rounded text-zinc-300 hover:text-white transition-colors"
+          className="p-1.5 hover:bg-zinc-100 disabled:opacity-30 rounded text-zinc-600 hover:text-zinc-900 transition-colors"
         >
           <Redo2 className="w-4 h-4" />
         </button>
-        <div className="w-[1px] h-4 bg-zinc-700 mx-1" />
+        <div className="w-[1px] h-4 bg-zinc-300 mx-1" />
         <button
           onClick={() => setSnapToGrid(!snapToGrid)}
           title="Toggle Grid Snap"
-          className={`px-2 py-1 text-xs font-semibold rounded transition-colors ${
-            snapToGrid ? 'bg-cyan-600 text-white' : 'text-zinc-400 hover:bg-zinc-700/60'
+          className={`px-2 py-1 text-xs font-bold rounded transition-colors ${
+            snapToGrid ? 'bg-[#06B6D4] text-white shadow-xs' : 'text-zinc-600 hover:bg-zinc-100'
           }`}
         >
           Grid
@@ -516,13 +516,13 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
               {comp.type === 'INPUT_SWITCH' ? (
                 <div
                   onClick={(e) => handleToggleSwitch(e, comp)}
-                  className="w-full h-full bg-[#182030] border-2 border-zinc-700 rounded-lg p-1.5 flex flex-col justify-between cursor-pointer hover:border-cyan-500 transition-colors shadow-md"
+                  className="w-full h-full bg-white border-2 border-zinc-300 rounded-lg p-1.5 flex flex-col justify-between cursor-pointer hover:border-[#06B6D4] transition-colors shadow-xs"
                 >
-                  <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-zinc-700">
                     <span>{comp.label}</span>
                     <span
                       className={`w-2 h-2 rounded-full ${
-                        comp.state?.switchState === 1 ? 'bg-emerald-400 shadow-sm' : 'bg-zinc-600'
+                        comp.state?.switchState === 1 ? 'bg-emerald-500 shadow-xs' : 'bg-zinc-400'
                       }`}
                     />
                   </div>
@@ -530,8 +530,8 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
                     <span
                       className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
                         comp.state?.switchState === 1
-                          ? 'bg-emerald-500 text-white shadow-sm'
-                          : 'bg-zinc-800 text-zinc-400'
+                          ? 'bg-[#22C55E] text-white shadow-xs'
+                          : 'bg-zinc-100 text-zinc-600 border border-zinc-200'
                       }`}
                     >
                       {comp.state?.switchState === 1 ? 'HIGH (1)' : 'LOW (0)'}
@@ -539,8 +539,8 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
                   </div>
                 </div>
               ) : comp.type === 'OUTPUT_LED' ? (
-                <div className="w-full h-full bg-[#182030] border-2 border-zinc-700 rounded-lg p-1.5 flex flex-col justify-between items-center shadow-md">
-                  <span className="text-[10px] font-bold text-zinc-400 truncate w-full text-center">
+                <div className="w-full h-full bg-white border-2 border-zinc-300 rounded-lg p-1.5 flex flex-col justify-between items-center shadow-xs">
+                  <span className="text-[10px] font-bold text-zinc-700 truncate w-full text-center">
                     {comp.label}
                   </span>
                   <div className="relative">
@@ -552,11 +552,11 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
                           ? 'bg-amber-500/40 border-amber-500/80 border-dashed'
                           : evalResult.terminalSignals[`${comp.id}-in`] === 'INVALID'
                           ? 'bg-red-500 border-white'
-                          : 'bg-zinc-800 border-zinc-600'
+                          : 'bg-zinc-200 border-zinc-300'
                       }`}
                     />
                   </div>
-                  <span className="text-[10px] font-mono font-bold text-zinc-300">
+                  <span className="text-[10px] font-mono font-bold text-zinc-800">
                     {evalResult.terminalSignals[`${comp.id}-in`] === 1
                       ? '1'
                       : evalResult.terminalSignals[`${comp.id}-in`] === 0
@@ -565,9 +565,9 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
                   </span>
                 </div>
               ) : comp.type === 'LOGIC_PROBE' ? (
-                <div className="w-full h-full bg-[#0F172A] border-2 border-cyan-500 rounded-lg p-1 flex flex-col justify-center items-center shadow-md">
-                  <span className="text-[9px] font-bold text-cyan-400">PROBE</span>
-                  <span className="text-sm font-mono font-bold text-white">
+                <div className="w-full h-full bg-white border-2 border-[#06B6D4] rounded-lg p-1 flex flex-col justify-center items-center shadow-xs">
+                  <span className="text-[9px] font-bold text-[#0891B2]">PROBE</span>
+                  <span className="text-sm font-mono font-bold text-zinc-900">
                     {evalResult.terminalSignals[`${comp.id}-in`] === 1
                       ? '5.0V (1)'
                       : evalResult.terminalSignals[`${comp.id}-in`] === 0
@@ -664,40 +664,40 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
 
       {/* Bottom Status & Diagnostic Strip */}
       <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-xs font-mono pointer-events-none">
-        <div className="flex items-center gap-2 bg-[#172033]/90 px-3 py-1.5 rounded-lg border border-zinc-700/80 text-zinc-300 shadow-md">
+        <div className="flex items-center gap-2 bg-white/95 px-3 py-1.5 rounded-lg border border-zinc-200 text-zinc-700 shadow-md">
           <span className="flex items-center gap-1.5">
             <span
               className={`w-2 h-2 rounded-full ${
-                evalResult.isValid ? 'bg-emerald-400 animate-pulse' : 'bg-red-500'
+                evalResult.isValid ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'
               }`}
             />
-            <strong className="text-white">
+            <strong className="text-zinc-900">
               {evalResult.isValid ? 'Topological Evaluator Active' : 'Circuit Has Errors'}
             </strong>
           </span>
-          <span className="text-zinc-600">&bull;</span>
+          <span className="text-zinc-400">&bull;</span>
           <span>
-            Components: <strong className="text-white">{graph.components.length}</strong>
+            Components: <strong className="text-zinc-900">{graph.components.length}</strong>
           </span>
-          <span className="text-zinc-600">&bull;</span>
+          <span className="text-zinc-400">&bull;</span>
           <span>
-            Wires: <strong className="text-white">{graph.wires.length}</strong>
+            Wires: <strong className="text-zinc-900">{graph.wires.length}</strong>
           </span>
           {evalResult.floatingInputs.length > 0 && (
             <>
-              <span className="text-zinc-600">&bull;</span>
-              <span className="text-amber-400">
+              <span className="text-zinc-400">&bull;</span>
+              <span className="text-amber-600 font-bold">
                 Floating: {evalResult.floatingInputs.length}
               </span>
             </>
           )}
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 bg-[#172033]/90 px-3 py-1.5 rounded-lg border border-zinc-700/80 text-zinc-400 text-[11px] shadow-md">
+        <div className="hidden sm:flex items-center gap-2 bg-white/95 px-3 py-1.5 rounded-lg border border-zinc-200 text-zinc-600 text-[11px] shadow-md">
           <span>Click switch to toggle</span>
-          <span className="text-zinc-600">&bull;</span>
+          <span className="text-zinc-300">&bull;</span>
           <span>Click terminals to wire</span>
-          <span className="text-zinc-600">&bull;</span>
+          <span className="text-zinc-300">&bull;</span>
           <span>Del key to remove</span>
         </div>
       </div>

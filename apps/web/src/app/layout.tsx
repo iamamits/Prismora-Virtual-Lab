@@ -23,8 +23,8 @@ export default function RootLayout({
       <head>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
-      <body className="min-h-full flex flex-col font-sans antialiased bg-[#f8fafc] text-[#172033] dark:bg-[#0b1120] dark:text-[#f8fafc] transition-colors">
-        <ThemeProvider defaultTheme="dark">
+      <body className="min-h-full flex flex-col font-sans antialiased bg-[#F8FAFC] text-[#172033]">
+        <ThemeProvider defaultTheme="light">
           <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>
         </ThemeProvider>

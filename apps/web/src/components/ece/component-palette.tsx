@@ -58,25 +58,25 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ onAddCompone
   });
 
   return (
-    <div className="flex flex-col h-full bg-[#111827] border-r border-zinc-800 p-3 select-none w-64 shrink-0">
-      <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800">
-        <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+    <div className="flex flex-col h-full bg-white border-r border-zinc-200 p-3 select-none w-64 shrink-0 shadow-sm">
+      <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-200">
+        <span className="text-xs font-bold uppercase tracking-wider text-zinc-600">
           Component Library
         </span>
-        <span className="text-[10px] font-mono text-cyan-400 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">
+        <span className="text-[10px] font-mono text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
           {PALETTE_ITEMS.length} Parts
         </span>
       </div>
 
       {/* Search Input */}
       <div className="relative mb-2.5">
-        <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+        <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search components..."
-          className="w-full bg-[#182030] border border-zinc-700/80 rounded-md pl-8 pr-2.5 py-1 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-cyan-500 transition-colors"
+          className="w-full bg-zinc-50 border border-zinc-200 rounded-md pl-8 pr-2.5 py-1 text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-blue-500 transition-colors"
         />
       </div>
 
@@ -88,8 +88,8 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ onAddCompone
             onClick={() => setActiveCategory(cat)}
             className={`flex-1 py-1 rounded text-[11px] font-bold transition-colors ${
               activeCategory === cat
-                ? 'bg-cyan-600 text-white'
-                : 'bg-zinc-800/80 text-zinc-400 hover:text-white'
+                ? 'bg-blue-600 text-white'
+                : 'bg-zinc-100 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200'
             }`}
           >
             {cat}
@@ -103,18 +103,18 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ onAddCompone
           <div
             key={item.type}
             onClick={() => onAddComponent(item.type, item.label)}
-            className="group flex items-center justify-between p-2 rounded-lg bg-[#182030] hover:bg-[#1E293B] border border-zinc-800 hover:border-cyan-500/80 cursor-pointer transition-all shadow-sm"
+            className="group flex items-center justify-between p-2 rounded-lg bg-white hover:bg-zinc-50 border border-zinc-200 hover:border-blue-400 cursor-pointer transition-all shadow-xs"
           >
             <div className="flex flex-col min-w-0 pr-1.5">
-              <span className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors truncate">
+              <span className="text-xs font-bold text-zinc-900 group-hover:text-blue-600 transition-colors truncate">
                 {item.label}
               </span>
-              <span className="text-[10px] text-zinc-400 truncate">
+              <span className="text-[10px] text-zinc-500 truncate">
                 {item.description}
               </span>
             </div>
             <button
-              className="p-1 rounded bg-zinc-800 group-hover:bg-cyan-600 text-zinc-400 group-hover:text-white transition-colors shrink-0"
+              className="p-1 rounded bg-zinc-100 group-hover:bg-blue-600 text-zinc-600 group-hover:text-white transition-colors shrink-0"
               title="Add to Canvas"
             >
               <Plus className="w-3.5 h-3.5" />

@@ -67,22 +67,22 @@ export const LogicAnalyzer: React.FC<LogicAnalyzerProps> = ({
   const trackHeight = 32;
 
   return (
-    <div className="flex flex-col h-full bg-[#111827] border-t border-zinc-800 p-3 select-none">
+    <div className="flex flex-col h-full bg-white border-t border-zinc-200 p-3 select-none">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800">
+      <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-200">
         <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-bold uppercase tracking-wider text-zinc-300">
+          <Activity className="w-4 h-4 text-blue-600" />
+          <span className="text-xs font-bold uppercase tracking-wider text-zinc-700">
             Multi-Channel Digital Logic Analyzer
           </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-100 text-zinc-600 border border-zinc-200">
             {samples.length} Transition Events
           </span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={handleClear}
-            className="text-[11px] font-bold text-zinc-400 hover:text-white px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 transition-colors flex items-center gap-1"
+            className="text-[11px] font-bold text-zinc-600 hover:text-zinc-900 px-2 py-0.5 rounded bg-zinc-100 hover:bg-zinc-200 transition-colors flex items-center gap-1 border border-zinc-200"
           >
             <RotateCcw className="w-3 h-3" />
             <span>Clear</span>
@@ -91,7 +91,7 @@ export const LogicAnalyzer: React.FC<LogicAnalyzerProps> = ({
       </div>
 
       {/* Waveform Canvas Area */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar bg-[#090D16] rounded-lg border border-zinc-800 p-2 flex flex-col justify-between">
+      <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar bg-zinc-50 rounded-lg border border-zinc-200 p-2 flex flex-col justify-between shadow-inner">
         {channels.map((chan) => {
           return (
             <div key={chan.id} className="flex items-center gap-3 h-8">
@@ -100,13 +100,13 @@ export const LogicAnalyzer: React.FC<LogicAnalyzerProps> = ({
                 <span className="text-xs font-mono font-bold" style={{ color: chan.color }}>
                   {chan.name}
                 </span>
-                <span className="text-[10px] font-mono text-zinc-500">
+                <span className="text-[10px] font-mono text-zinc-500 font-semibold">
                   {currentSignals[chan.id] ?? 0}
                 </span>
               </div>
 
               {/* Digital Waveform Trace */}
-              <div className="flex-1 relative h-6 bg-[#182030]/60 rounded overflow-hidden flex items-center">
+              <div className="flex-1 relative h-6 bg-white rounded border border-zinc-200 overflow-hidden flex items-center">
                 <svg
                   className="w-full h-full"
                   viewBox={`0 0 ${Math.max(samples.length * colWidth, 300)} 24`}
@@ -120,7 +120,7 @@ export const LogicAnalyzer: React.FC<LogicAnalyzerProps> = ({
                       y1="0"
                       x2={i * colWidth}
                       y2="24"
-                      stroke="#27272A"
+                      stroke="#F1F5F9"
                       strokeWidth="1"
                     />
                   ))}
@@ -162,8 +162,8 @@ export const LogicAnalyzer: React.FC<LogicAnalyzerProps> = ({
         })}
 
         {/* Time Axis Bar */}
-        <div className="flex items-center gap-3 pt-1 border-t border-zinc-800 text-[10px] font-mono text-zinc-500">
-          <div className="w-20 shrink-0 text-zinc-400 font-bold">Time (t)</div>
+        <div className="flex items-center gap-3 pt-1 border-t border-zinc-200 text-[10px] font-mono text-zinc-500">
+          <div className="w-20 shrink-0 text-zinc-600 font-bold">Time (t)</div>
           <div className="flex-1 flex justify-between pr-2">
             {samples.map((s, i) => (
               <span key={i} style={{ width: `${colWidth}px` }} className="text-center truncate">
