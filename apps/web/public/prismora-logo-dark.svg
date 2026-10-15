@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" fill="none">
+  <!-- Prismora Icon Group (scaled to 100x100) -->
+  <g transform="translate(10, 10) scale(0.5)">
+    <!-- Back Orbital Arc (Cyan) -->
+    <path d="M 46 80 C 14 96 6 124 30 138 C 44 146 68 144 88 136" stroke="#06B6D4" stroke-width="4.5" stroke-linecap="round"/>
+    <circle cx="48" cy="98" r="5" fill="#06B6D4"/>
+    <circle cx="68" cy="85" r="3.5" fill="#06B6D4"/>
+
+    <!-- Prism Faces -->
+    <polygon points="100,16 78,64 100,72" fill="#2563EB"/>
+    <polygon points="100,16 100,72 124,58" fill="#06B6D4"/>
+    <polygon points="100,16 124,58 142,88" fill="#FBBF24"/>
+
+    <polygon points="78,64 100,72 84,104" fill="#8B5CF6"/>
+    <polygon points="78,64 84,104 52,106" fill="#8B5CF6"/>
+
+    <polygon points="52,106 84,104 66,126" fill="#F43F5E"/>
+    <polygon points="52,106 66,126 44,144" fill="#F43F5E"/>
+    <polygon points="24,154 52,106 44,144" fill="#F43F5E"/>
+    <polygon points="24,154 44,144 64,154" fill="#EC4899"/>
+
+    <polygon points="44,144 66,126 92,138" fill="#EC4899"/>
+    <polygon points="44,144 92,138 64,154" fill="#EC4899"/>
+    <polygon points="64,154 92,138 116,154" fill="#22C55E"/>
+    <polygon points="92,138 134,126 116,154" fill="#22C55E"/>
+    <polygon points="116,154 134,126 148,154" fill="#06B6D4"/>
+
+    <polygon points="100,72 124,58 134,126" fill="#8B5CF6"/>
+    <polygon points="124,58 142,88 158,124" fill="#F43F5E"/>
+    <polygon points="124,58 158,124 134,126" fill="#EC4899"/>
+    <polygon points="134,126 158,124 148,154" fill="#2563EB"/>
+    <polygon points="158,124 176,154 148,154" fill="#2563EB"/>
+
+    <!-- Center Sparkle Star (Cyan) -->
+    <path d="M 100 84 Q 100 99 85 99 Q 100 99 100 114 Q 100 99 115 99 Q 100 99 100 84 Z" fill="#06B6D4"/>
+
+    <!-- Front Arc (Pink) -->
+    <path d="M 112 130 C 144 126 172 112 178 94 C 182 80 170 70 148 70 C 138 70 128 74 120 80" stroke="#EC4899" stroke-width="4.5" stroke-linecap="round"/>
+    <circle cx="156" cy="48" r="6.5" fill="#EC4899"/>
+    <circle cx="166" cy="102" r="9.5" fill="#FBBF24"/>
+  </g>
+
+  <!-- Wordmark "PRISMORA" in Light Text (#F8FAFC) -->
+  <g fill="#F8FAFC">
+    <!-- P -->
+    <path d="M 130 38 L 160 38 C 172 38 180 44 180 54 C 180 64 172 70 160 70 L 145 70 L 145 92 L 130 92 Z M 145 52 L 158 52 C 163 52 166 50 166 46 C 166 42 163 40 158 40 L 145 40 Z"/>
+    <!-- R -->
+    <path d="M 190 38 L 220 38 C 232 38 240 44 240 54 C 240 62 234 67 225 69 L 242 92 L 225 92 L 210 71 L 205 71 L 205 92 L 190 92 Z M 205 51 L 218 51 C 223 51 226 49 226 46 C 226 43 223 41 218 41 L 205 41 Z"/>
+    <!-- I -->
+    <path d="M 252 38 L 267 38 L 267 92 L 252 92 Z"/>
+    <!-- S -->
+    <path d="M 280 82 C 284 89 292 93 302 93 C 314 93 322 87 322 78 C 322 68 312 65 300 62 C 285 58 276 53 276 43 C 276 34 286 28 298 28 C 308 28 316 32 321 38 L 311 47 C 308 43 303 40 298 40 C 290 40 286 43 286 48 C 286 54 294 57 304 60 C 318 64 330 69 330 81 C 330 92 318 99 303 99 C 290 99 280 93 274 84 Z"/>
+    <!-- M -->
+    <path d="M 340 38 L 358 38 L 372 68 L 386 38 L 404 38 L 404 92 L 390 92 L 390 56 L 378 82 L 366 82 L 354 56 L 354 92 L 340 92 Z"/>
+    <!-- O -->
+    <path d="M 416 65 C 416 49 428 37 444 37 C 460 37 472 49 472 65 C 472 81 460 93 444 93 C 428 93 416 81 416 65 Z M 431 65 C 431 74 436 80 444 80 C 452 80 457 74 457 65 C 457 56 452 50 444 50 C 436 50 431 56 431 65 Z"/>
+    <!-- R -->
+    <path d="M 482 38 L 512 38 C 524 38 532 44 532 54 C 532 62 526 67 517 69 L 534 92 L 517 92 L 502 71 L 497 71 L 497 92 L 482 92 Z M 497 51 L 510 51 C 515 51 518 49 518 46 C 518 43 515 41 510 41 L 497 41 Z"/>
+  </g>
+
+  <!-- Final A with Sparkle Star Accent -->
+  <g transform="translate(545, 38)">
+    <path d="M 22 0 L 0 54 L 16 54 L 21 41 L 39 41 L 44 54 L 60 54 L 38 0 Z M 25 30 L 30 16 L 35 30 Z" fill="#F8FAFC"/>
+    <!-- Sparkle Accent inside A -->
+    <path d="M 30 68 Q 30 75 23 75 Q 30 75 30 82 Q 30 75 37 75 Q 30 75 30 68 Z" fill="#06B6D4"/>
+  </g>
+</svg>

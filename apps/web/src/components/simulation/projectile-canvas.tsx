@@ -235,31 +235,28 @@ export const ProjectileCanvas: React.FC<ProjectileCanvasProps> = ({
     const pos = currentState.position;
     const currentScreen = worldToScreen(pos.x, pos.y);
 
-    // Glow effect
-    const glowRadius = 12 * dpr;
-    const gradient = ctx.createRadialGradient(
-      currentScreen.x,
-      currentScreen.y,
-      2 * dpr,
-      currentScreen.x,
-      currentScreen.y,
-      glowRadius,
-    );
-    gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
-    gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
-    ctx.fillStyle = gradient;
+    // Solid halo ring (Zero gradients)
+    const haloRadius = 10 * dpr;
+    ctx.strokeStyle = 'rgba(37, 99, 235, 0.45)';
+    ctx.lineWidth = 2 * dpr;
     ctx.beginPath();
-    ctx.arc(currentScreen.x, currentScreen.y, glowRadius, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.arc(currentScreen.x, currentScreen.y, haloRadius, 0, Math.PI * 2);
+    ctx.stroke();
 
-    // Projectile body
-    ctx.fillStyle = '#6366f1'; // Indigo brand
+    // Projectile body (Electric Blue brand)
+    ctx.fillStyle = '#2563eb';
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2 * dpr;
     ctx.beginPath();
     ctx.arc(currentScreen.x, currentScreen.y, 6 * dpr, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
+
+    // Specular highlight dot
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(currentScreen.x - 2 * dpr, currentScreen.y - 2 * dpr, 1.5 * dpr, 0, Math.PI * 2);
+    ctx.fill();
 
     // Helper to draw an arrow
     const drawArrow = (

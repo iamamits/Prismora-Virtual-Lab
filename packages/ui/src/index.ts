@@ -14,4 +14,5 @@ export { VectorDisplay, type VectorDisplayProps } from './components/vector-disp
 export { ParameterControl, type ParameterControlProps } from './components/parameter-control';
 export { SimulationControls, type SimulationControlsProps } from './components/simulation-controls';
 export { ThemeProvider, useTheme } from './components/theme-provider';
+export { PrismoraLogo, PrismoraIcon, type PrismoraLogoProps } from './components/prismora-logo';
 

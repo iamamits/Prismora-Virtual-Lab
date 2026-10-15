@@ -6,6 +6,11 @@ import { Navbar } from '@/components/layout/navbar';
 export const metadata: Metadata = {
   title: 'Prismora — Explore. Experiment. Understand.',
   description: 'An open-source scientific simulation and experimentation platform.',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/prismora-icon.svg',
+  },
 };
 
 export default function RootLayout({
@@ -15,7 +20,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className="h-full">
-      <body className="min-h-full flex flex-col font-sans antialiased bg-[#f8fafc] text-[#0f172a] dark:bg-[#090d16] dark:text-[#f8fafc] transition-colors">
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      </head>
+      <body className="min-h-full flex flex-col font-sans antialiased bg-[#f8fafc] text-[#172033] dark:bg-[#0b1120] dark:text-[#f8fafc] transition-colors">
         <ThemeProvider defaultTheme="dark">
           <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>

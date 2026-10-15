@@ -1,50 +1,110 @@
 /**
- * Prismora Design Tokens
+ * Prismora Design Tokens & Brand System
  *
- * A scientific instrument-inspired design system with precise typography,
- * restrained colors, and high information density.
+ * Vibrant, multi-colour scientific palette inspired by optical prism dispersion:
+ * - Electric Blue (#2563EB)
+ * - Cyan (#06B6D4)
+ * - Violet (#8B5CF6)
+ * - Coral (#F43F5E)
+ * - Pink (#EC4899)
+ * - Amber (#FBBF24)
+ * - Green (#22C55E)
+ * - Deep Navy (#172033)
  *
- * Color palette inspired by scientific instruments:
- * - Deep navy/slate backgrounds for dark mode
- * - Clean white/gray for light mode
- * - Accent colors derived from physics: blue (velocity), green (position),
- *   orange (acceleration), purple (energy)
+ * ABSOLUTELY NO GRADIENTS: All elements use crisp solid colours, balanced
+ * neutrals, high-contrast borders, and clean typography.
  */
 
-export const colors = {
-  // Brand
-  brand: {
-    50: '#eef2ff',
-    100: '#e0e7ff',
-    200: '#c7d2fe',
-    300: '#a5b4fc',
-    400: '#818cf8',
-    500: '#6366f1', // Primary brand
-    600: '#4f46e5',
-    700: '#4338ca',
-    800: '#3730a3',
-    900: '#312e81',
-    950: '#1e1b4b',
-  },
+export const brandColors = {
+  electricBlue: '#2563EB',
+  cyan: '#06B6D4',
+  violet: '#8B5CF6',
+  coral: '#F43F5E',
+  pink: '#EC4899',
+  amber: '#FBBF24',
+  green: '#22C55E',
+  deepNavy: '#172033',
+  darkBg: '#0B1120',
+  lightBg: '#F8FAFC',
+} as const;
 
-  // Semantic physics colors
+/**
+ * Dedicated, consistent color identities for scientific disciplines
+ */
+export const disciplineColors = {
   physics: {
-    position: '#22c55e',     // Green — position vectors
-    velocity: '#3b82f6',     // Blue — velocity vectors
-    acceleration: '#f97316', // Orange — acceleration vectors
-    force: '#ef4444',        // Red — force vectors
-    energy: '#a855f7',       // Purple — energy
-    trajectory: '#06b6d4',   // Cyan — trajectory path
-    ground: '#78716c',       // Stone — ground reference
-    grid: '#d4d4d8',         // Zinc — coordinate grid
+    solid: '#2563EB',
+    name: 'Electric Blue',
+    bgLight: '#EFF6FF',
+    borderLight: '#BFDBFE',
+    bgDark: '#1E3A8A',
+    text: '#2563EB',
+  },
+  chemistry: {
+    solid: '#FBBF24',
+    name: 'Amber Gold',
+    bgLight: '#FFFBEB',
+    borderLight: '#FDE68A',
+    bgDark: '#78350F',
+    text: '#D97706',
+  },
+  biology: {
+    solid: '#22C55E',
+    name: 'Emerald Green',
+    bgLight: '#F0FDF4',
+    borderLight: '#BBF7D0',
+    bgDark: '#14532D',
+    text: '#16A34A',
+  },
+  mathematics: {
+    solid: '#8B5CF6',
+    name: 'Violet',
+    bgLight: '#F5F3FF',
+    borderLight: '#DDD6FE',
+    bgDark: '#4C1D95',
+    text: '#7C3AED',
+  },
+  astronomy: {
+    solid: '#06B6D4',
+    name: 'Cyan',
+    bgLight: '#ECFEFF',
+    borderLight: '#A5F3FC',
+    bgDark: '#164E63',
+    text: '#0891B2',
+  },
+  engineering: {
+    solid: '#F43F5E',
+    name: 'Coral',
+    bgLight: '#FFF1F2',
+    borderLight: '#FECDD3',
+    bgDark: '#881337',
+    text: '#E11D48',
+  },
+} as const;
+
+export const colors = {
+  brand: brandColors,
+  disciplines: disciplineColors,
+
+  // Semantic physics & simulation indicators (solid colors only)
+  physics: {
+    position: '#22C55E',     // Green — position
+    velocity: '#2563EB',     // Electric Blue — velocity
+    acceleration: '#F43F5E', // Coral — acceleration
+    force: '#EC4899',        // Pink — force
+    energy: '#8B5CF6',       // Violet — energy
+    trajectory: '#06B6D4',   // Cyan — trajectory path
+    target: '#FBBF24',       // Amber — target & milestones
+    ground: '#334155',       // Slate — ground reference
+    grid: '#CBD5E1',         // Zinc — coordinate grid
   },
 
-  // Status
+  // State indicators
   status: {
-    success: '#22c55e',
-    warning: '#f59e0b',
-    error: '#ef4444',
-    info: '#3b82f6',
+    success: '#22C55E',
+    warning: '#FBBF24',
+    error: '#F43F5E',
+    info: '#06B6D4',
   },
 } as const;
 
@@ -55,11 +115,11 @@ export const typography = {
     math: ['KaTeX_Main', 'Times New Roman', 'serif'],
   },
   fontSize: {
-    'xs': ['0.75rem', { lineHeight: '1rem' }],
-    'sm': ['0.875rem', { lineHeight: '1.25rem' }],
-    'base': ['1rem', { lineHeight: '1.5rem' }],
-    'lg': ['1.125rem', { lineHeight: '1.75rem' }],
-    'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+    xs: ['0.75rem', { lineHeight: '1rem' }],
+    sm: ['0.875rem', { lineHeight: '1.25rem' }],
+    base: ['1rem', { lineHeight: '1.5rem' }],
+    lg: ['1.125rem', { lineHeight: '1.75rem' }],
+    xl: ['1.25rem', { lineHeight: '1.75rem' }],
     '2xl': ['1.5rem', { lineHeight: '2rem' }],
     '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
     '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
@@ -83,16 +143,18 @@ export const borders = {
 } as const;
 
 export const shadows = {
-  panel: '0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1)',
-  elevated: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
-  modal: '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+  // Crisp flat shadows with subtle depth
+  panel: '0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.08)',
+  elevated: '0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.08)',
+  modal: '0 20px 25px -5px rgba(15, 23, 42, 0.25), 0 8px 10px -6px rgba(15, 23, 42, 0.2)',
+  buttonSolid: '0 2px 0 0 rgba(15, 23, 42, 0.2)',
 } as const;
 
 export const animation = {
   duration: {
-    fast: '150ms',
-    normal: '200ms',
-    slow: '300ms',
+    fast: '120ms',
+    normal: '180ms',
+    slow: '250ms',
   },
   easing: {
     default: 'cubic-bezier(0.4, 0, 0.2, 1)',
@@ -102,7 +164,6 @@ export const animation = {
   },
 } as const;
 
-/** Z-index scale for layering */
 export const zIndex = {
   base: 0,
   panel: 10,
@@ -111,4 +172,3 @@ export const zIndex = {
   modal: 40,
   toast: 50,
 } as const;
-

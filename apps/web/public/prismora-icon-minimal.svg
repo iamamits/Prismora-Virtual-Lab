@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Faceted Geometric Prism (Letter A) -->
+  <!-- Apex Top Left (Electric Blue) -->
+  <polygon points="100,20 78,68 100,76" fill="#2563EB"/>
+  <!-- Apex Top Right (Cyan) -->
+  <polygon points="100,20 100,76 124,62" fill="#06B6D4"/>
+  <!-- Apex Outer Top Right (Amber) -->
+  <polygon points="100,20 124,62 142,92" fill="#FBBF24"/>
+
+  <!-- Left Arm Upper (Violet) -->
+  <polygon points="78,68 100,76 84,108" fill="#8B5CF6"/>
+  <polygon points="78,68 84,108 52,110" fill="#8B5CF6"/>
+
+  <!-- Left Arm Lower (Coral & Pink) -->
+  <polygon points="52,110 84,108 66,130" fill="#F43F5E"/>
+  <polygon points="52,110 66,130 44,148" fill="#F43F5E"/>
+  <polygon points="24,158 52,110 44,148" fill="#F43F5E"/>
+  <polygon points="24,158 44,148 64,158" fill="#EC4899"/>
+
+  <!-- Bottom Crossbar (Pink, Green, Cyan) -->
+  <polygon points="44,148 66,130 92,142" fill="#EC4899"/>
+  <polygon points="44,148 92,142 64,158" fill="#EC4899"/>
+  <polygon points="64,158 92,142 116,158" fill="#22C55E"/>
+  <polygon points="92,142 134,130 116,158" fill="#22C55E"/>
+  <polygon points="116,158 134,130 148,158" fill="#06B6D4"/>
+
+  <!-- Right Arm (Violet, Coral, Pink, Electric Blue) -->
+  <polygon points="100,76 124,62 134,130" fill="#8B5CF6"/>
+  <polygon points="124,62 142,92 158,128" fill="#F43F5E"/>
+  <polygon points="124,62 158,128 134,130" fill="#EC4899"/>
+  <polygon points="134,130 158,128 148,158" fill="#2563EB"/>
+  <polygon points="158,128 176,158 148,158" fill="#2563EB"/>
+
+  <!-- Center 4-Pointed Sparkle Star (Cyan) -->
+  <path d="M 100 88 Q 100 103 85 103 Q 100 103 100 118 Q 100 103 115 103 Q 100 103 100 88 Z" fill="#06B6D4"/>
+</svg>

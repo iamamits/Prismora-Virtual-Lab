@@ -44,6 +44,33 @@ Prismora/
 
 ---
 
+## Visual Identity & Brand System
+
+Prismora's visual identity is inspired by the dispersion of white light into its fundamental spectral components through an optical prism.
+
+### Core Brand Principles
+1. **Geometric Precision:** Faceted equilateral prism with internal 4-point star core and crossing atomic orbital loop.
+2. **Crisp Solid Palette (Zero Gradients):** All surfaces, UI tokens, canvas elements, badges, and buttons use vibrant, un-blended solid colors with balanced neutrals and subtle shadows.
+3. **Scientific Discipline Color Identities:**
+   - **Physics:** Electric Blue (`#2563EB`)
+   - **Chemistry:** Amber Gold (`#FBBF24`)
+   - **Biology:** Emerald Green (`#22C55E`)
+   - **Mathematics:** Royal Violet (`#8B5CF6`)
+   - **Astronomy:** Cyan / Sky (`#06B6D4`)
+   - **Engineering:** Coral Red (`#F43F5E`)
+4. **Typography:** Crisp sans-serif UI typography coupled with `JetBrains Mono` for all numerical readouts, coordinate ticks, and analytical equations.
+
+### Brand Assets & Components
+- **React Components (`@prismora/ui`):** `<PrismoraLogo />` (full lockup, icon, and minimal variants) with light/dark adaptive rendering.
+- **Vector Assets (`apps/web/public/`):**
+  - `prismora-logo.svg` (Horizontal light mode wordmark lockup)
+  - `prismora-logo-dark.svg` (Horizontal dark mode wordmark lockup)
+  - `prismora-icon.svg` (Geometric dispersion prism with atomic orbit)
+  - `prismora-icon-minimal.svg` (Standalone geometric prism)
+  - `favicon.svg` (Squircle dark browser tab icon)
+
+---
+
 ## Flagship Experiment: Projectile Motion
 
 The flagship release includes a scientifically validated, analytical projectile motion simulation:

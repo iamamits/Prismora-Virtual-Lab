@@ -9,7 +9,7 @@
 export interface AssetEntry {
   id: string;
   name: string;
-  category: 'launcher' | 'projectile' | 'instrument' | 'target' | 'environment';
+  category: 'brand' | 'launcher' | 'projectile' | 'instrument' | 'target' | 'environment';
   type: 'vector-procedural' | 'svg' | 'canvas';
   license: string;
   attribution: string;
@@ -18,6 +18,36 @@ export interface AssetEntry {
 
 export const ASSET_MANIFEST: AssetEntry[] = [
   {
+    id: 'prismora-primary-logo',
+    name: 'Prismora Primary Wordmark Lockup',
+    category: 'brand',
+    type: 'svg',
+    license: 'MIT (Prismora Original)',
+    attribution: 'Prismora Design System',
+    description:
+      'Refined geometric dispersion prism symbol featuring triangular body with internal 4-point star, crossing atomic orbital loop, and bold modern wordmark with tagline "Explore. Experiment. Understand."',
+  },
+  {
+    id: 'prismora-prism-icon',
+    name: 'Prismora Geometric Prism Icon',
+    category: 'brand',
+    type: 'svg',
+    license: 'MIT (Prismora Original)',
+    attribution: 'Prismora Design System',
+    description:
+      'Standalone multi-colour faceted geometric prism with electric blue (#2563EB) left facet, cyan (#06B6D4) right facet, deep navy base (#172033), white 4-point star core, and atomic orbital loop in coral/amber/emerald.',
+  },
+  {
+    id: 'prismora-favicon',
+    name: 'Prismora Squircle Favicon',
+    category: 'brand',
+    type: 'svg',
+    license: 'MIT (Prismora Original)',
+    attribution: 'Prismora Design System',
+    description:
+      'Optimized browser tab squircle icon on deep navy background (#0F172A) with high-contrast geometric prism and atomic particle loop.',
+  },
+  {
     id: 'cannon-launcher-articulated',
     name: 'Prismora Articulated Launcher',
     category: 'launcher',
@@ -25,7 +55,7 @@ export const ASSET_MANIFEST: AssetEntry[] = [
     license: 'MIT (Prismora Original)',
     attribution: 'Prismora Design System',
     description:
-      'Articulated scientific launch apparatus featuring an industrial wheeled carriage, hydraulic telescoping elevation pillar, brass pivot bushing, angle protractor gauge, and metallic cannon barrel with interactive rotational grip.',
+      'Articulated scientific launch apparatus featuring an industrial wheeled carriage, solid steel hydraulic elevation pillar with precision specular stripe, angle protractor gauge, and metallic cannon barrel with interactive rotational grip.',
   },
   {
     id: 'projectile-cannonball',
@@ -35,7 +65,7 @@ export const ASSET_MANIFEST: AssetEntry[] = [
     license: 'MIT (Prismora Original)',
     attribution: 'Prismora Design System',
     description:
-      'Metallic sphere with specular reflection highlight, radial gradient depth shading, and ground contact shadow.',
+      'Solid Electric Blue (#2563EB) sphere with crisp white boundary stroke, specular highlight dot, and solid halo ring. Zero gradients.',
   },
   {
     id: 'interactive-target-bullseye',
@@ -75,6 +105,6 @@ export const ASSET_MANIFEST: AssetEntry[] = [
     license: 'MIT (Prismora Original)',
     attribution: 'Prismora Design System',
     description:
-      'Art-directed environmental backdrops for Earth (stratified sky, distant peaks, lush grass), Moon (vacuum black space, stars, lunar regolith), Mars (ochre atmosphere, rusty dunes), and Zero-G Deep Space.',
+      'Art-directed environmental backdrops rendered with solid flat color blocking: Earth (sky blue, mountain silhouettes, emerald hills, stratified ground), Moon (vacuum space, stars, Earth with atmospheric ring), Mars (terracotta atmosphere, rust craters), and Zero-G Deep Space (midnight navy).',
   },
 ];
