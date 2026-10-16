@@ -587,11 +587,12 @@ export const MASTER_EXPERIMENT_INVENTORY: readonly CurricularExperimentDef[] = [
     topic: 'Equilibrium Curve, Rectifying & Stripping Operating Lines, Reflux Ratio R, and Minimum Theoretical Trays',
     description:
       'Continuous binary distillation column simulation. Adjust feed condition q, reflux ratio R, and distillate purity xD to dynamically construct McCabe-Thiele stage stepping triangles.',
-    status: 'in_development',
+    status: 'functional',
     route: '/experiments/chemical/distillation',
     laboratoryId: 'chemistry',
     category: 'Separation Processes',
     difficulty: 'Advanced',
+    featured: true,
     disciplineColor: '#10B981',
     tags: ['Distillation', 'McCabe-Thiele', 'Equilibrium', 'Reflux Ratio', 'Mass Transfer'],
     learningObjectives: [
@@ -632,11 +633,12 @@ export const MASTER_EXPERIMENT_INVENTORY: readonly CurricularExperimentDef[] = [
     topic: 'Substrate Concentration [S], Maximum Velocity Vmax, Michaelis Constant Km, and Competitive Inhibition',
     description:
       'Spectrophotometric enzyme reaction rate simulation. Compute initial velocity v0 across substrate concentrations [S], extract Km and Vmax via Lineweaver-Burk reciprocal plots, and investigate competitive/non-competitive inhibitors.',
-    status: 'in_development',
+    status: 'functional',
     route: '/experiments/biotech/enzyme-kinetics',
     laboratoryId: 'biology',
     category: 'Enzyme Kinetics',
     difficulty: 'Intermediate',
+    featured: true,
     disciplineColor: '#EC4899',
     tags: ['Enzyme', 'Michaelis-Menten', 'Vmax', 'Km', 'Inhibition', 'Biochemistry'],
     learningObjectives: [
@@ -677,11 +679,12 @@ export const MASTER_EXPERIMENT_INVENTORY: readonly CurricularExperimentDef[] = [
     topic: 'Static Determinacy (m + r = 2j), Nodal Equilibrium, Tensile vs Compressive Internal Member Forces',
     description:
       'Interactive structural bridge truss with movable node joints, configurable point loads, roller/pinned supports, real-time method of joints matrix solution, and color-coded member tension (blue) vs compression (red) stress visualization.',
-    status: 'in_development',
+    status: 'functional',
     route: '/experiments/civil/truss-analysis',
     laboratoryId: 'engineering',
     category: 'Structural Analysis',
     difficulty: 'Intermediate',
+    featured: true,
     disciplineColor: '#78716C',
     tags: ['Truss', 'Structural Analysis', 'Method of Joints', 'Tension', 'Compression', 'Statics'],
     learningObjectives: [
@@ -769,11 +772,12 @@ export const MASTER_EXPERIMENT_INVENTORY: readonly CurricularExperimentDef[] = [
     topic: 'Denavit-Hartenberg (DH) Convention, Homogeneous Transformation Matrices, Workspace Reachability, and Inverse Kinematics',
     description:
       'Interactive 2-DOF and 3-DOF articulated robotic arm simulator. Drag end-effector target to solve analytical inverse kinematics, configure joint rotation angles (theta1, theta2, theta3), inspect homogeneous transform matrices [T], and analyze boundary workspace reachability.',
-    status: 'in_development',
+    status: 'functional',
     route: '/experiments/robotics/kinematics',
     laboratoryId: 'engineering',
     category: 'Robotics and Mechanism Analysis',
     difficulty: 'Advanced',
+    featured: true,
     disciplineColor: '#06B6D4',
     tags: ['Robotics', 'Kinematics', 'DH Parameters', 'End Effector', 'Workspace', 'Inverse Kinematics'],
     learningObjectives: [

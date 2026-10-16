@@ -139,4 +139,78 @@ test.describe('Prismora Multi-Domain Scientific Simulation Ecosystem', () => {
     await page.getByRole('button', { name: /Chemistry/ }).click();
     await expect(page.getByText(/Acid-Base Neutralization/)).toBeVisible();
   });
+
+  test('Civil Engineering Laboratory: Bridge truss statics, method of joints and safety factors', async ({ page, isMobile }) => {
+    await page.goto('/experiments/civil/truss-analysis');
+    await expect(page.locator('h1')).toContainText('Bridge Truss Structural Mechanics');
+    if (!isMobile) {
+      await expect(page.getByText('CE-202')).toBeVisible();
+    }
+
+    // Verify Warren truss diagram
+    await expect(page.getByText('PLANAR WARREN BRIDGE TRUSS WORKBENCH')).toBeVisible();
+
+    // Verify 7 pedagogical tabs
+    await expect(page.getByRole('button', { name: '1. Understand' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /3\. Explore/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /5\. Analyze/ })).toBeVisible();
+  });
+
+  test('Robotics & Mechanisms Laboratory: Denavit-Hartenberg frames and analytical inverse kinematics', async ({ page, isMobile }) => {
+    await page.goto('/experiments/robotics/kinematics');
+    await expect(page.locator('h1')).toContainText('Robotic Arm Kinematics');
+    if (!isMobile) {
+      await expect(page.getByText('ID-301')).toBeVisible();
+    }
+
+    // Verify workbench rig
+    await expect(page.getByText('ARTICULATED SERIAL ARM WORKBENCH')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Forward \(FK\)/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Target IK/ })).toBeVisible();
+  });
+
+  test('Chemical Engineering Laboratory: McCabe-Thiele distillation column and VLE stepping', async ({ page, isMobile }) => {
+    await page.goto('/experiments/chemical/distillation');
+    await expect(page.locator('h1')).toContainText('McCabe-Thiele Binary Distillation');
+    if (!isMobile) {
+      await expect(page.getByText('CH-401')).toBeVisible();
+    }
+
+    // Check separation diagram
+    await expect(page.getByText('MCCABE-THIELE BINARY EQUILIBRIUM DIAGRAM')).toBeVisible();
+    await expect(page.getByText(/Theoretical Stages/)).toBeVisible();
+  });
+
+  test('Biotechnology Laboratory: Michaelis-Menten initial velocity and Lineweaver-Burk assays', async ({ page, isMobile }) => {
+    await page.goto('/experiments/biotech/enzyme-kinetics');
+    await expect(page.locator('h1')).toContainText('Enzyme Kinetics Studio');
+    if (!isMobile) {
+      await expect(page.getByText('BT-201')).toBeVisible();
+    }
+
+    // Check kinetic plots and controls
+    await expect(page.getByText(/MICHAELIS-MENTEN HYPERBOLIC VELOCITY CURVE/)).toBeVisible();
+    await expect(page.getByRole('button', { name: '1/v₀ vs 1/[S]' })).toBeVisible();
+  });
+
+  test('Navbar Disciplines Mega-Menu: Displays 11 disciplines and navigates smoothly', async ({ page, isMobile }) => {
+    await page.goto('/');
+
+    if (isMobile) {
+      const menuButton = page.getByRole('button', { name: /Toggle mobile menu/ });
+      await expect(menuButton).toBeVisible();
+      await menuButton.click();
+      await expect(page.getByRole('link', { name: 'Civil Truss Lab' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Distillation Column' })).toBeVisible();
+    } else {
+      const disciplinesButton = page.getByRole('button', { name: /Disciplines & Labs/ });
+      await expect(disciplinesButton).toBeVisible();
+      await disciplinesButton.click();
+      await expect(page.getByText('11 Multi-Disciplinary Scientific Laboratories')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Engineering Disciplines', exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: /Civil Truss Lab/ })).toBeVisible();
+      await expect(page.getByRole('link', { name: /Distillation Column/ })).toBeVisible();
+    }
+  });
 });
+

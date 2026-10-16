@@ -15,6 +15,11 @@ export type LaboratoryId =
   | 'toc'
   | 'mathematics'
   | 'engineering'
+  | 'civil'
+  | 'robotics'
+  | 'chemical'
+  | 'biotech'
+  | 'mechanical'
   | 'chemistry'
   | 'biology';
 
@@ -129,6 +134,61 @@ export const LABORATORIES: Record<LaboratoryId, LaboratoryDef> = {
     disciplineColor: '#8B5CF6', // Royal Violet
     accentBg: '#8B5CF615',
     categories: ['Graphing and Functions', 'Geometry and Vectors', 'Calculus', 'Linear Algebra'],
+  },
+  civil: {
+    id: 'civil',
+    name: 'Civil & Structural Engineering Lab',
+    shortName: 'Civil Engineering',
+    tagline: 'Bridge truss structural statics, method of joints, and safety factors',
+    description:
+      'Method of joints matrix static equilibrium solver for planar Warren bridge trusses, determinacy criterion verification (m + r = 2j), tension/compression member stresses, and yield safety evaluation.',
+    disciplineColor: '#78716C', // Stone
+    accentBg: '#78716C15',
+    categories: ['Structural Analysis', 'Truss Mechanics', 'Statics', 'Stress Distribution'],
+  },
+  robotics: {
+    id: 'robotics',
+    name: 'Robotics & Mechanisms Laboratory',
+    shortName: 'Robotics Lab',
+    tagline: 'Denavit-Hartenberg frames, forward/inverse kinematics, and Jacobian singularities',
+    description:
+      'Interactive multi-link robotic arm testbench featuring DH 4x4 homogeneous transformation matrices, dual-branch closed-form inverse kinematics, and real-time Jacobian determinant singularity warnings.',
+    disciplineColor: '#06B6D4', // Cyan
+    accentBg: '#06B6D415',
+    categories: ['Robotics', 'Kinematics', 'DH Parameters', 'Jacobians & Singularities'],
+  },
+  chemical: {
+    id: 'chemical',
+    name: 'Chemical Engineering Operations Lab',
+    shortName: 'Chemical Engineering',
+    tagline: 'McCabe-Thiele fractional distillation, VLE curves, and separation stages',
+    description:
+      'Continuous fractional distillation column simulation featuring vapor-liquid equilibrium (VLE), dynamic feed thermal q-lines, rectifying and stripping operating lines, and theoretical tray stepping.',
+    disciplineColor: '#10B981', // Emerald
+    accentBg: '#10B98115',
+    categories: ['Separation Processes', 'Distillation Columns', 'Mass Transfer', 'Vapor-Liquid Equilibrium'],
+  },
+  biotech: {
+    id: 'biotech',
+    name: 'Biotechnology & Bioengineering Lab',
+    shortName: 'Biotechnology',
+    tagline: 'Michaelis-Menten enzyme kinetics, Lineweaver-Burk plots, and inhibitor assays',
+    description:
+      'Spectrophotometric initial velocity rate assays, hyperbolic v0 vs [S] curves, Lineweaver-Burk double reciprocal transformations, and reversible enzyme inhibition kinetic models.',
+    disciplineColor: '#EC4899', // Pink
+    accentBg: '#EC489915',
+    categories: ['Enzyme Kinetics', 'Biochemistry', 'Lineweaver-Burk Plots', 'Enzyme Inhibition'],
+  },
+  mechanical: {
+    id: 'mechanical',
+    name: 'Mechanical Vibrations & Dynamics Lab',
+    shortName: 'Mechanical Engineering',
+    tagline: 'Damped harmonic oscillators, resonance magnification, and phase portraits',
+    description:
+      'Mass-spring-dashpot mechanical vibration testbench with underdamped/critically/overdamped modes, harmonic driving frequencies, 90-degree phase resonance, and phase-space state portraits.',
+    disciplineColor: '#F59E0B', // Amber
+    accentBg: '#F59E0B15',
+    categories: ['Vibrations', 'Resonance', 'Phase Space', 'Oscillations'],
   },
   engineering: {
     id: 'engineering',
@@ -359,7 +419,7 @@ export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
     shortTitle: 'Harmonic Oscillator',
     description:
       'Mass-spring-damper oscillator with viscous dashpot, harmonic forcing excitation, phase-space state portrait (x vs v), and resonant frequency magnification factor sweep.',
-    laboratoryId: 'engineering',
+    laboratoryId: 'mechanical',
     category: 'Waves and Oscillations',
     difficulty: 'Intermediate',
     status: 'available',
@@ -465,67 +525,115 @@ export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
     ],
   },
 
-  // 9. Two-Body & Keplerian Orbits (Planned)
-  {
-    id: 'orbital-mechanics',
-    title: 'Two-Body & Keplerian Celestial Orbits',
-    shortTitle: 'Keplerian Orbits',
-    description:
-      'Newtonian gravitational attraction, orbital eccentricity, escape velocity, and Hohmann satellite transfer ellipses.',
-    laboratoryId: 'physics',
-    category: 'Mechanics',
-    difficulty: 'Intermediate',
-    status: 'planned',
-    route: '/experiments/projectile-motion',
-    disciplineColor: '#2563EB',
-    tags: ['Kepler', 'Gravity', 'Orbits', 'Celestial'],
-    learningObjectives: [
-      'Verify Kepler three laws of planetary motion',
-      'Simulate Hohmann transfer orbits between celestial bodies',
-    ],
-    capabilities: ['Orbital Trajectory Plot', 'Eccentricity Slider', 'Transfer Velocity Calculator'],
-  },
-
-  // 9. Predator-Prey Dynamics (Planned)
-  {
-    id: 'population-dynamics',
-    title: 'Lotka-Volterra Predator-Prey Dynamics',
-    shortTitle: 'Predator-Prey',
-    description:
-      'Non-linear ecological equilibrium dynamics with phase plane orbits, environmental carrying capacity limits, and perturbation stability.',
-    laboratoryId: 'biology',
-    category: 'Population Dynamics',
-    difficulty: 'Introductory',
-    status: 'planned',
-    route: '/experiments/projectile-motion',
-    disciplineColor: '#22C55E',
-    tags: ['Ecology', 'Population', 'Differential Equations'],
-    learningObjectives: [
-      'Analyze cyclic population oscillations between predators and prey',
-      'Investigate carrying capacity saturation and extinction thresholds',
-    ],
-    capabilities: ['Phase Plane Viewer', 'Population Time Graph', 'Predation Rate Controls'],
-  },
-
-  // 10. Planar Truss Analysis (Planned)
+  // 9. Planar Truss Structural Analysis (Civil Engineering)
   {
     id: 'truss-structural-analysis',
-    title: 'Planar Truss Structural Stress Analysis',
+    title: 'Planar Bridge Truss Structural Mechanics',
     shortTitle: 'Truss Analysis',
     description:
-      'Method of joints and sections for architectural bridge trusses, tension-compression distribution, and safety factor calculations.',
-    laboratoryId: 'engineering',
+      'Method of joints matrix solution for architectural bridge trusses, tension-compression distribution, safety factors, and node load deflection.',
+    laboratoryId: 'civil',
     category: 'Structural Analysis',
     difficulty: 'Intermediate',
-    status: 'planned',
-    route: '/experiments/projectile-motion',
-    disciplineColor: '#F43F5E',
-    tags: ['Statics', 'Stress', 'Truss', 'Structures'],
+    status: 'available',
+    route: '/experiments/civil/truss-analysis',
+    disciplineColor: '#78716C',
+    featured: true,
+    tags: ['Statics', 'Stress', 'Truss', 'Structures', 'Method of Joints', 'Civil'],
     learningObjectives: [
+      'Verify static determinacy criterion: m + r = 2j',
       'Calculate member forces using the method of joints',
-      'Identify critical failure points under external point loads',
+      'Identify tension vs compression members and yield safety factor',
     ],
-    capabilities: ['Interactive Node Pinning', 'Stress Color-Coding', 'Load Vector Arrow'],
+    capabilities: ['Interactive Node Pinning', 'Stress Color-Coding', 'Load Vector Arrow', 'Safety Factor Matrix'],
+    equations: [
+      '\\sum F_x = 0, \\quad \\sum F_y = 0',
+      '\\sigma_i = \\frac{F_i}{A_i}',
+      'm + r = 2j',
+    ],
+  },
+
+  // 10. Serial Robotic Arm Kinematics (Interdisciplinary / Robotics)
+  {
+    id: 'robotics-kinematics',
+    title: 'Planar & Spatial Robotic Arm Kinematics',
+    shortTitle: 'Robotics Lab',
+    description:
+      'Denavit-Hartenberg (DH) homogeneous transformation matrices, forward kinematics, closed-form analytical inverse kinematics, and Jacobian singularity detection.',
+    laboratoryId: 'robotics',
+    category: 'Robotics',
+    difficulty: 'Advanced',
+    status: 'available',
+    route: '/experiments/robotics/kinematics',
+    disciplineColor: '#06B6D4',
+    featured: true,
+    tags: ['Robotics', 'Kinematics', 'DH Parameters', 'End Effector', 'Inverse Kinematics', 'Jacobian'],
+    learningObjectives: [
+      'Compute forward kinematics via DH 4x4 matrix multiplication',
+      'Solve analytical inverse kinematics for dual elbow configurations',
+      'Detect kinematic singularities where manipulability vanishes',
+    ],
+    capabilities: ['Direct Target IK Drag', 'Servo Joint Angle Sliders', 'Jacobian Matrix HUD', 'Manipulability Gauge'],
+    equations: [
+      '^{i-1}T_i = \\text{Rot}_z(\\theta_i) \\text{Trans}_z(d_i) \\text{Trans}_x(a_i) \\text{Rot}_x(\\alpha_i)',
+      'x_e = l_1 \\cos\\theta_1 + l_2 \\cos(\\theta_1 + \\theta_2)',
+      '\\det(J) = l_1 l_2 \\sin\\theta_2',
+    ],
+  },
+
+  // 11. Fractional Distillation Column (Chemical Engineering)
+  {
+    id: 'distillation-column',
+    title: 'McCabe-Thiele Binary Distillation Column',
+    shortTitle: 'Distillation Lab',
+    description:
+      'Continuous fractional distillation column simulation. Adjust reflux ratio R, feed thermal condition q, distillate and bottoms purity to step off theoretical trays.',
+    laboratoryId: 'chemical',
+    category: 'Separation Processes',
+    difficulty: 'Advanced',
+    status: 'available',
+    route: '/experiments/chemical/distillation',
+    disciplineColor: '#10B981',
+    featured: true,
+    tags: ['Distillation', 'McCabe-Thiele', 'Equilibrium', 'Reflux Ratio', 'VLE'],
+    learningObjectives: [
+      'Construct Vapor-Liquid Equilibrium (VLE) curve for binary mixture',
+      'Plot Rectifying and Stripping operating lines with feed q-line',
+      'Step off theoretical stages to determine total trays and optimal feed plate',
+    ],
+    capabilities: ['McCabe-Thiele Stepping Plot', 'Reflux Ratio Controller', 'Distillation Column Graphic', 'Fenske Min Trays'],
+    equations: [
+      'y = \\frac{R}{R+1} x + \\frac{x_D}{R+1}',
+      'y = \\frac{q}{q-1} x - \\frac{x_F}{q-1}',
+      'N_{min} = \\frac{\\ln(\\frac{x_D}{1-x_D} \\frac{1-x_B}{x_B})}{\\ln\\alpha}',
+    ],
+  },
+
+  // 12. Enzyme Kinetics Studio (Biotechnology & Biomedical)
+  {
+    id: 'enzyme-kinetics',
+    title: 'Enzyme Kinetics: Michaelis-Menten Studio',
+    shortTitle: 'Enzyme Kinetics',
+    description:
+      'Initial velocity rate assays, Lineweaver-Burk double reciprocal plots, and reversible inhibition kinetics (competitive, non-competitive, uncompetitive).',
+    laboratoryId: 'biotech',
+    category: 'Enzyme Kinetics',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/biotech/enzyme-kinetics',
+    disciplineColor: '#EC4899',
+    featured: true,
+    tags: ['Enzyme', 'Michaelis-Menten', 'Lineweaver-Burk', 'Inhibition', 'Biochemistry'],
+    learningObjectives: [
+      'Determine Vmax and Km from hyperbolic Michaelis-Menten rate curves',
+      'Linearize kinetic assays via Lineweaver-Burk transformations',
+      'Distinguish competitive from non-competitive enzyme inhibitors',
+    ],
+    capabilities: ['v0 vs [S] Hyperbolic Plot', 'Lineweaver-Burk 1/v0 vs 1/[S]', 'Inhibition Toggle', 'Substrate Pipette'],
+    equations: [
+      'v_0 = \\frac{V_{max} [S]}{K_m + [S]}',
+      '\\frac{1}{v_0} = \\frac{K_m}{V_{max}} \\frac{1}{[S]} + \\frac{1}{V_{max}}',
+    ],
   },
 ];
 

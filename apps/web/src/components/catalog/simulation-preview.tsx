@@ -1530,6 +1530,125 @@ export function WaveOpticsPreview({ isHovered = false, className = '' }: Preview
 }
 
 /**
+ * 12. Bridge Truss Mechanics Preview
+ */
+export function TrussStructuralPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      {/* Abutments */}
+      <rect x="20" y="140" width="30" height="40" fill="#334155" />
+      <rect x="270" y="140" width="30" height="40" fill="#334155" />
+      {/* Bottom Chord (Tension - Blue) */}
+      <line x1="40" y1="140" x2="280" y2="140" stroke="#3B82F6" strokeWidth="3" />
+      {/* Top Chord (Compression - Red) */}
+      <line x1="100" y1="70" x2="220" y2="70" stroke="#EF4444" strokeWidth="3" />
+      {/* Web Members */}
+      <line x1="40" y1="140" x2="100" y2="70" stroke="#EF4444" strokeWidth="2.5" />
+      <line x1="100" y1="70" x2="160" y2="140" stroke="#3B82F6" strokeWidth="2.5" />
+      <line x1="160" y1="140" x2="220" y2="70" stroke="#3B82F6" strokeWidth="2.5" />
+      <line x1="220" y1="70" x2="280" y2="140" stroke="#EF4444" strokeWidth="2.5" />
+      {/* Center Post */}
+      <line x1="160" y1="140" x2="160" y2="70" stroke="#94A3B8" strokeWidth="2" strokeDasharray="3 3" />
+      {/* Point load arrow */}
+      <line x1="160" y1="15" x2="160" y2="60" stroke="#F97316" strokeWidth="2.5" />
+      <polygon points="156,55 160,68 164,55" fill="#F97316" />
+      <text x="160" y="12" fill="#F97316" fontSize="8" fontFamily="JetBrains Mono, monospace" textAnchor="middle">P = 60kN</text>
+      {/* Joints */}
+      {[[40,140],[160,140],[280,140],[100,70],[220,70]].map(([x,y], idx) => (
+        <circle key={idx} cx={x} cy={y} r="3.5" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+      ))}
+      <text x="24" y="188" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Warren Bridge Truss • Method of Joints • m + r = 2j
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 13. Robotics Serial Arm Kinematics Preview
+ */
+export function RoboticsKinematicsPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      {/* Workspace Envelope */}
+      <circle cx="160" cy="150" r="110" fill="none" stroke="#06B6D4" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
+      {/* Base */}
+      <rect x="145" y="148" width="30" height="15" rx="3" fill="#334155" />
+      <circle cx="160" cy="150" r="6" fill="#0EA5E9" />
+      {/* Link 1 */}
+      <line x1="160" y1="150" x2="210" y2="90" stroke="#0284C7" strokeWidth="5" strokeLinecap="round" />
+      {/* Joint 2 */}
+      <circle cx="210" cy="90" r="5" fill="#FFFFFF" stroke="#0284C7" strokeWidth="2" />
+      {/* Link 2 */}
+      <line x1="210" y1="90" x2="255" y2="70" stroke="#06B6D4" strokeWidth="4" strokeLinecap="round" />
+      {/* End-Effector Gripper */}
+      <circle cx="255" cy="70" r="4.5" fill="#F43F5E" />
+      <path d="M 255 66 L 265 62 M 255 74 L 265 78" stroke="#F43F5E" strokeWidth="2" strokeLinecap="round" />
+      <text x="24" y="188" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Robotics Kinematics • DH Matrix [T] • det(J) = l₁l₂·sinθ₂
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 14. McCabe-Thiele Distillation Preview
+ */
+export function DistillationColumnPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      {/* Box */}
+      <rect x="50" y="30" width="120" height="120" fill="#0F172A" stroke="#334155" strokeWidth="1" />
+      <line x1="50" y1="150" x2="170" y2="30" stroke="#475569" strokeWidth="1" strokeDasharray="3 3" />
+      {/* VLE curve */}
+      <path d="M 50 150 Q 80 50 170 30" stroke="#10B981" strokeWidth="2" fill="none" />
+      {/* Stepping staircase */}
+      <path
+        d="M 160 40 L 135 40 L 135 62 L 110 62 L 110 88 L 85 88 L 85 118 L 65 118 L 65 145"
+        stroke="#F59E0B"
+        strokeWidth="1.5"
+        fill="none"
+      />
+      {/* Distillation Tower on Right */}
+      <rect x="220" y="40" width="50" height="110" rx="25" fill="#1E293B" stroke="#0284C7" strokeWidth="2" />
+      {[60, 75, 90, 105, 120, 135].map((y) => (
+        <line key={y} x1="225" y1={y} x2="265" y2={y} stroke="#38BDF8" strokeWidth="1" strokeDasharray="2 2" />
+      ))}
+      <text x="24" y="188" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        McCabe-Thiele • VLE Equilibrium • R = L/D • N_trays
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 15. Enzyme Kinetics Preview
+ */
+export function EnzymeKineticsPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      {/* Axes */}
+      <line x1="40" y1="150" x2="280" y2="150" stroke="#475569" strokeWidth="1.5" />
+      <line x1="40" y1="30" x2="40" y2="150" stroke="#475569" strokeWidth="1.5" />
+      {/* Vmax Asymptote */}
+      <line x1="40" y1="50" x2="280" y2="50" stroke="#64748B" strokeWidth="1" strokeDasharray="3 3" />
+      <text x="275" y="45" fill="#94A3B8" fontSize="8" fontFamily="JetBrains Mono, monospace" textAnchor="end">V_max</text>
+      {/* Uninhibited Hyperbolic Curve */}
+      <path d="M 40 150 Q 80 60 280 52" stroke="#EC4899" strokeWidth="2.5" fill="none" />
+      {/* Competitive Inhibited Curve */}
+      <path d="M 40 150 Q 140 85 280 54" stroke="#8B5CF6" strokeWidth="1.8" strokeDasharray="4 2" fill="none" />
+      <text x="24" y="188" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Michaelis-Menten Kinetics • v₀ = V_max[S] / (K_m + [S])
+      </text>
+    </svg>
+  );
+}
+
+/**
  * Universal Simulation Preview Dispatcher
  * Automatically routes simulation ID to its dedicated scientific visualization
  */
@@ -1548,9 +1667,11 @@ export function SimulationPreview({
     case 'projectile-motion':
       return <ProjectileMotionPreview isHovered={isHovered} className={className} />;
     case 'network-theorems':
+    case 'thevenin-norton-power':
       return <NetworkTheoremsPreview isHovered={isHovered} className={className} />;
 
     case 'digital-electronics':
+    case 'digital-electronics-12-labs':
     case 'basic-logic-gates':
     case 'universal-nand-nor-realization':
       return <DigitalLogicPreview isHovered={isHovered} className={className} />;
@@ -1561,12 +1682,14 @@ export function SimulationPreview({
     case 'toc':
       return <AutomataDfaPreview isHovered={isHovered} className={className} />;
     case 'ohms-law':
+    case 'ohms-law-dc':
     case 'series-resistor-networks':
     case 'parallel-resistor-networks':
     case 'series-parallel-networks':
     case 'kirchhoff-current-law':
       return <OhmsLawCircuitPreview isHovered={isHovered} className={className} />;
     case 'diode-rectifier':
+    case 'pn-diode-rectifier':
     case 'half-wave-rectifier':
     case 'full-wave-bridge-rectifier':
       return <DiodeRectifierPreview isHovered={isHovered} className={className} />;
@@ -1594,6 +1717,7 @@ export function SimulationPreview({
     case 'harmonic-oscillator-me':
       return <HarmonicOscillatorPreview isHovered={isHovered} className={className} />;
     case 'vector-field-studio':
+    case 'mathematics-studio':
       return <VectorFieldPreview isHovered={isHovered} className={className} />;
     case 'orbital-mechanics':
       return <KeplerOrbitPreview isHovered={isHovered} className={className} />;
@@ -1603,7 +1727,20 @@ export function SimulationPreview({
     case 'wave-optics':
     case 'wave-optics-physics':
       return <WaveOpticsPreview isHovered={isHovered} className={className} />;
+    case 'truss-structural-analysis':
+    case 'truss-structural-mechanics':
+      return <TrussStructuralPreview isHovered={isHovered} className={className} />;
+    case 'robotics-kinematics':
+    case 'robot-kinematics-dh':
+      return <RoboticsKinematicsPreview isHovered={isHovered} className={className} />;
+    case 'distillation-column':
+    case 'mccabe-thiele-distillation':
+      return <DistillationColumnPreview isHovered={isHovered} className={className} />;
+    case 'enzyme-kinetics':
+    case 'enzyme-kinetics-michaelis-menten':
+      return <EnzymeKineticsPreview isHovered={isHovered} className={className} />;
     default:
       return <GenericEceTopicPreview category={category} className={className} />;
   }
 }
+

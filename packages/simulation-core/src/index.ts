@@ -68,4 +68,20 @@ export * from './chemistry';
 export * as Physics from './physics';
 export * from './physics';
 
+// Civil & Structural Engineering (Bridge Truss Mechanics, Method of Joints)
+export * as Civil from './civil';
+export * from './civil';
+
+// Robotics & Mechanisms (DH Parameters, Forward & Inverse Kinematics)
+export * as Robotics from './robotics';
+export * from './robotics';
+
+// Chemical Engineering (McCabe-Thiele Fractional Distillation Column)
+export * as ChemicalEngineering from './chemical';
+export * from './chemical';
+
+// Biotechnology & Bioengineering (Enzyme Kinetics, Michaelis-Menten, Inhibition)
+export * as Biotech from './biotech';
+export * from './biotech';
+
 

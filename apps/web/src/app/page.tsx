@@ -32,15 +32,29 @@ import { SimulationCard } from '@/components/catalog/simulation-card';
 import { FeaturedSimulationSpotlight } from '@/components/catalog/featured-simulation-spotlight';
 import { ExperimentConceptModal } from '@/components/catalog/experiment-concept-modal';
 
+import {
+  Building2,
+  Bot,
+  TestTubes,
+  Dna,
+  Cog,
+  Calculator,
+} from 'lucide-react';
+
 const DISCIPLINES = [
   { id: 'all', name: 'All Laboratories', icon: Compass, color: '#172033' },
   { id: 'physics', name: 'Physics', icon: Atom, color: '#2563EB' },
+  { id: 'civil', name: 'Civil Engineering', icon: Building2, color: '#78716C' },
+  { id: 'robotics', name: 'Robotics & Automation', icon: Bot, color: '#06B6D4' },
+  { id: 'chemical', name: 'Chemical Engineering', icon: TestTubes, color: '#10B981' },
+  { id: 'biotech', name: 'Biotechnology', icon: Dna, color: '#EC4899' },
+  { id: 'mechanical', name: 'Mechanical Dynamics', icon: Cog, color: '#F59E0B' },
   { id: 'ece', name: 'ECE & Circuits', icon: Cpu, color: '#06B6D4' },
   { id: 'digital-electronics', name: 'Digital Logic', icon: Zap, color: '#F43F5E' },
-  { id: 'coa', name: 'Computer Architecture', icon: Layers, color: '#F59E0B' },
+  { id: 'coa', name: 'Computer Architecture', icon: Layers, color: '#06B6D4' },
   { id: 'toc', name: 'Automata & TOC', icon: Binary, color: '#8B5CF6' },
-  { id: 'mathematics', name: 'Mathematics', icon: LineChart, color: '#8B5CF6' },
-  { id: 'chemistry', name: 'Chemistry', icon: FlaskConical, color: '#FBBF24' },
+  { id: 'mathematics', name: 'Mathematics Studio', icon: Calculator, color: '#8B5CF6' },
+  { id: 'chemistry', name: 'Chemical Sciences', icon: FlaskConical, color: '#FBBF24' },
 ] as const;
 
 export default function HomePage() {
@@ -127,10 +141,10 @@ export default function HomePage() {
             <div className="flex flex-wrap md:flex-col items-start md:items-end gap-2 shrink-0">
               <div className="px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-mono font-bold flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>8 Working Interactive Labs</span>
+                <span>16 Working Interactive Labs</span>
               </div>
               <div className="px-3 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-mono font-bold">
-                <span>200+ GATE &amp; B.Tech Topics</span>
+                <span>11 Academic Disciplines</span>
               </div>
               <div className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono">
                 <span>100% Client-Side Solvers</span>
@@ -197,17 +211,21 @@ export default function HomePage() {
                     Explore verified physical models, digital micro-logic, pipelined CPU architectures, and formal automata theory.
                   </p>
                 </div>
-                <Link href="/labs" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-                  <span>View All Labs</span>
+                <Link href="/library" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                  <span>View All Hubs</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { name: 'Physics', tagline: 'Kinematics, Dynamics & Gravity', color: '#2563EB', icon: Atom, route: '/experiments/projectile-motion', status: 'Online' },
-                  { name: 'Digital Electronics', tagline: 'Logic Gates, K-Maps & Adders', color: '#F43F5E', icon: Zap, route: '/experiments/digital-electronics', status: 'Online' },
-                  { name: 'Computer Architecture', tagline: 'RV32I Datapath & Hazards', color: '#06B6D4', icon: Cpu, route: '/experiments/coa', status: 'Online' },
+                  { name: 'Civil Engineering', tagline: 'Bridge Truss Statics & Stress', color: '#78716C', icon: Building2, route: '/experiments/civil/truss-analysis', status: 'Online' },
+                  { name: 'Robotics & Automation', tagline: 'Planar Arm DH Kinematics', color: '#06B6D4', icon: Bot, route: '/experiments/robotics/kinematics', status: 'Online' },
+                  { name: 'Chemical Engineering', tagline: 'McCabe-Thiele Distillation', color: '#10B981', icon: TestTubes, route: '/experiments/chemical/distillation', status: 'Online' },
+                  { name: 'Biotechnology', tagline: 'Michaelis-Menten Kinetics', color: '#EC4899', icon: Dna, route: '/experiments/biotech/enzyme-kinetics', status: 'Online' },
+                  { name: 'Physics', tagline: 'Kinematics & Celestial Gravity', color: '#2563EB', icon: Atom, route: '/experiments/projectile-motion', status: 'Online' },
+                  { name: 'Digital Electronics', tagline: 'Gates, K-Maps & 4-Bit Adders', color: '#F43F5E', icon: Zap, route: '/experiments/digital-electronics', status: 'Online' },
+                  { name: 'Computer Architecture', tagline: 'RV32I 5-Stage Datapath', color: '#06B6D4', icon: Cpu, route: '/experiments/coa', status: 'Online' },
                   { name: 'Theory of Computation', tagline: 'DFA/NFA, CYK & Turing', color: '#8B5CF6', icon: Binary, route: '/experiments/toc', status: 'Online' },
                 ].map((sub) => {
                   const Icon = sub.icon;
