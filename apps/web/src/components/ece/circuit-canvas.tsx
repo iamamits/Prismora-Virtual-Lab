@@ -164,13 +164,22 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [graph, selectedCompId, selectedWireId, handleUndo, handleRedo, pushHistory]);
 
-  // Mouse wheel zoom
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-    const newZoom = Math.min(Math.max(zoom * zoomFactor, 0.4), 2.5);
-    setZoom(newZoom);
-  };
+  // Mouse wheel zoom (attached via native non-passive listener to allow preventDefault safely)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+      setZoom((prevZoom) => Math.min(Math.max(prevZoom * zoomFactor, 0.4), 2.5));
+    };
+
+    container.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', onWheel);
+    };
+  }, []);
 
   // Canvas background pointer down (pan)
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
@@ -316,11 +325,10 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
   return (
     <div
       ref={containerRef}
-      onWheel={handleWheel}
       onMouseDown={handleCanvasMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      className="relative w-full h-full min-h-[500px] bg-[#F8FAFC] overflow-hidden select-none cursor-crosshair"
+      className="relative w-full h-full min-h-[500px] bg-[#F8FAFC] overflow-hidden select-none cursor-crosshair touch-none"
       style={{
         backgroundImage: snapToGrid
           ? 'radial-gradient(circle, rgba(0,0,0,0.12) 1.2px, transparent 1.2px)'

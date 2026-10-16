@@ -394,22 +394,30 @@ export const ImmersiveProjectileScene: React.FC<InteractiveSceneProps> = ({
     }
   };
 
-  // Mouse wheel zoom anchored at cursor
-  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
+  // Mouse wheel zoom anchored at cursor (attached via native non-passive listener to allow preventDefault safely)
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    const vp = { width: canvas.width, height: canvas.height, dpr };
 
-    const screenX = (e.clientX - rect.left) * dpr;
-    const screenY = (e.clientY - rect.top) * dpr;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const vp = { width: canvas.width, height: canvas.height, dpr };
 
-    const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
-    camera.setZoom(camera.zoom * zoomFactor, screenX, screenY, vp);
-    renderScene();
-  };
+      const screenX = (e.clientX - rect.left) * dpr;
+      const screenY = (e.clientY - rect.top) * dpr;
+
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+      camera.setZoom(camera.zoom * zoomFactor, screenX, screenY, vp);
+      renderScene();
+    };
+
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      canvas.removeEventListener('wheel', onWheel);
+    };
+  }, [camera, renderScene]);
 
   const handleZoomIn = () => {
     camera.setZoom(camera.zoom * 1.25);
@@ -459,8 +467,7 @@ export const ImmersiveProjectileScene: React.FC<InteractiveSceneProps> = ({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        onWheel={handleWheel}
-        className="w-full h-full block cursor-grab active:cursor-grabbing"
+        className="w-full h-full block cursor-grab active:cursor-grabbing touch-none"
       />
 
       {/* Floating Scene Controls Toolbar (Top Left) */}
