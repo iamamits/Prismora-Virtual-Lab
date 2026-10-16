@@ -166,9 +166,6 @@ export const LABORATORIES: Record<LaboratoryId, LaboratoryDef> = {
 };
 
 export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
-  // Comprehensive ECE Virtual Lab Curriculum Specifications (200 Topics)
-  ...ECE_CURRICULUM_SPECIFICATIONS,
-
   // 1. Projectile Motion
   {
     id: 'projectile-motion',
@@ -316,6 +313,9 @@ export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
       'V[i, j] = \\bigcup_{k=1}^{j-1} \\{ A \\mid A \\rightarrow B C, B \\in V[i, k], C \\in V[i+k, j-k] \\}',
     ],
   },
+
+  // Comprehensive ECE Virtual Lab Curriculum Specifications (200 Topics)
+  ...ECE_CURRICULUM_SPECIFICATIONS,
 
   // 5. Harmonic Oscillator (Planned / In Development)
   {

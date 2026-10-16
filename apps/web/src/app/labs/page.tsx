@@ -38,6 +38,8 @@ import {
   type SimulationDifficulty,
   querySimulations,
 } from '@/lib/simulations/registry';
+import { SimulationCard } from '@/components/catalog/simulation-card';
+import { ExperimentConceptModal } from '@/components/catalog/experiment-concept-modal';
 
 export default function LabsCatalogPage() {
   const [activeLab, setActiveLab] = useState<LaboratoryId | 'all'>('all');
@@ -45,6 +47,7 @@ export default function LabsCatalogPage() {
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [recentlyVisited, setRecentlyVisited] = useState<string[]>([]);
+  const [selectedConcept, setSelectedConcept] = useState<SimulationRegistryEntry | null>(null);
 
   // Load recently visited experiments from localStorage
   useEffect(() => {
@@ -272,103 +275,14 @@ export default function LabsCatalogPage() {
             <span>Showing {filteredSimulations.length} of {SIMULATION_REGISTRY.length} simulations</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredSimulations.map((sim) => {
-              const lab = LABORATORIES[sim.laboratoryId];
-              const isAvailable = sim.status === 'available';
-
-              return (
-                <Card
-                  key={sim.id}
-                  className="flex flex-col justify-between border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl overflow-hidden hover:shadow-lg transition-all"
-                >
-                  {/* Top Solid Color Discipline Accent */}
-                  <div
-                    className="h-1.5 w-full"
-                    style={{ backgroundColor: sim.disciplineColor }}
-                  />
-
-                  <CardHeader className="p-5 pb-3 space-y-2.5">
-                    {/* Header Badges */}
-                    <div className="flex items-center justify-between gap-2">
-                      <span
-                        className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
-                        style={{
-                          backgroundColor: `${sim.disciplineColor}15`,
-                          color: sim.disciplineColor,
-                          border: `1px solid ${sim.disciplineColor}40`,
-                        }}
-                      >
-                        {lab.shortName} &bull; {sim.category}
-                      </span>
-
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                          isAvailable
-                            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                            : sim.status === 'in_development'
-                            ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
-                            : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700'
-                        }`}
-                      >
-                        {isAvailable && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
-                        {isAvailable ? 'Available Now' : sim.status === 'in_development' ? 'In Development' : 'Planned'}
-                      </span>
-                    </div>
-
-                    <CardTitle className="text-base font-bold text-zinc-900 dark:text-white leading-snug">
-                      {sim.title}
-                    </CardTitle>
-
-                    <p className="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-3 leading-relaxed">
-                      {sim.description}
-                    </p>
-                  </CardHeader>
-
-                  <CardContent className="p-5 pt-0 space-y-4">
-                    {/* Capabilities Badges */}
-                    <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold text-zinc-400 block tracking-wider">
-                        Key Capabilities:
-                      </span>
-                      <div className="flex flex-wrap gap-1">
-                        {sim.capabilities.slice(0, 3).map((cap) => (
-                          <span
-                            key={cap}
-                            className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
-                          >
-                            {cap}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Bottom Action Footer */}
-                    <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                      <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-                        Level: <span className="font-semibold text-zinc-700 dark:text-zinc-300">{sim.difficulty}</span>
-                      </span>
-
-                      <Link href={sim.route}>
-                        <Button
-                          size="sm"
-                          variant={isAvailable ? 'default' : 'outline'}
-                          className={`text-xs h-8 px-3 font-bold ${
-                            isAvailable ? 'text-white' : 'text-zinc-600 dark:text-zinc-400'
-                          }`}
-                          style={{
-                            backgroundColor: isAvailable ? sim.disciplineColor : undefined,
-                          }}
-                        >
-                          <span>{isAvailable ? 'Enter Lab' : 'View Outline'}</span>
-                          <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredSimulations.map((sim) => (
+              <SimulationCard
+                key={sim.id}
+                simulation={sim}
+                onSelectConcept={(s) => setSelectedConcept(s)}
+              />
+            ))}
           </div>
 
           {/* Empty State */}
@@ -398,6 +312,13 @@ export default function LabsCatalogPage() {
           )}
         </div>
       </div>
+
+      {/* Honest Scientific Concept Modal for Planned Labs */}
+      <ExperimentConceptModal
+        simulation={selectedConcept}
+        isOpen={!!selectedConcept}
+        onClose={() => setSelectedConcept(null)}
+      />
     </div>
   );
 }
