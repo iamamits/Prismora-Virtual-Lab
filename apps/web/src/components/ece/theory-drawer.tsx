@@ -19,6 +19,7 @@ import {
   ListOrdered,
   XCircle,
 } from 'lucide-react';
+import { MathView } from '@prismora/ui';
 
 interface TheoryDrawerProps {
   mode: 'half-adder' | 'full-adder';
@@ -159,23 +160,27 @@ export const TheoryDrawer: React.FC<TheoryDrawerProps> = ({ mode }) => {
               <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider block">
                 Analytical Boolean Formulations
               </span>
-              <div className="font-mono text-sm space-y-1.5 text-zinc-900">
+              <div className="space-y-1.5 text-zinc-900">
                 {isFullAdder ? (
                   <>
-                    <div className="p-2 bg-white rounded border border-blue-100 shadow-xs">
-                      <strong className="text-emerald-700">Sum (S)</strong> = A ⊕ B ⊕ Cin
+                    <div className="p-2 bg-white rounded border border-blue-100 shadow-2xs flex items-center justify-between gap-1 overflow-x-auto">
+                      <strong className="text-emerald-700 text-xs shrink-0">Sum (S):</strong>
+                      <MathView math="S = A \oplus B \oplus C_{in}" size="sm" className="font-semibold text-zinc-900" />
                     </div>
-                    <div className="p-2 bg-white rounded border border-blue-100 shadow-xs">
-                      <strong className="text-blue-700">Cout</strong> = (A · B) + (Cin · (A ⊕ B))
+                    <div className="p-2 bg-white rounded border border-blue-100 shadow-2xs flex items-center justify-between gap-1 overflow-x-auto">
+                      <strong className="text-blue-700 text-xs shrink-0">Carry (Cout):</strong>
+                      <MathView math="C_{out} = (A \cdot B) + (C_{in} \cdot (A \oplus B))" size="sm" className="font-semibold text-zinc-900" />
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="p-2 bg-white rounded border border-blue-100 shadow-xs">
-                      <strong className="text-emerald-700">Sum (S)</strong> = A ⊕ B = A̅B + AB̅
+                    <div className="p-2 bg-white rounded border border-blue-100 shadow-2xs flex items-center justify-between gap-1 overflow-x-auto">
+                      <strong className="text-emerald-700 text-xs shrink-0">Sum (S):</strong>
+                      <MathView math="S = A \oplus B = \overline{A}B + A\overline{B}" size="sm" className="font-semibold text-zinc-900" />
                     </div>
-                    <div className="p-2 bg-white rounded border border-blue-100 shadow-xs">
-                      <strong className="text-blue-700">Carry (C)</strong> = A · B
+                    <div className="p-2 bg-white rounded border border-blue-100 shadow-2xs flex items-center justify-between gap-1 overflow-x-auto">
+                      <strong className="text-blue-700 text-xs shrink-0">Carry (C):</strong>
+                      <MathView math="C = A \cdot B" size="sm" className="font-semibold text-zinc-900" />
                     </div>
                   </>
                 )}

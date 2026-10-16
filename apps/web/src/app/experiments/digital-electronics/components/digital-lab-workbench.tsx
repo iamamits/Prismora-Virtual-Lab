@@ -36,7 +36,7 @@ import {
   TimingEngine,
   UniversalGatesEngine,
 } from '@prismora/simulation-core';
-import { Badge, BugReportModal, Button, Card, CardContent, CardHeader, CardTitle } from '@prismora/ui';
+import { Badge, BugReportModal, Button, Card, CardContent, CardHeader, CardTitle, MathView } from '@prismora/ui';
 import {
   DIGITAL_EXPERIMENTS,
   DigitalExperimentCategory,
@@ -1203,13 +1203,21 @@ export function DigitalLabWorkbench({ initialExpId }: DigitalLabWorkbenchProps) 
                     <span className="font-bold text-xs uppercase tracking-wider text-zinc-500">
                       Fundamental Mathematical &amp; Boolean Equations:
                     </span>
-                    <ul className="space-y-1 font-mono text-xs text-blue-600 dark:text-cyan-400">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {currentExp.equations.map((eq, i) => (
-                        <li key={i} className="p-1 rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
-                          {eq}
-                        </li>
+                        <div
+                          key={i}
+                          className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-center shadow-2xs overflow-x-auto"
+                        >
+                          <MathView
+                            math={eq}
+                            display
+                            size="sm"
+                            className="text-blue-700 dark:text-cyan-300 font-medium"
+                          />
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

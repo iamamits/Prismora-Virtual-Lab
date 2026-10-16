@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Sparkles, CheckCircle2, Clock, Eye } from 'lucide-react';
-import { Button } from '@prismora/ui';
+import { Button, MathView, sanitizeToCleanMathText } from '@prismora/ui';
 import { SimulationPreview } from './simulation-preview';
 import type { SimulationRegistryEntry } from '@/lib/simulations/registry';
 
@@ -78,9 +78,13 @@ export function SimulationCard({
         {/* Bottom subtle equation preview if available */}
         {simulation.equations && simulation.equations.length > 0 && (
           <div className="absolute bottom-2.5 left-3 right-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/75 text-zinc-200 border border-zinc-700/60 backdrop-blur-xs inline-block truncate max-w-full">
-              {simulation.equations[0]}
-            </span>
+            <div className="px-2 py-0.5 rounded bg-black/80 text-zinc-100 border border-zinc-700/60 backdrop-blur-xs inline-flex items-center max-w-full overflow-x-auto shadow-md">
+              <MathView
+                math={simulation.equations[0]}
+                size="xs"
+                className="text-zinc-100"
+              />
+            </div>
           </div>
         )}
       </div>
@@ -109,9 +113,20 @@ export function SimulationCard({
         {/* Card Footer: Action Button */}
         <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
           {simulation.equations && simulation.equations.length > 0 ? (
-            <span className="text-[11px] font-mono text-zinc-500 truncate max-w-[150px]">
-              {simulation.equations[0]?.replace(/\\\\/g, '')}
-            </span>
+            <div
+              className="flex items-center gap-1.5 max-w-[170px] overflow-hidden"
+              title={sanitizeToCleanMathText(simulation.equations[0])}
+            >
+              <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 shrink-0 font-mono">
+                Model:
+              </span>
+              <MathView
+                math={simulation.equations[0]}
+                size="xs"
+                className="text-zinc-600 dark:text-zinc-300 font-medium truncate"
+                ariaLabel={`Governing formula: ${simulation.title}`}
+              />
+            </div>
           ) : (
             <span className="text-[11px] text-zinc-400 font-medium">
               Verified Scientific Model

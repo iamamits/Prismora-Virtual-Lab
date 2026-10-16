@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { ProjectileMotionParameters, ProjectileMotionState } from '@prismora/simulation-core';
-import { Card, CardHeader, CardTitle, CardContent } from '@prismora/ui';
+import { Card, CardHeader, CardTitle, CardContent, MathView } from '@prismora/ui';
 
 export interface LiveEquationsProps {
   parameters: ProjectileMotionParameters;
@@ -40,8 +40,8 @@ export const LiveEquations: React.FC<LiveEquationsProps> = ({
       <CardContent className="p-3 space-y-2.5 text-xs font-mono">
         {/* Horizontal Position */}
         <div className="bg-zinc-50 dark:bg-zinc-900/60 p-2 rounded border border-zinc-100 dark:border-zinc-800/80">
-          <div className="text-zinc-500 text-[11px] mb-1">
-            x(t) = v₀·cos(θ)·t
+          <div className="text-zinc-600 dark:text-zinc-400 text-[11px] mb-1 overflow-x-auto">
+            <MathView math="x(t) = v_0 \cos(\theta) t" size="xs" />
           </div>
           <div className="text-zinc-800 dark:text-zinc-200 flex items-center justify-between">
             <span>
@@ -55,8 +55,8 @@ export const LiveEquations: React.FC<LiveEquationsProps> = ({
 
         {/* Vertical Position */}
         <div className="bg-zinc-50 dark:bg-zinc-900/60 p-2 rounded border border-zinc-100 dark:border-zinc-800/80">
-          <div className="text-zinc-500 text-[11px] mb-1">
-            y(t) = y₀ + v₀·sin(θ)·t - ½·g·t²
+          <div className="text-zinc-600 dark:text-zinc-400 text-[11px] mb-1 overflow-x-auto">
+            <MathView math="y(t) = y_0 + v_0 \sin(\theta) t - \frac{1}{2} g t^2" size="xs" />
           </div>
           <div className="text-zinc-800 dark:text-zinc-200 flex items-center justify-between">
             <span className="truncate mr-2">
@@ -71,13 +71,17 @@ export const LiveEquations: React.FC<LiveEquationsProps> = ({
         {/* Velocity Components */}
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-zinc-50 dark:bg-zinc-900/60 p-2 rounded border border-zinc-100 dark:border-zinc-800/80">
-            <div className="text-zinc-500 text-[10px] mb-0.5">v_x(t) = v₀·cos(θ)</div>
+            <div className="text-zinc-600 dark:text-zinc-400 text-[10px] mb-0.5 overflow-x-auto">
+              <MathView math="v_x(t) = v_0 \cos(\theta)" size="xs" />
+            </div>
             <div className="font-semibold text-blue-600 dark:text-blue-400">
               = {state.velocity.x.toFixed(2)} m/s
             </div>
           </div>
           <div className="bg-zinc-50 dark:bg-zinc-900/60 p-2 rounded border border-zinc-100 dark:border-zinc-800/80">
-            <div className="text-zinc-500 text-[10px] mb-0.5">v_y(t) = v₀·sin(θ) - gt</div>
+            <div className="text-zinc-600 dark:text-zinc-400 text-[10px] mb-0.5 overflow-x-auto">
+              <MathView math="v_y(t) = v_0 \sin(\theta) - gt" size="xs" />
+            </div>
             <div className="font-semibold text-blue-600 dark:text-blue-400">
               = {state.velocity.y.toFixed(2)} m/s
             </div>
@@ -86,20 +90,29 @@ export const LiveEquations: React.FC<LiveEquationsProps> = ({
 
         {/* Analytical Maxima */}
         <div className="pt-1 border-t border-zinc-100 dark:border-zinc-800 text-[11px] space-y-1 text-zinc-600 dark:text-zinc-400">
-          <div className="flex justify-between">
-            <span>Total Flight Time (t_f):</span>
+          <div className="flex justify-between items-center">
+            <span className="flex items-center gap-1">
+              <span>Total Flight Time:</span>
+              <MathView math="t_f" size="xs" />
+            </span>
             <span className="font-bold text-zinc-900 dark:text-zinc-100">
               {flightTime !== null ? `${flightTime.toFixed(3)} s` : '∞'}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span>Apex Max Height (h_max):</span>
+          <div className="flex justify-between items-center">
+            <span className="flex items-center gap-1">
+              <span>Apex Max Height:</span>
+              <MathView math="h_{\max}" size="xs" />
+            </span>
             <span className="font-bold text-purple-600 dark:text-purple-400">
               {Number.isFinite(maxHeight) ? `${maxHeight.toFixed(3)} m` : '∞'}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span>Horizontal Range (R):</span>
+          <div className="flex justify-between items-center">
+            <span className="flex items-center gap-1">
+              <span>Horizontal Range:</span>
+              <MathView math="R" size="xs" />
+            </span>
             <span className="font-bold text-emerald-600 dark:text-emerald-400">
               {range !== null ? `${range.toFixed(3)} m` : '—'}
             </span>

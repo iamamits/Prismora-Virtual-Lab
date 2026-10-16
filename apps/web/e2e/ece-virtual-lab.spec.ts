@@ -134,7 +134,8 @@ test.describe('Prismora ECE Virtual Lab — Comprehensive Suite', () => {
 
     // Theory Drawer tabs
     await expect(page.getByText('Full Adder Circuit Architecture')).toBeVisible();
-    await expect(page.getByText('Sum (S) = A ⊕ B ⊕ Cin')).toBeVisible();
+    await expect(page.getByText('Sum (S):')).toBeVisible();
+    await expect(page.locator('.katex').first()).toBeVisible();
 
     // Procedure tab
     await page.getByRole('button', { name: 'Procedure', exact: true }).click();
@@ -206,7 +207,8 @@ test.describe('Prismora ECE Virtual Lab — Comprehensive Suite', () => {
       await theoryBtn.click();
     }
     await expect(page.getByRole('heading', { name: "Ohm's Law & Electrical Energy" })).toBeVisible();
-    await expect(page.getByText('V = I · R')).toBeVisible();
+    await expect(page.getByText("Ohm's Voltage Law:")).toBeVisible();
+    await expect(page.locator('.katex').first()).toBeVisible();
   });
 
   test('Diode & Rectifiers Laboratory: should sweep I-V curve, capture dual-trace oscilloscope waveforms, and filter ripple', async ({

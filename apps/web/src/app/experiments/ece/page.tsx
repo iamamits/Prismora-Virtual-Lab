@@ -14,6 +14,7 @@ import {
   SimulationRegistryEntry,
   SimulationStatus,
 } from '@/lib/simulations/registry';
+import { MathView } from '@prismora/ui';
 import {
   Activity,
   ArrowRight,
@@ -633,8 +634,12 @@ export default function ECELabCatalogPage() {
 
                       {/* Governing formula if available */}
                       {sim.equations && sim.equations.length > 0 && (
-                        <div className="p-2 rounded bg-zinc-50 border border-zinc-200 font-mono text-[11px] text-zinc-800">
-                          {sim.equations[0]}
+                        <div className="p-2 rounded-lg bg-zinc-50 border border-zinc-200 overflow-x-auto">
+                          <MathView
+                            math={sim.equations[0]}
+                            size="xs"
+                            className="text-zinc-800 font-medium"
+                          />
                         </div>
                       )}
                     </div>
@@ -745,12 +750,22 @@ export default function ECELabCatalogPage() {
               )}
 
               {activeSpecModal.equations && activeSpecModal.equations.length > 0 && (
-                <div className="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1">
-                  <h4 className="font-bold text-blue-900">Governing Mathematical Formulations</h4>
-                  <div className="space-y-1 font-mono text-zinc-800 text-[11px]">
+                <div className="p-3 bg-blue-50/60 border border-blue-200 rounded-xl space-y-1.5">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-blue-900">
+                    Governing Mathematical Formulations
+                  </h4>
+                  <div className="space-y-1.5">
                     {activeSpecModal.equations.map((eq, i) => (
-                      <div key={i} className="p-1.5 bg-white rounded border border-blue-100">
-                        {eq}
+                      <div
+                        key={i}
+                        className="p-2 bg-white rounded-lg border border-blue-100 shadow-2xs overflow-x-auto text-center"
+                      >
+                        <MathView
+                          math={eq}
+                          display
+                          size="sm"
+                          className="text-blue-700 font-medium"
+                        />
                       </div>
                     ))}
                   </div>

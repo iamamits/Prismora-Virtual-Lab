@@ -20,18 +20,19 @@
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^3.0.0",
-    "lucide-react": "^0.468.0"
+    "katex": "^0.19.0",
+    "lucide-react": "^0.468.0",
+    "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.6.0",
-    "rimraf": "^6.0.0",
+    "@types/katex": "^0.16.8",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.6.0"
   },
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }
 }
-

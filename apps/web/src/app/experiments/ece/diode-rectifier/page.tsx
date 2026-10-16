@@ -23,7 +23,7 @@ import {
   RectifierTopology,
 } from '@prismora/simulation-core';
 import { Oscilloscope, ScopeSample } from '@/components/ece/instruments/oscilloscope';
-import { BugReportModal } from '@prismora/ui';
+import { BugReportModal, MathView } from '@prismora/ui';
 import {
   Activity,
   AlertTriangle,
@@ -478,22 +478,50 @@ export default function DiodeRectifierLabPage() {
                     blocks current when reverse-biased.
                   </p>
 
-                  <div className="p-3 bg-cyan-50 border border-cyan-200 rounded-lg space-y-1.5">
+                  <div className="p-3 bg-cyan-50 border border-cyan-200 rounded-lg space-y-2">
                     <span className="text-[11px] font-bold text-[#0891B2] uppercase tracking-wide block">
-                      Mathematical Equations
+                      Governing Mathematical Formulations
                     </span>
-                    <div className="font-mono text-xs space-y-1 text-zinc-900">
-                      <div>
-                        <strong>Shockley:</strong> I_D = I_s · (e^(V_D / ηV_T) - 1)
+                    <div className="space-y-2 text-zinc-900">
+                      <div className="p-2 rounded bg-white border border-cyan-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <strong className="text-xs text-cyan-900 shrink-0">Shockley Diode Equation:</strong>
+                        <MathView
+                          math="I_D = I_s \left( e^{\frac{V_D}{\eta V_T}} - 1 \right)"
+                          size="sm"
+                          className="text-blue-700 font-semibold"
+                        />
                       </div>
-                      <div>
-                        <strong>Half-Wave V_dc:</strong> V_dc = (V_m - V_F) / π ≈ 0.318 V_m
+                      <div className="p-2 rounded bg-white border border-cyan-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <strong className="text-xs text-cyan-900 shrink-0">Dynamic Resistance:</strong>
+                        <MathView
+                          math="r_d = \frac{\eta V_T}{I_D}"
+                          size="sm"
+                          className="text-blue-700 font-semibold"
+                        />
                       </div>
-                      <div>
-                        <strong>Bridge V_dc:</strong> V_dc = 2(V_m - 2V_F) / π ≈ 0.636 V_m
+                      <div className="p-2 rounded bg-white border border-cyan-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <strong className="text-xs text-cyan-900 shrink-0">Half-Wave DC Output:</strong>
+                        <MathView
+                          math="V_{dc} = \frac{V_m - V_F}{\pi} \approx 0.318 V_m"
+                          size="sm"
+                          className="text-blue-700 font-semibold"
+                        />
                       </div>
-                      <div>
-                        <strong>Ripple Factor (r):</strong> r = 1 / (2√3 · f · R_L · C)
+                      <div className="p-2 rounded bg-white border border-cyan-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <strong className="text-xs text-cyan-900 shrink-0">Bridge DC Output:</strong>
+                        <MathView
+                          math="V_{dc} = \frac{2(V_m - 2V_F)}{\pi} \approx 0.636 V_m"
+                          size="sm"
+                          className="text-blue-700 font-semibold"
+                        />
+                      </div>
+                      <div className="p-2 rounded bg-white border border-cyan-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <strong className="text-xs text-cyan-900 shrink-0">Filtered Ripple Factor (r):</strong>
+                        <MathView
+                          math="r = \frac{1}{2\sqrt{3} f R_L C}"
+                          size="sm"
+                          className="text-blue-700 font-semibold"
+                        />
                       </div>
                     </div>
                   </div>

@@ -16,4 +16,12 @@ export { SimulationControls, type SimulationControlsProps } from './components/s
 export { ThemeProvider, useTheme } from './components/theme-provider';
 export { PrismoraLogo, PrismoraIcon, type PrismoraLogoProps } from './components/prismora-logo';
 export { BugReportModal, type BugReportModalProps } from './components/bug-report-modal';
+export {
+  MathView,
+  sanitizeToCleanMathText,
+  parseMathString,
+  safeRenderLatex,
+  type MathViewProps,
+  type MathSegment,
+} from './components/math-view';
 

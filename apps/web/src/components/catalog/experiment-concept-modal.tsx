@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { X, Sparkles, BookOpen, CheckCircle2, ArrowRight, Layers, ExternalLink, Calendar } from 'lucide-react';
-import { Button } from '@prismora/ui';
+import { Button, MathView } from '@prismora/ui';
 import { SimulationPreview } from './simulation-preview';
 import type { SimulationRegistryEntry } from '@/lib/simulations/registry';
 
@@ -104,14 +104,19 @@ export function ExperimentConceptModal({
               <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
                 Governing Analytical Models:
               </span>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {simulation.equations.map((eq, i) => (
-                  <code
+                  <div
                     key={i}
-                    className="text-xs font-mono px-2.5 py-1 rounded bg-white dark:bg-black/40 text-blue-600 dark:text-blue-400 border border-zinc-200 dark:border-zinc-800 font-semibold"
+                    className="p-2.5 rounded-lg bg-white dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 shadow-xs max-w-full overflow-x-auto flex items-center justify-center text-center"
                   >
-                    {eq}
-                  </code>
+                    <MathView
+                      math={eq}
+                      display
+                      size="sm"
+                      className="text-blue-700 dark:text-cyan-300 font-semibold"
+                    />
+                  </div>
                 ))}
               </div>
             </div>

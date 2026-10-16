@@ -25,7 +25,7 @@ import { PhysicalLightBulb } from '@/components/ece/physical-components/light-bu
 import { PhysicalResistor } from '@/components/ece/physical-components/physical-resistor';
 import { PhysicalKnifeSwitch } from '@/components/ece/physical-components/knife-switch';
 import { DigitalMultimeter } from '@/components/ece/instruments/digital-multimeter';
-import { BugReportModal } from '@prismora/ui';
+import { BugReportModal, MathView } from '@prismora/ui';
 import {
   Activity,
   AlertTriangle,
@@ -481,8 +481,9 @@ export default function OhmsLawLabPage() {
 
               {/* Caption */}
               <div className="mt-2 text-[11px] text-zinc-600 flex items-center justify-between">
-                <span>
-                  Slope: <strong className="font-mono text-zinc-900">I / V = 1 / R</strong>
+                <span className="flex items-center gap-1">
+                  <span>Slope:</span>
+                  <MathView math="\frac{I}{V} = \frac{1}{R}" size="xs" className="font-semibold text-zinc-900" />
                 </span>
                 <span className="text-[10px] text-zinc-500">
                   {mode === 'incandescent-bulb'
@@ -553,19 +554,34 @@ export default function OhmsLawLabPage() {
                     temperature remains constant.
                   </p>
 
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-1.5">
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
                     <span className="text-[11px] font-bold text-[#2563EB] uppercase tracking-wide block">
                       Fundamental Mathematical Formulations
                     </span>
-                    <div className="font-mono text-xs space-y-1 text-zinc-900">
-                      <div>
-                        <strong>Voltage:</strong> V = I · R
+                    <div className="space-y-2 text-zinc-900">
+                      <div className="p-2 rounded bg-white border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <strong className="text-xs text-blue-900 shrink-0">Ohm's Voltage Law:</strong>
+                        <MathView
+                          math="V = I \cdot R"
+                          size="sm"
+                          className="text-blue-700 font-semibold"
+                        />
                       </div>
-                      <div>
-                        <strong>Current:</strong> I = V / R
+                      <div className="p-2 rounded bg-white border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <strong className="text-xs text-blue-900 shrink-0">Current Equation:</strong>
+                        <MathView
+                          math="I = \frac{V}{R}"
+                          size="sm"
+                          className="text-blue-700 font-semibold"
+                        />
                       </div>
-                      <div>
-                        <strong>Electrical Power:</strong> P = V · I = I²R = V² / R
+                      <div className="p-2 rounded bg-white border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <strong className="text-xs text-blue-900 shrink-0">Joule Power Dissipation:</strong>
+                        <MathView
+                          math="P = V \cdot I = I^2 R = \frac{V^2}{R}"
+                          size="sm"
+                          className="text-blue-700 font-semibold"
+                        />
                       </div>
                     </div>
                   </div>
