@@ -2,7 +2,29 @@
   "name": "prismora",
   "private": true,
   "version": "0.1.0",
-  "description": "Explore. Experiment. Understand. — A scientific simulation and experimentation platform.",
+  "description": "Explore. Experiment. Understand. — Open-source scientific simulation and engineering virtual laboratory platform.",
+  "license": "MIT",
+  "author": "Amit Singh <https://github.com/iamamits>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamamits/Prismora-Virtual-Lab.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iamamits/Prismora-Virtual-Lab/issues"
+  },
+  "homepage": "https://github.com/iamamits/Prismora-Virtual-Lab#readme",
+  "keywords": [
+    "virtual-lab",
+    "scientific-simulation",
+    "engineering",
+    "physics-simulation",
+    "ece",
+    "risc-v",
+    "automata-theory",
+    "nextjs",
+    "typescript",
+    "education"
+  ],
   "scripts": {
     "dev": "pnpm --filter @prismora/web dev",
     "build": "pnpm --filter @prismora/web build",
