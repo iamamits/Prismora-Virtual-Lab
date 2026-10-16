@@ -60,7 +60,26 @@ export interface BridgeNetworkParams {
   rL: number;
 }
 
-export type NetworkTheoremsParams = DualSourceTNetworkParams | BridgeNetworkParams;
+export interface SimpleNetworkParams {
+  topology?: 'dual-source-t-network';
+  v1Volts: number;
+  v2Volts: number;
+  r1Ohms: number;
+  r2Ohms: number;
+  r3Ohms: number;
+  rlOhms: number;
+}
+
+export const DEFAULT_NETWORK_CIRCUIT_PARAMS: SimpleNetworkParams = {
+  v1Volts: 12,
+  v2Volts: 6,
+  r1Ohms: 100,
+  r2Ohms: 150,
+  r3Ohms: 220,
+  rlOhms: 85,
+};
+
+export type NetworkTheoremsParams = DualSourceTNetworkParams | BridgeNetworkParams | SimpleNetworkParams;
 
 export interface LoadSweepPoint {
   rL: number;
@@ -95,6 +114,12 @@ export interface NetworkTheoremsResult {
   pLMax: number; // Maximum possible power delivered (W) at rL = rTh
   efficiencyPct: number; // Power transfer efficiency (%)
   isAtMaximumPower: boolean; // |rL - rTh| < 1e-4
+  // Convenience engineering aliases
+  theveninVoltageVolts: number;
+  theveninResistanceOhms: number;
+  nortonCurrentMilliamps: number;
+  loadPowerMilliwatts: number;
+  maxPossiblePowerMilliwatts: number;
   // Equivalence checks
   originalCircuitMatchesThevenin: boolean;
   theveninMatchesNorton: boolean;
@@ -114,7 +139,15 @@ export interface NetworkTheoremsResult {
  * Validate input parameters for network theorems evaluation.
  */
 export function validateNetworkParams(params: NetworkTheoremsParams): { valid: boolean; error?: string } {
-  if (params.topology === 'dual-source-t-network') {
+  if ('v1Volts' in params) {
+    if (!Number.isFinite(params.v1Volts) || !Number.isFinite(params.v2Volts)) {
+      return { valid: false, error: 'Voltage sources must be finite numbers' };
+    }
+    if (params.r1Ohms <= 0 || params.r2Ohms <= 0 || params.r3Ohms <= 0 || params.rlOhms <= 0) {
+      return { valid: false, error: 'All resistor values must be strictly positive (> 0 Ω)' };
+    }
+    return { valid: true };
+  } else if (params.topology === 'dual-source-t-network') {
     if (!Number.isFinite(params.v1) || !Number.isFinite(params.v2)) {
       return { valid: false, error: 'Voltage sources must be finite numbers' };
     }
@@ -288,6 +321,11 @@ export function evaluateDualSourceTNetwork(params: DualSourceTNetworkParams): Ne
     pLMax,
     efficiencyPct,
     isAtMaximumPower,
+    theveninVoltageVolts: parseFloat(vTh.toFixed(2)),
+    theveninResistanceOhms: parseFloat(rTh.toFixed(2)),
+    nortonCurrentMilliamps: parseFloat((iN * 1000).toFixed(2)),
+    loadPowerMilliwatts: parseFloat((pL_thev * 1000).toFixed(2)),
+    maxPossiblePowerMilliwatts: parseFloat((pLMax * 1000).toFixed(2)),
     originalCircuitMatchesThevenin,
     theveninMatchesNorton,
     superposition: {
@@ -386,6 +424,11 @@ export function evaluateBridgeNetwork(params: BridgeNetworkParams): NetworkTheor
     pLMax,
     efficiencyPct,
     isAtMaximumPower,
+    theveninVoltageVolts: parseFloat(vTh.toFixed(2)),
+    theveninResistanceOhms: parseFloat(rTh.toFixed(2)),
+    nortonCurrentMilliamps: parseFloat((iN * 1000).toFixed(2)),
+    loadPowerMilliwatts: parseFloat((pL_thev * 1000).toFixed(2)),
+    maxPossiblePowerMilliwatts: parseFloat((pLMax * 1000).toFixed(2)),
     originalCircuitMatchesThevenin: true,
     theveninMatchesNorton,
     derivations,
@@ -397,6 +440,20 @@ export function evaluateBridgeNetwork(params: BridgeNetworkParams): NetworkTheor
  * Universal evaluator dispatching to the configured topology.
  */
 export function evaluateNetworkTheorems(params: NetworkTheoremsParams): NetworkTheoremsResult {
+  if ('v1Volts' in params) {
+    const val = validateNetworkParams(params);
+    if (!val.valid) throw new Error(val.error ?? 'Invalid network parameters');
+    return evaluateDualSourceTNetwork({
+      topology: 'dual-source-t-network',
+      v1: params.v1Volts,
+      v2: params.v2Volts,
+      r1: params.r1Ohms,
+      r2: params.r2Ohms,
+      r3: params.r3Ohms,
+      rL: params.rlOhms,
+    });
+  }
+
   const validation = validateNetworkParams(params);
   if (!validation.valid) {
     throw new Error(validation.error ?? 'Invalid network parameters');

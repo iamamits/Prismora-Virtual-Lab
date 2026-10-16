@@ -635,6 +635,258 @@ export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
       '\\frac{1}{v_0} = \\frac{K_m}{V_{max}} \\frac{1}{[S]} + \\frac{1}{V_{max}}',
     ],
   },
+
+  // 13. Venturimeter & Bernoulli's Flow (Mechanical / Fluid Mechanics)
+  {
+    id: 'venturi-flow',
+    title: "Bernoulli's Theorem & Venturimeter Flow Measurement",
+    shortTitle: 'Venturimeter Flow',
+    description:
+      'Fluid mechanics testbench. Measure piezometric pressure heads h1..h7 across converging-diverging venturi pipe, compute theoretical discharge, and determine discharge coefficient Cd.',
+    laboratoryId: 'mechanical',
+    category: 'Fluid Mechanics',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/mechanical?exp=venturi-flow',
+    disciplineColor: '#06B6D4',
+    featured: true,
+    tags: ['Bernoulli', 'Venturimeter', 'Fluid Mechanics', 'Manometer', 'Discharge Coefficient', 'Reynolds Number'],
+    learningObjectives: [
+      'Verify Bernoulli total energy conservation P/rho*g + v^2/2g + z = const along streamlines',
+      'Measure differential head delta_h using multi-tube piezometers',
+      'Calculate theoretical and actual flow rates to determine discharge coefficient Cd',
+    ],
+    capabilities: ['Multi-Tube Piezometer Display', 'Dynamic Velocity Profile', 'Valve Flow Controller', 'Reynolds HUD'],
+    equations: [
+      'P_1 + \\frac{1}{2}\\rho v_1^2 = P_2 + \\frac{1}{2}\\rho v_2^2',
+      'Q_{theo} = \\frac{A_1 A_2}{\\sqrt{A_1^2 - A_2^2}} \\sqrt{2g \\Delta h}',
+      'Q_{act} = C_d \\times Q_{theo}',
+    ],
+  },
+
+  // 14. UTM Tensile Test & Stress-Strain (Mechanical / Materials)
+  {
+    id: 'tensile-test',
+    title: 'Universal Testing Machine (UTM) Tensile Test & Stress-Strain Curve',
+    shortTitle: 'UTM Tensile Test',
+    description:
+      'Uniaxial tensile loading of mild steel, aluminium 6061, and brass specimens. Observe linear Hookean elasticity, yield plateau, plastic strain hardening, necking, and fracture.',
+    laboratoryId: 'mechanical',
+    category: 'Mechanics of Materials',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/mechanical?exp=tensile-test',
+    disciplineColor: '#EF4444',
+    featured: true,
+    tags: ['Tensile Test', 'UTM', 'Stress-Strain', 'Youngs Modulus', 'Yield Strength', 'UTS', 'Ductility'],
+    learningObjectives: [
+      'Derive Young\'s Modulus of Elasticity E from the linear slope of stress vs strain',
+      'Identify 0.2% offset proof yield strength and ultimate tensile strength (UTS)',
+      'Analyze necking instability and percentage reduction in area at fracture',
+    ],
+    capabilities: ['Dogbone Specimen Necking Visualizer', 'Live Stress-Strain Curve Plotter', 'Material Selection Menu', 'Stage Indicator HUD'],
+    equations: [
+      '\\sigma = \\frac{P}{A_0}, \\quad \\epsilon = \\frac{\\Delta L}{L_0}',
+      'E = \\frac{\\sigma}{\\epsilon}',
+      '\\text{UTS} = \\frac{P_{max}}{A_0}',
+    ],
+  },
+
+  // 15. Beam Bending SFD & BMD (Civil / Structural)
+  {
+    id: 'beam-bending',
+    title: 'Beam Bending Mechanics: Shear Force & Bending Moment Diagrams',
+    shortTitle: 'Beam SFD & BMD',
+    description:
+      'Structural mechanics workbench for simply supported and cantilever beams. Apply point loads and distributed loads to plot real-time SFD V(x), BMD M(x), and deflection delta(x).',
+    laboratoryId: 'civil',
+    category: 'Structural Analysis',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/civil?exp=beam-bending',
+    disciplineColor: '#3B82F6',
+    featured: true,
+    tags: ['Beam', 'SFD', 'BMD', 'Shear Force', 'Bending Moment', 'Deflection', 'Flexural Stress'],
+    learningObjectives: [
+      'Construct shear force and bending moment diagrams for combined point and UDL loadings',
+      'Locate points of zero shear corresponding to maximum bending moment',
+      'Compute maximum outer-fiber flexural stress using Euler-Bernoulli equation sigma = M*y/I',
+    ],
+    capabilities: ['Interactive Span & Load Sliders', 'Simultaneous Dual SFD/BMD Plotters', 'Deflection Profile Curve', 'Section Modulus HUD'],
+    equations: [
+      'V(x) = \\frac{dM}{dx}, \\quad M(x) = \\int V(x) dx',
+      '\\frac{M}{I} = \\frac{\\sigma}{y} = \\frac{E}{R}',
+      '\\delta_{max} = \\frac{5 w L^4}{384 E I} + \\frac{P L^3}{48 E I}',
+    ],
+  },
+
+  // 16. Transformer O.C. & S.C. Tests (Electrical Machines)
+  {
+    id: 'transformer-test',
+    title: 'Single-Phase Transformer Open & Short Circuit Tests',
+    shortTitle: 'Transformer Tests',
+    description:
+      'Electrical machines laboratory. Perform no-load O.C. test and full-load S.C. test to extract core loss resistance Rc, magnetizing reactance Xm, equivalent impedance, and efficiency curve.',
+    laboratoryId: 'ece',
+    category: 'Electrical Machines',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/electrical?exp=transformer-test',
+    disciplineColor: '#059669',
+    featured: true,
+    tags: ['Transformer', 'OC Test', 'SC Test', 'Efficiency', 'Voltage Regulation', 'Core Loss', 'Copper Loss'],
+    learningObjectives: [
+      'Determine shunt branch parameters Rc and Xm from open-circuit test measurements',
+      'Calculate series equivalent parameters Req and Xeq from short-circuit test data',
+      'Evaluate transformer efficiency vs load fraction and voltage regulation for lagging/leading power factors',
+    ],
+    capabilities: ['Variac & Meter HUD', 'Equivalent Circuit Parameter Display', 'Efficiency vs Load Curve', 'Power Factor Lag/Lead Selector'],
+    equations: [
+      'R_c = \\frac{V_0^2}{W_0}, \\quad X_m = \\frac{V_0}{I_0 \\sin\\phi_0}',
+      'R_{eq} = \\frac{W_{sc}}{I_{sc}^2}, \\quad Z_{eq} = \\frac{V_{sc}}{I_{sc}}',
+      '\\eta = \\frac{x S \\cos\\phi}{x S \\cos\\phi + P_i + x^2 P_{cu}} \\times 100\\%',
+    ],
+  },
+
+  // 17. Series RLC AC Resonance (Electrical / Signals)
+  {
+    id: 'rlc-resonance',
+    title: 'Series RLC Circuit AC Resonance & Frequency Response',
+    shortTitle: 'RLC Resonance',
+    description:
+      'AC circuit resonance testbench. Sweep frequency from 100 Hz to 1500 Hz to observe resonance peak, minimum impedance Z = R, Quality Factor Q, and phasor phase angles.',
+    laboratoryId: 'ece',
+    category: 'Circuits and Electronics',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/electrical?exp=rlc-resonance',
+    disciplineColor: '#7C3AED',
+    featured: true,
+    tags: ['RLC', 'Resonance', 'Quality Factor', 'Bandwidth', 'Impedance', 'Phasor', 'AC Circuits'],
+    learningObjectives: [
+      'Validate analytical resonant frequency formula f0 = 1 / (2*pi*sqrt(LC))',
+      'Analyze frequency response bandwidth BW and Quality Factor Q = omega0*L / R',
+      'Observe transition between capacitive (f < f0), purely resistive (f = f0), and inductive (f > f0) regimes',
+    ],
+    capabilities: ['Frequency Sweep Generator', 'Resonance Bell Curve Plotter', 'L-C-R Component Sliders', 'Phasor Voltage Meters'],
+    equations: [
+      'f_0 = \\frac{1}{2\\pi\\sqrt{LC}}',
+      'Z(f) = \\sqrt{R^2 + (\\omega L - \\frac{1}{\\omega C})^2}',
+      'Q = \\frac{\\omega_0 L}{R} = \\frac{f_0}{BW}',
+    ],
+  },
+
+  // 18. Chemical Reaction Engineering: CSTR vs PFR (Chemical)
+  {
+    id: 'reactor-kinetics',
+    title: 'Chemical Reaction Engineering: CSTR vs PFR Performance',
+    shortTitle: 'CSTR vs PFR Reactors',
+    description:
+      'Reaction engineering laboratory. Compare isothermal performance of Continuous Stirred Tank Reactor (CSTR) vs Plug Flow Reactor (PFR) for first-order reaction kinetics.',
+    laboratoryId: 'chemical',
+    category: 'Reaction Engineering',
+    difficulty: 'Advanced',
+    status: 'available',
+    route: '/experiments/chemical?exp=reactor-kinetics',
+    disciplineColor: '#059669',
+    featured: true,
+    tags: ['CSTR', 'PFR', 'Reaction Engineering', 'Kinetics', 'Damkohler', 'Space Time', 'Conversion'],
+    learningObjectives: [
+      'Evaluate Damköhler number Da = k*tau and its influence on reactant conversion',
+      'Demonstrate why PFR achieves strictly higher conversion than CSTR for identical space time',
+      'Determine reactor volume ratio required to achieve identical fractional conversion',
+    ],
+    capabilities: ['Dual CSTR/PFR Comparison Graph', 'Space Time & Flow Rate Sliders', 'Effluent Concentration HUD', 'Volume Ratio Meter'],
+    equations: [
+      'X_{CSTR} = \\frac{Da}{1 + Da}, \\quad X_{PFR} = 1 - e^{-Da}',
+      'Da = k \\tau = \\frac{k V}{v_0}',
+      '\\frac{V_{CSTR}}{V_{PFR}} = \\frac{X / (1-X)}{\\ln(1 / (1-X))}',
+    ],
+  },
+
+  // 19. Microbial Growth & Monod Fermentation (Biotechnology)
+  {
+    id: 'bacterial-growth',
+    title: 'Microbial Growth & Monod Kinetics Batch Fermentation',
+    shortTitle: 'Microbial Fermentation',
+    description:
+      'Bioprocess engineering laboratory. Simulate bacterial growth curves through lag, exponential log, stationary, and death phases under Monod substrate limitation.',
+    laboratoryId: 'biotech',
+    category: 'Bioprocess Engineering',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/biotech?exp=bacterial-growth',
+    disciplineColor: '#10B981',
+    featured: true,
+    tags: ['Microbial Growth', 'Monod', 'Fermentation', 'Biomass', 'Doubling Time', 'Yield Factor'],
+    learningObjectives: [
+      'Model bacterial specific growth rate using the Monod equation mu = mu_max * S / (Ks + S)',
+      'Identify transitions between lag, log, stationary, and death phases in batch culture',
+      'Calculate doubling generation time td = ln(2) / mu_max and biomass yield coefficient Yx/s',
+    ],
+    capabilities: ['Biomass & Substrate Dual Trajectory Plot', 'Monod Kinetic Parameter Controls', 'Growth Phase Flag HUD', 'Doubling Time Gauge'],
+    equations: [
+      '\\mu = \\mu_{max} \\frac{S}{K_s + S}',
+      '\\frac{dX}{dt} = (\\mu - k_d) X',
+      't_d = \\frac{\\ln 2}{\\mu_{max}}, \\quad Y_{X/S} = \\frac{\\Delta X}{\\Delta S}',
+    ],
+  },
+
+  // 20. Einstein's Photoelectric Effect (Physics)
+  {
+    id: 'photoelectric-effect',
+    title: "Einstein's Photoelectric Effect & Planck's Constant",
+    shortTitle: 'Photoelectric Effect',
+    description:
+      'Modern physics laboratory. Irradiate metal targets with monochromatic light, adjust retarding voltage, record I-V curves, and determine stopping potential Vs and Planck\'s constant h.',
+    laboratoryId: 'physics',
+    category: 'Modern Physics',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/physics',
+    disciplineColor: '#F59E0B',
+    featured: true,
+    tags: ['Photoelectric', 'Planck Constant', 'Work Function', 'Stopping Potential', 'Photons', 'Threshold Frequency'],
+    learningObjectives: [
+      'Verify Einstein\'s photoelectric equation eVs = h*nu - Phi experimentally',
+      'Confirm independence of stopping potential from incident light intensity',
+      'Determine cathode work function Phi and threshold cut-off wavelength lambda0',
+    ],
+    capabilities: ['Cathode Metal Selector (Cs, Na, K, Zn, Cu)', 'Monochromatic Wavelength Tuner', 'Retarding Voltage Dial', 'Real-time I-V Curve HUD'],
+    equations: [
+      'e V_s = h\\nu - \\Phi = \\frac{hc}{\\lambda} - \\Phi',
+      'K_{max} = \\frac{1}{2} m_e v_{max}^2 = e V_s',
+      '\\nu_0 = \\frac{\\Phi}{h}, \\quad \\lambda_0 = \\frac{hc}{\\Phi}',
+    ],
+  },
+
+  // 21. Closed-Loop PID Controller Tuning (Robotics & Control)
+  {
+    id: 'pid-tuning',
+    title: 'Closed-Loop PID Controller Tuning & Dynamic Step Response',
+    shortTitle: 'PID Controller Tuning',
+    description:
+      'Control systems and robotics workbench. Tune proportional Kp, integral Ki, and derivative Kd gains to eliminate steady-state error and optimize transient step response.',
+    laboratoryId: 'robotics',
+    category: 'Control Systems',
+    difficulty: 'Advanced',
+    status: 'available',
+    route: '/experiments/robotics?exp=pid-tuning',
+    disciplineColor: '#8B5CF6',
+    featured: true,
+    tags: ['PID', 'Control Systems', 'Step Response', 'Overshoot', 'Rise Time', 'Settling Time', 'Feedback'],
+    learningObjectives: [
+      'Understand roles of proportional, integral, and derivative terms in closed-loop error correction',
+      'Minimize rise time tr and peak overshoot Mp% while maintaining closed-loop stability',
+      'Eliminate steady-state error using integral action without introducing windup oscillations',
+    ],
+    capabilities: ['Kp, Ki, Kd Tuning Sliders', 'Transient Step Response Scope', 'Performance Indices HUD (tr, tp, ts, Mp)', 'Plant Damping Controls'],
+    equations: [
+      'u(t) = K_p e(t) + K_i \\int e(\\tau) d\\tau + K_d \\frac{de(t)}{dt}',
+      'G(s) = \\frac{\\omega_n^2}{s^2 + 2\\zeta \\omega_n s + \\omega_n^2}',
+      'M_p = e^{-\\frac{\\pi \\zeta}{\\sqrt{1 - \\zeta^2}}} \\times 100\\%',
+    ],
+  },
 ];
 
 /**

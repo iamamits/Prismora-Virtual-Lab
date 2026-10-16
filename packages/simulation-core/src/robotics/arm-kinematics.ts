@@ -241,3 +241,40 @@ export function computeInverseKinematics(
     },
   };
 }
+
+export interface RoboticArmParameters {
+  readonly link1LengthM: number;
+  readonly link2LengthM: number;
+  readonly joint1AngleRad: number;
+  readonly joint2AngleRad: number;
+}
+
+export const DEFAULT_ROBOTIC_ARM_PARAMS: RoboticArmParameters = {
+  link1LengthM: 2.5,
+  link2LengthM: 2.0,
+  joint1AngleRad: (35 * Math.PI) / 180,
+  joint2AngleRad: (45 * Math.PI) / 180,
+};
+
+export class RoboticArmEngine {
+  static computeForwardKinematics(params: RoboticArmParameters) {
+    const t1Deg = (params.joint1AngleRad * 180) / Math.PI;
+    const t2Deg = (params.joint2AngleRad * 180) / Math.PI;
+    const res = computeForwardKinematics([params.link1LengthM, params.link2LengthM], [t1Deg, t2Deg]);
+    const j1 = res.joints[1] ?? { x: 0, y: 0 };
+    const j2 = res.endEffector;
+    const detJ = params.link1LengthM * params.link2LengthM * Math.sin(params.joint2AngleRad);
+    return {
+      joint1X: 0,
+      joint1Y: 0,
+      joint2X: j1.x,
+      joint2Y: j1.y,
+      endEffectorX: j2.x,
+      endEffectorY: j2.y,
+      jacobianDeterminant: parseFloat(detJ.toFixed(3)),
+      isSingular: res.isSingular,
+      manipulability: res.manipulability,
+      raw: res,
+    };
+  }
+}

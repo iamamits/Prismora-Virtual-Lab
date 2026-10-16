@@ -18,14 +18,18 @@ export type InhibitionType = 'none' | 'competitive' | 'non_competitive' | 'uncom
 
 export interface EnzymeKineticsParameters {
   readonly vMax: number;          // Maximum velocity V_max in umol/(L*min) (e.g. 100)
-  readonly kM: number;            // Michaelis constant K_m in mM (e.g. 5.0)
-  readonly substrateConcentration: number; // Current [S] in mM (e.g. 2.0)
-  readonly inhibitionType: InhibitionType;
-  readonly inhibitorConcentration: number; // [I] in mM (e.g. 1.5)
-  readonly inhibitorConstantKi: number;    // K_i in mM (e.g. 2.0)
+  readonly kM?: number;            // Michaelis constant K_m in mM (e.g. 5.0)
+  readonly kmMm?: number;          // Alias for kM
+  readonly substrateConcentration?: number; // Current [S] in mM (e.g. 2.0)
+  readonly currentSubstrateMm?: number;     // Alias for substrateConcentration
+  readonly inhibitionType?: InhibitionType;
+  readonly inhibitorConcentration?: number; // [I] in mM (e.g. 1.5)
+  readonly inhibitorConstantKi?: number;    // K_i in mM (e.g. 2.0)
   readonly temperatureC?: number;          // Temperature (e.g. 37 C)
   readonly ph?: number;                    // pH (e.g. 7.4)
 }
+
+export type EnzymeParameters = EnzymeKineticsParameters;
 
 export interface KineticsDataPoint {
   readonly substrate: number;     // [S] in mM
@@ -34,16 +38,25 @@ export interface KineticsDataPoint {
   readonly invVelocity: number;   // 1 / v_0
 }
 
+export interface EnzymeCurvePoint {
+  readonly s: number;
+  readonly v: number;
+  readonly substrateMm: number;
+  readonly velocity: number;
+}
+
 export interface EnzymeAnalysisResult {
   readonly currentVelocity: number;
   readonly apparentVMax: number;
+  readonly apparentVmax: number; // alias
   readonly apparentKM: number;
+  readonly apparentKm: number; // alias
   readonly lineweaverBurkSlope: number;
   readonly lineweaverBurkYIntercept: number;
   readonly lineweaverBurkXIntercept: number;
   readonly saturationFraction: number; // v_0 / V_max
   readonly dataPoints: readonly KineticsDataPoint[];
-  readonly curvePoints: readonly { s: number; v: number }[];
+  readonly curvePoints: readonly EnzymeCurvePoint[];
   readonly lineweaverPoints: readonly { invS: number; invV: number }[];
 }
 
@@ -62,14 +75,12 @@ export const DEFAULT_ENZYME_PARAMS: EnzymeKineticsParameters = {
  * Solve analytical Michaelis-Menten kinetics with inhibition
  */
 export function solveEnzymeKinetics(params: EnzymeKineticsParameters): EnzymeAnalysisResult {
-  const {
-    vMax,
-    kM,
-    substrateConcentration: S,
-    inhibitionType,
-    inhibitorConcentration: I,
-    inhibitorConstantKi: Ki,
-  } = params;
+  const kM = params.kM ?? params.kmMm ?? 4.5;
+  const S = params.substrateConcentration ?? params.currentSubstrateMm ?? 5.0;
+  const vMax = params.vMax;
+  const inhibitionType = params.inhibitionType ?? 'none';
+  const I = params.inhibitorConcentration ?? 0;
+  const Ki = params.inhibitorConstantKi ?? 2.0;
 
   // Compute apparent parameters based on inhibition type
   const alpha = 1 + (I > 0 && Ki > 0 ? I / Ki : 0);
@@ -118,11 +129,16 @@ export function solveEnzymeKinetics(params: EnzymeKineticsParameters): EnzymeAna
   });
 
   // Smooth Michaelis-Menten hyperbolic curve
-  const curvePoints: Array<{ s: number; v: number }> = [];
-  const maxS = 30;
+  const curvePoints: Array<EnzymeCurvePoint> = [];
+  const maxS = 50;
   for (let s = 0; s <= maxS; s += 0.5) {
     const v = (appVmax * s) / (appKm + s);
-    curvePoints.push({ s, v: parseFloat(v.toFixed(2)) });
+    curvePoints.push({
+      s,
+      v: parseFloat(v.toFixed(2)),
+      substrateMm: s,
+      velocity: parseFloat(v.toFixed(2)),
+    });
   }
 
   // Lineweaver-Burk line: from negative x-intercept to 1/0.5
@@ -144,7 +160,9 @@ export function solveEnzymeKinetics(params: EnzymeKineticsParameters): EnzymeAna
   return {
     currentVelocity: parseFloat(currentVelocity.toFixed(2)),
     apparentVMax: parseFloat(appVmax.toFixed(2)),
+    apparentVmax: parseFloat(appVmax.toFixed(2)),
     apparentKM: parseFloat(appKm.toFixed(2)),
+    apparentKm: parseFloat(appKm.toFixed(2)),
     lineweaverBurkSlope: parseFloat(lineweaverBurkSlope.toFixed(4)),
     lineweaverBurkYIntercept: parseFloat(lineweaverBurkYIntercept.toFixed(5)),
     lineweaverBurkXIntercept: parseFloat(lineweaverBurkXIntercept.toFixed(4)),
@@ -153,4 +171,10 @@ export function solveEnzymeKinetics(params: EnzymeKineticsParameters): EnzymeAna
     curvePoints,
     lineweaverPoints,
   };
+}
+
+export class EnzymeKineticsEngine {
+  static compute(params: EnzymeKineticsParameters): EnzymeAnalysisResult {
+    return solveEnzymeKinetics(params);
+  }
 }

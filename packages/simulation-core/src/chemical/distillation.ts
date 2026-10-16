@@ -18,10 +18,14 @@
 export interface DistillationParameters {
   readonly relativeVolatility: number; // \alpha (e.g. 2.45 for Benzene-Toluene)
   readonly feedComposition: number;    // x_F (0.10 - 0.90, e.g. 0.40)
+  readonly feedCompositionXf?: number; // alias
   readonly distillatePurity: number;    // x_D (0.80 - 0.99, e.g. 0.95)
+  readonly distillatePurityXd?: number; // alias
   readonly bottomsPurity: number;       // x_B (0.01 - 0.20, e.g. 0.05)
+  readonly bottomsPurityXb?: number;    // alias
   readonly refluxRatio: number;        // R = L/D (e.g. 2.0)
   readonly feedQuality: number;        // q (1.0 = saturated liquid, 0 = saturated vapor)
+  readonly feedThermalConditionQ?: number; // alias
 }
 
 export interface DistillationStage {
@@ -31,14 +35,21 @@ export interface DistillationStage {
   readonly xNext: number;
   readonly yNext: number;
   readonly isFeedStage: boolean;
+  readonly x1: number;
+  readonly y1: number;
+  readonly x2: number;
+  readonly y2: number;
 }
 
 export interface DistillationAnalysisResult {
   readonly numberOfStages: number;
+  readonly theoreticalStages: number;
   readonly optimalFeedStage: number;
   readonly minimumRefluxRatio: number;
   readonly minimumStagesFenske: number;
+  readonly minimumStages: number;
   readonly operatingRefluxRatio: number;
+  readonly distillateRateMolH: number;
   readonly intersectionQ: { x: number; y: number };
   readonly stages: readonly DistillationStage[];
   readonly vlePoints: readonly { x: number; y: number }[];
@@ -50,10 +61,14 @@ export interface DistillationAnalysisResult {
 export const DEFAULT_DISTILLATION_PARAMS: DistillationParameters = {
   relativeVolatility: 2.5,
   feedComposition: 0.45,
+  feedCompositionXf: 0.45,
   distillatePurity: 0.95,
+  distillatePurityXd: 0.95,
   bottomsPurity: 0.05,
+  bottomsPurityXb: 0.05,
   refluxRatio: 2.2,
   feedQuality: 1.0, // Saturated liquid feed
+  feedThermalConditionQ: 1.0,
 };
 
 /**
@@ -74,14 +89,12 @@ export function vleX(y: number, alpha: number): number {
  * Full McCabe-Thiele stage-stepping analytical solver
  */
 export function solveMcCabeThiele(params: DistillationParameters): DistillationAnalysisResult {
-  const {
-    relativeVolatility: alpha,
-    feedComposition: xF,
-    distillatePurity: xD,
-    bottomsPurity: xB,
-    refluxRatio: R,
-    feedQuality: q,
-  } = params;
+  const alpha = params.relativeVolatility;
+  const xF = params.feedCompositionXf ?? params.feedComposition;
+  const xD = params.distillatePurityXd ?? params.distillatePurity;
+  const xB = params.bottomsPurityXb ?? params.bottomsPurity;
+  const R = params.refluxRatio;
+  const q = params.feedThermalConditionQ ?? params.feedQuality;
 
   // Calculate ROL slope and intercept: y = m_r * x + c_r
   const mR = R / (R + 1);
@@ -181,6 +194,10 @@ export function solveMcCabeThiele(params: DistillationParameters): DistillationA
       xNext: parseFloat(xEquil.toFixed(4)),
       yNext: parseFloat(Math.max(xB, nextY).toFixed(4)),
       isFeedStage: stageCount === optimalFeedStage,
+      x1: parseFloat(currentX.toFixed(4)),
+      y1: parseFloat(currentY.toFixed(4)),
+      x2: parseFloat(xEquil.toFixed(4)),
+      y2: parseFloat(Math.max(xB, nextY).toFixed(4)),
     });
 
     currentX = xEquil;
@@ -212,12 +229,18 @@ export function solveMcCabeThiele(params: DistillationParameters): DistillationA
     { x: parseFloat(xQ.toFixed(4)), y: parseFloat(yQ.toFixed(4)) },
   ];
 
+  const feedFlowF = 100;
+  const distillateRateMolH = Math.max(0, (feedFlowF * (xF - xB)) / Math.max(1e-4, xD - xB));
+
   return {
     numberOfStages: stageCount,
+    theoreticalStages: stageCount,
     optimalFeedStage,
     minimumRefluxRatio: parseFloat(Rmin.toFixed(2)),
     minimumStagesFenske: parseFloat(Nmin.toFixed(2)),
+    minimumStages: parseFloat(Nmin.toFixed(2)),
     operatingRefluxRatio: R,
+    distillateRateMolH: parseFloat(distillateRateMolH.toFixed(1)),
     intersectionQ: { x: parseFloat(xQ.toFixed(4)), y: parseFloat(yQ.toFixed(4)) },
     stages,
     vlePoints,
@@ -225,4 +248,10 @@ export function solveMcCabeThiele(params: DistillationParameters): DistillationA
     solPoints,
     qLinePoints,
   };
+}
+
+export class DistillationEngine {
+  static compute(params: DistillationParameters): DistillationAnalysisResult {
+    return solveMcCabeThiele(params);
+  }
 }
