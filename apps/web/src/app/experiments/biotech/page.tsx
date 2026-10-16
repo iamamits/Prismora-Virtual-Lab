@@ -148,6 +148,13 @@ function BiotechWorkbenchContent() {
     BIOTECH_EXPERIMENTS.some((e) => e.id === initialExp) ? initialExp : 'enzyme-kinetics',
   );
 
+  React.useEffect(() => {
+    const exp = searchParams.get('exp') as BiotechExpId;
+    if (exp && BIOTECH_EXPERIMENTS.some((e) => e.id === exp)) {
+      setActiveExpId(exp);
+    }
+  }, [searchParams]);
+
   const activeExp = useMemo(
     () => BIOTECH_EXPERIMENTS.find((e) => e.id === activeExpId) ?? BIOTECH_EXPERIMENTS[0]!,
     [activeExpId],

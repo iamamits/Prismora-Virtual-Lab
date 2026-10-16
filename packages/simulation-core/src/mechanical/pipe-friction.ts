@@ -21,7 +21,6 @@
  */
 
 export type PipeMaterial = 'glass' | 'smooth_copper' | 'commercial_steel' | 'cast_iron' | 'concrete';
-export type PipeMaterialType = PipeMaterial;
 
 export interface PipeFrictionParameters {
   readonly pipeDiameterMm: number;    // Diameter in mm (e.g. 25 mm - 100 mm)
@@ -29,20 +28,16 @@ export interface PipeFrictionParameters {
   readonly flowVelocityMPerS: number; // Mean flow velocity in m/s (e.g. 0.5 - 4.0 m/s)
   readonly fluidTemperatureC?: number;// Water temperature in °C (default 20°C)
   readonly material: PipeMaterial;    // Surface roughness ε
-  readonly pipeMaterial?: PipeMaterial;
 }
 
 export interface PipeFrictionResult {
   readonly reynoldsNumber: number;
   readonly flowRegime: 'laminar' | 'transitional' | 'turbulent';
   readonly frictionFactor: number;
-  readonly darcyFrictionFactor: number;
   readonly headLossM: number;
-  readonly frictionalHeadLossM: number;
   readonly pressureDropKpa: number;
   readonly flowRateLitersPerSec: number;
   readonly shearStressWallPa: number;
-  readonly manometerDeflectionMm: number;
   readonly hglPoints: readonly { x: number; hgl: number; egl: number }[];
 }
 
@@ -75,8 +70,7 @@ export class PipeFrictionEngine {
     const nu = (1.787 / (1 + 0.0337 * temp + 0.00022 * temp * temp)) * 1e-6;
 
     const Re = (v * d) / nu;
-    const mat = params.pipeMaterial ?? params.material;
-    const eps = (ROUGHNESS_MAP[mat] ?? 0.045) / 1000; // in m
+    const eps = (ROUGHNESS_MAP[params.material] ?? 0.045) / 1000; // in m
     const relRoughness = eps / d;
 
     let f: number;
@@ -125,21 +119,16 @@ export class PipeFrictionEngine {
       });
     }
 
-    // Manometer deflection in mm of mercury
-    const hmDeflection = (hf / (13.6 - 1)) * 1000;
-
     return {
       reynoldsNumber: Math.round(Re),
       flowRegime,
       frictionFactor: parseFloat(f.toFixed(4)),
-      darcyFrictionFactor: parseFloat(f.toFixed(4)),
       headLossM: parseFloat(hf.toFixed(3)),
-      frictionalHeadLossM: parseFloat(hf.toFixed(3)),
       pressureDropKpa: parseFloat(deltaPKpa.toFixed(2)),
       flowRateLitersPerSec: parseFloat(flowRateLps.toFixed(2)),
       shearStressWallPa: parseFloat(tauW.toFixed(2)),
-      manometerDeflectionMm: parseFloat(hmDeflection.toFixed(1)),
       hglPoints,
     };
   }
 }
+

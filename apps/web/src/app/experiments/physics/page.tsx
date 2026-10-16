@@ -126,6 +126,13 @@ function PhysicsWorkbenchContent() {
     PHYSICS_EXPERIMENTS.some((e) => e.id === initialExp) ? initialExp : 'photoelectric',
   );
 
+  React.useEffect(() => {
+    const exp = searchParams.get('exp') as PhysicsExpId;
+    if (exp && PHYSICS_EXPERIMENTS.some((e) => e.id === exp)) {
+      setActiveExpId(exp);
+    }
+  }, [searchParams]);
+
   const activeExp = useMemo(
     () => PHYSICS_EXPERIMENTS.find((e) => e.id === activeExpId) ?? PHYSICS_EXPERIMENTS[0]!,
     [activeExpId],
@@ -813,3 +820,4 @@ export default function PhysicsWorkbenchPage() {
     </Suspense>
   );
 }
+

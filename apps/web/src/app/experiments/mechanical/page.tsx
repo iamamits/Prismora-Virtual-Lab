@@ -29,11 +29,10 @@ import {
   PipeFrictionEngine,
   DEFAULT_PIPE_FRICTION_PARAMS,
   type PipeFrictionParameters,
-  type PipeMaterialType,
+  type PipeMaterial,
   TorsionTestEngine,
   DEFAULT_TORSION_PARAMS,
-  type TorsionParameters,
-  type ShaftMaterialType,
+  type TorsionTestParameters,
   FourBarLinkageEngine,
   DEFAULT_FOUR_BAR_PARAMS,
   type FourBarParameters,
@@ -169,6 +168,13 @@ function MechanicalWorkbenchContent() {
     MECHANICAL_EXPERIMENTS.some((e) => e.id === initialExp) ? initialExp : 'harmonic-oscillator',
   );
 
+  React.useEffect(() => {
+    const exp = searchParams.get('exp') as MechanicalExpId;
+    if (exp && MECHANICAL_EXPERIMENTS.some((e) => e.id === exp)) {
+      setActiveExpId(exp);
+    }
+  }, [searchParams]);
+
   const activeExp = useMemo(
     () => MECHANICAL_EXPERIMENTS.find((e) => e.id === activeExpId) ?? MECHANICAL_EXPERIMENTS[0]!,
     [activeExpId],
@@ -220,7 +226,7 @@ function MechanicalWorkbenchContent() {
   // ==========================================
   // EXP 5: Torsion Test States
   // ==========================================
-  const [torsionParams, setTorsionParams] = useState<TorsionParameters>(DEFAULT_TORSION_PARAMS);
+  const [torsionParams, setTorsionParams] = useState<TorsionTestParameters>(DEFAULT_TORSION_PARAMS);
   const torsionResult = useMemo(() => TorsionTestEngine.compute(torsionParams), [torsionParams]);
 
   // ==========================================
@@ -625,7 +631,7 @@ function MechanicalWorkbenchContent() {
                         const toY = (s: number) => 170 - (s / maxStress) * 150;
 
                         const pathData = pts
-                          .map((p: { strain: number; stressMpa: number }, idx: number) => `${idx === 0 ? 'M' : 'L'} ${toX(p.strain).toFixed(1)} ${toY(p.stressMpa).toFixed(1)}`)
+                          .map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${toX(p.strain).toFixed(1)} ${toY(p.stressMpa).toFixed(1)}`)
                           .join(' ');
 
                         const currX = toX(tensileResult.currentStrain);
@@ -770,7 +776,7 @@ function MechanicalWorkbenchContent() {
                       <circle cx="150" cy="205" r="7" fill="#F43F5E" />
                       <circle cx="430" cy="205" r="7" fill="#F43F5E" />
                       <text x="300" y="210" textAnchor="middle" fill="#E2E8F0" fontSize="12" fontFamily="monospace">
-                        Differential Manometer Δh = {pipeResult.manometerDeflectionMm.toFixed(1)} mm Hg
+                        Differential Manometer Δh = {(pipeResult.headLossM * 1000 * 0.08).toFixed(1)} mm Hg
                       </text>
                     </svg>
                   </div>
@@ -778,11 +784,11 @@ function MechanicalWorkbenchContent() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Head Loss hf</span>
-                      <span className="text-base font-mono font-black text-blue-600">{pipeResult.frictionalHeadLossM.toFixed(3)} m</span>
+                      <span className="text-base font-mono font-black text-blue-600">{pipeResult.headLossM.toFixed(3)} m</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Friction Factor f</span>
-                      <span className="text-base font-mono font-black text-zinc-900">{pipeResult.darcyFrictionFactor.toFixed(4)}</span>
+                      <span className="text-base font-mono font-black text-zinc-900">{pipeResult.frictionFactor.toFixed(4)}</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Reynolds No.</span>
@@ -856,12 +862,12 @@ function MechanicalWorkbenchContent() {
                     <div>
                       <span className="text-xs font-mono text-zinc-600 block mb-1.5">Pipe Material:</span>
                       <div className="grid grid-cols-2 gap-1.5">
-                        {(['commercial_steel', 'smooth_pvc', 'galvanized_iron', 'cast_iron'] as PipeMaterialType[]).map((mat) => (
+                        {(['commercial_steel', 'smooth_pvc', 'galvanized_iron', 'cast_iron'] as PipeMaterial[]).map((mat) => (
                           <button
                             key={mat}
-                            onClick={() => setPipeParams({ ...pipeParams, pipeMaterial: mat })}
+                            onClick={() => setPipeParams({ ...pipeParams, material: mat })}
                             className={`px-2 py-1.5 rounded-lg text-[10px] font-mono font-semibold border text-left ${
-                              pipeParams.pipeMaterial === mat
+                              pipeParams.material === mat
                                 ? 'border-blue-500 bg-blue-50 text-blue-900 font-bold'
                                 : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
                             }`}
@@ -904,7 +910,7 @@ function MechanicalWorkbenchContent() {
                       <p className="text-xs text-zinc-500 mt-0.5">{activeExp.description}</p>
                     </div>
                     <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 uppercase">
-                      Yield Proof: {torsionResult.hasYielded ? 'Yield Exceeded' : 'Elastic Range'}
+                      Yield Proof: {torsionResult.isYielded ? 'Yield Exceeded' : 'Elastic Range'}
                     </span>
                   </div>
 
@@ -922,7 +928,7 @@ function MechanicalWorkbenchContent() {
                       <rect x="90" y="80" width="400" height="80" fill="#475569" stroke="#94A3B8" strokeWidth="2" />
                       {/* Twist spiral line */}
                       <path
-                        d={`M 90 120 Q 290 ${120 + torsionResult.angleTwistDeg * 2.5} 490 120`}
+                        d={`M 90 120 Q 290 ${120 + torsionResult.angleOfTwistDeg * 2.5} 490 120`}
                         fill="none"
                         stroke="#A855F7"
                         strokeWidth="3.5"
@@ -942,7 +948,7 @@ function MechanicalWorkbenchContent() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Angle of Twist θ</span>
-                      <span className="text-base font-mono font-black text-purple-600">{torsionResult.angleTwistDeg.toFixed(2)}°</span>
+                      <span className="text-base font-mono font-black text-purple-600">{torsionResult.angleOfTwistDeg.toFixed(2)}°</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Max Shear Stress τ</span>
@@ -950,7 +956,7 @@ function MechanicalWorkbenchContent() {
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Polar Moment J</span>
-                      <span className="text-base font-mono font-black text-emerald-600">{(torsionResult.polarMomentMm4 / 1e4).toFixed(1)}×10⁴ mm⁴</span>
+                      <span className="text-base font-mono font-black text-emerald-600">{(torsionResult.polarMomentOfInertiaMm4 / 1e4).toFixed(1)}×10⁴ mm⁴</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Torsional Stiffness</span>
@@ -1004,15 +1010,15 @@ function MechanicalWorkbenchContent() {
                     <div>
                       <div className="flex justify-between font-mono text-xs mb-1">
                         <span className="text-zinc-600">Shaft Length (L):</span>
-                        <span className="font-bold text-zinc-900">{torsionParams.lengthM} m</span>
+                        <span className="font-bold text-zinc-900">{torsionParams.shaftLengthMm} mm</span>
                       </div>
                       <input
                         type="range"
-                        min="0.3"
-                        max="2.0"
-                        step="0.1"
-                        value={torsionParams.lengthM}
-                        onChange={(e) => setTorsionParams({ ...torsionParams, lengthM: parseFloat(e.target.value) })}
+                        min="250"
+                        max="1000"
+                        step="25"
+                        value={torsionParams.shaftLengthMm}
+                        onChange={(e) => setTorsionParams({ ...torsionParams, shaftLengthMm: parseFloat(e.target.value) })}
                         className="w-full accent-purple-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
                       />
                     </div>
@@ -1020,17 +1026,21 @@ function MechanicalWorkbenchContent() {
                     <div>
                       <span className="text-xs font-mono text-zinc-600 block mb-1.5">Shaft Material:</span>
                       <div className="grid grid-cols-1 gap-1.5">
-                        {(['mild_steel', 'aluminium_alloy', 'structural_brass'] as ShaftMaterialType[]).map((mat) => (
+                        {[
+                          { id: 'mild_steel', name: 'Mild Steel (G = 80 GPa, τy = 150 MPa)', G: 80, tauY: 150 },
+                          { id: 'aluminium_alloy', name: 'Aluminium Alloy (G = 26 GPa, τy = 110 MPa)', G: 26, tauY: 110 },
+                          { id: 'structural_brass', name: 'Structural Brass (G = 39 GPa, τy = 125 MPa)', G: 39, tauY: 125 },
+                        ].map((mat) => (
                           <button
-                            key={mat}
-                            onClick={() => setTorsionParams({ ...torsionParams, material: mat })}
+                            key={mat.id}
+                            onClick={() => setTorsionParams({ ...torsionParams, shearModulusGpa: mat.G, yieldShearStressMpa: mat.tauY })}
                             className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold border text-left ${
-                              torsionParams.material === mat
+                              torsionParams.shearModulusGpa === mat.G
                                 ? 'border-purple-500 bg-purple-50 text-purple-900 font-bold'
                                 : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
                             }`}
                           >
-                            {mat.replace('_', ' ')}
+                            {mat.name}
                           </button>
                         ))}
                       </div>
@@ -1068,7 +1078,7 @@ function MechanicalWorkbenchContent() {
                       <p className="text-xs text-zinc-500 mt-0.5">{activeExp.description}</p>
                     </div>
                     <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">
-                      {fourBarResult.linkageType.replace(/_/g, ' ')}
+                      {fourBarResult.linkageType.replace('_', ' ')}
                     </span>
                   </div>
 
@@ -1080,7 +1090,7 @@ function MechanicalWorkbenchContent() {
                         const originX = 140;
                         const originY = 160;
                         const scale = 1.0;
-                        const { jointB, jointC, jointD } = fourBarResult;
+                        const { jointB, jointC, jointD, fullCouplerPath } = fourBarResult;
 
                         const Ax = originX;
                         const Ay = originY;
@@ -1091,12 +1101,15 @@ function MechanicalWorkbenchContent() {
                         const Dx = originX + jointD.x * scale;
                         const Dy = originY - jointD.y * scale;
 
+                        const rockerAngle = ((Math.atan2(jointC.y, jointC.x - jointD.x) * 180) / Math.PI).toFixed(1);
+                        const couplerAngle = ((Math.atan2(jointC.y - jointB.y, jointC.x - jointB.x) * 180) / Math.PI).toFixed(1);
+
                         return (
                           <>
                             {/* Coupler Curve Trajectory Trail */}
-                            {fourBarResult.fullCouplerPath && (
+                            {fullCouplerPath && (
                               <polyline
-                                points={fourBarResult.fullCouplerPath.map((p: { x: number; y: number }) => `${originX + p.x * scale},${originY - p.y * scale}`).join(' ')}
+                                points={fullCouplerPath.map((p) => `${originX + p.x * scale},${originY - p.y * scale}`).join(' ')}
                                 fill="none"
                                 stroke="#10B981"
                                 strokeWidth="1.5"
@@ -1135,11 +1148,15 @@ function MechanicalWorkbenchContent() {
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Rocker Angle θ4</span>
-                      <span className="text-base font-mono font-black text-pink-600">{fourBarResult.rockerAngleDeg.toFixed(1)}°</span>
+                      <span className="text-base font-mono font-black text-pink-600">
+                        {((Math.atan2(fourBarResult.jointC.y, fourBarResult.jointC.x - fourBarResult.jointD.x) * 180) / Math.PI).toFixed(1)}°
+                      </span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Coupler Angle θ3</span>
-                      <span className="text-base font-mono font-black text-sky-600">{fourBarResult.couplerAngleDeg.toFixed(1)}°</span>
+                      <span className="text-base font-mono font-black text-sky-600">
+                        {((Math.atan2(fourBarResult.jointC.y - fourBarResult.jointB.y, fourBarResult.jointC.x - fourBarResult.jointB.x) * 180) / Math.PI).toFixed(1)}°
+                      </span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Transmission Angle μ</span>
@@ -1248,3 +1265,4 @@ export default function MechanicalWorkbenchPage() {
     </Suspense>
   );
 }
+

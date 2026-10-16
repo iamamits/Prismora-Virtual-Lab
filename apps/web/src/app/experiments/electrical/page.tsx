@@ -31,11 +31,9 @@ import {
   DcMotorEngine,
   DEFAULT_DC_MOTOR_PARAMS,
   type DcMotorParameters,
-  type MotorControlType,
   TwoWattmeterEngine,
   DEFAULT_TWO_WATTMETER_PARAMS,
   type TwoWattmeterParameters,
-  type LoadConnection,
   AlternatorRegulationEngine,
   DEFAULT_ALTERNATOR_PARAMS,
   type AlternatorParameters,
@@ -168,6 +166,13 @@ function ElectricalWorkbenchContent() {
   const [activeExpId, setActiveExpId] = useState<ElectricalExpId>(
     ELECTRICAL_EXPERIMENTS.some((e) => e.id === initialExp) ? initialExp : 'network-theorems',
   );
+
+  React.useEffect(() => {
+    const exp = searchParams.get('exp') as ElectricalExpId;
+    if (exp && ELECTRICAL_EXPERIMENTS.some((e) => e.id === exp)) {
+      setActiveExpId(exp);
+    }
+  }, [searchParams]);
 
   const activeExp = useMemo(
     () => ELECTRICAL_EXPERIMENTS.find((e) => e.id === activeExpId) ?? ELECTRICAL_EXPERIMENTS[0]!,
@@ -733,7 +738,7 @@ function ElectricalWorkbenchContent() {
                       <line x1="80" y1="40" x2="400" y2="40" stroke="#EF4444" strokeWidth="2.5" />
                       <line x1="80" y1="180" x2="400" y2="180" stroke="#38BDF8" strokeWidth="2.5" />
                       <text x="70" y="115" textAnchor="middle" fill="#EF4444" fontSize="12" fontWeight="bold" fontFamily="monospace">
-                        V = {dcMotorParams.supplyVoltageV}V
+                        V = {dcMotorParams.terminalVoltageV}V
                       </text>
                     </svg>
                   </div>
@@ -771,15 +776,15 @@ function ElectricalWorkbenchContent() {
                     <div>
                       <div className="flex justify-between font-mono text-xs mb-1">
                         <span className="text-zinc-600">Mechanical Load Torque:</span>
-                        <span className="font-bold text-zinc-900">{dcMotorParams.loadTorqueNm} N·m</span>
+                        <span className="font-bold text-zinc-900">{dcMotorParams.mechanicalLoadTorqueNm} N·m</span>
                       </div>
                       <input
                         type="range"
                         min="0"
                         max="35"
                         step="1"
-                        value={dcMotorParams.loadTorqueNm}
-                        onChange={(e) => setDcMotorParams({ ...dcMotorParams, loadTorqueNm: parseFloat(e.target.value) })}
+                        value={dcMotorParams.mechanicalLoadTorqueNm}
+                        onChange={(e) => setDcMotorParams({ ...dcMotorParams, mechanicalLoadTorqueNm: parseFloat(e.target.value) })}
                         className="w-full accent-red-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
                       />
                     </div>
@@ -787,15 +792,15 @@ function ElectricalWorkbenchContent() {
                     <div>
                       <div className="flex justify-between font-mono text-xs mb-1">
                         <span className="text-zinc-600">Armature Voltage (Va):</span>
-                        <span className="font-bold text-zinc-900">{dcMotorParams.supplyVoltageV} V</span>
+                        <span className="font-bold text-zinc-900">{dcMotorParams.terminalVoltageV} V</span>
                       </div>
                       <input
                         type="range"
                         min="100"
                         max="250"
                         step="10"
-                        value={dcMotorParams.supplyVoltageV}
-                        onChange={(e) => setDcMotorParams({ ...dcMotorParams, supplyVoltageV: parseFloat(e.target.value) })}
+                        value={dcMotorParams.terminalVoltageV}
+                        onChange={(e) => setDcMotorParams({ ...dcMotorParams, terminalVoltageV: parseFloat(e.target.value) })}
                         className="w-full accent-red-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
                       />
                     </div>
@@ -848,7 +853,7 @@ function ElectricalWorkbenchContent() {
                       <p className="text-xs text-zinc-500 mt-0.5">{activeExp.description}</p>
                     </div>
                     <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                      PF = {twoWattResult.calculatedPowerFactor.toFixed(3)} (P = {twoWattResult.totalActivePowerKw.toFixed(2)} kW)
+                      PF = {twoWattResult.powerFactor.toFixed(3)} (P = {(twoWattResult.totalActivePowerW / 1000).toFixed(2)} kW)
                     </span>
                   </div>
 
@@ -880,19 +885,19 @@ function ElectricalWorkbenchContent() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Wattmeter W1</span>
-                      <span className="text-base font-mono font-black text-amber-600">{twoWattResult.wattmeter1Watts.toFixed(0)} W</span>
+                      <span className="text-base font-mono font-black text-amber-600">{twoWattResult.wattmeter1W.toFixed(0)} W</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Wattmeter W2</span>
-                      <span className="text-base font-mono font-black text-zinc-900">{twoWattResult.wattmeter2Watts.toFixed(0)} W</span>
+                      <span className="text-base font-mono font-black text-zinc-900">{twoWattResult.wattmeter2W.toFixed(0)} W</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Total Power P</span>
-                      <span className="text-base font-mono font-black text-blue-600">{twoWattResult.totalActivePowerKw.toFixed(2)} kW</span>
+                      <span className="text-base font-mono font-black text-blue-600">{(twoWattResult.totalActivePowerW / 1000).toFixed(2)} kW</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Power Factor</span>
-                      <span className="text-base font-mono font-black text-emerald-600">{twoWattResult.calculatedPowerFactor.toFixed(3)}</span>
+                      <span className="text-base font-mono font-black text-emerald-600">{twoWattResult.powerFactor.toFixed(3)}</span>
                     </div>
                   </div>
                 </div>
@@ -926,15 +931,15 @@ function ElectricalWorkbenchContent() {
                     <div>
                       <div className="flex justify-between font-mono text-xs mb-1">
                         <span className="text-zinc-600">Load Resistance R:</span>
-                        <span className="font-bold text-zinc-900">{twoWattParams.phaseResistanceOhms} Ω</span>
+                        <span className="font-bold text-zinc-900">{twoWattParams.perPhaseResistanceOhms} Ω</span>
                       </div>
                       <input
                         type="range"
                         min="10"
                         max="100"
                         step="5"
-                        value={twoWattParams.phaseResistanceOhms}
-                        onChange={(e) => setTwoWattParams({ ...twoWattParams, phaseResistanceOhms: parseFloat(e.target.value) })}
+                        value={twoWattParams.perPhaseResistanceOhms}
+                        onChange={(e) => setTwoWattParams({ ...twoWattParams, perPhaseResistanceOhms: parseFloat(e.target.value) })}
                         className="w-full accent-amber-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
                       />
                     </div>
@@ -942,15 +947,15 @@ function ElectricalWorkbenchContent() {
                     <div>
                       <div className="flex justify-between font-mono text-xs mb-1">
                         <span className="text-zinc-600">Load Reactance XL:</span>
-                        <span className="font-bold text-zinc-900">{twoWattParams.phaseReactanceOhms} Ω</span>
+                        <span className="font-bold text-zinc-900">{twoWattParams.perPhaseReactanceOhms} Ω</span>
                       </div>
                       <input
                         type="range"
                         min="0"
                         max="100"
                         step="5"
-                        value={twoWattParams.phaseReactanceOhms}
-                        onChange={(e) => setTwoWattParams({ ...twoWattParams, phaseReactanceOhms: parseFloat(e.target.value) })}
+                        value={twoWattParams.perPhaseReactanceOhms}
+                        onChange={(e) => setTwoWattParams({ ...twoWattParams, perPhaseReactanceOhms: parseFloat(e.target.value) })}
                         className="w-full accent-amber-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
                       />
                     </div>
@@ -987,7 +992,7 @@ function ElectricalWorkbenchContent() {
                       <p className="text-xs text-zinc-500 mt-0.5">{activeExp.description}</p>
                     </div>
                     <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-sky-50 text-sky-800 border border-sky-200">
-                      Regulation: {altResult.voltageRegulationPct.toFixed(2)}% ({altParams.powerFactorType})
+                      Regulation: {altResult.voltageRegulationPct.toFixed(2)}% ({altParams.loadPfType})
                     </span>
                   </div>
 
@@ -1027,15 +1032,15 @@ function ElectricalWorkbenchContent() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">No-Load EMF E0</span>
-                      <span className="text-base font-mono font-black text-sky-600">{altResult.noLoadEmfV.toFixed(1)} V</span>
+                      <span className="text-base font-mono font-black text-sky-600">{altResult.noLoadInducedEmfE0.toFixed(1)} V</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Sync Reactance Xs</span>
-                      <span className="text-base font-mono font-black text-zinc-900">{altResult.synchronousReactanceOhms.toFixed(2)} Ω</span>
+                      <span className="text-base font-mono font-black text-zinc-900">{altResult.synchronousReactanceXs.toFixed(2)} Ω</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">Sync Impedance Zs</span>
-                      <span className="text-base font-mono font-black text-blue-600">{altResult.synchronousImpedanceOhms.toFixed(2)} Ω</span>
+                      <span className="text-base font-mono font-black text-blue-600">{altResult.synchronousImpedanceZs.toFixed(2)} Ω</span>
                     </div>
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
                       <span className="text-[10px] font-mono text-zinc-500 uppercase block">% Regulation</span>
@@ -1057,15 +1062,15 @@ function ElectricalWorkbenchContent() {
                     <div>
                       <div className="flex justify-between font-mono text-xs mb-1">
                         <span className="text-zinc-600">Power Factor (cos φ):</span>
-                        <span className="font-bold text-zinc-900">{altParams.powerFactor}</span>
+                        <span className="font-bold text-zinc-900">{altParams.loadPowerFactor}</span>
                       </div>
                       <input
                         type="range"
                         min="0.5"
                         max="1.0"
                         step="0.05"
-                        value={altParams.powerFactor}
-                        onChange={(e) => setAltParams({ ...altParams, powerFactor: parseFloat(e.target.value) })}
+                        value={altParams.loadPowerFactor}
+                        onChange={(e) => setAltParams({ ...altParams, loadPowerFactor: parseFloat(e.target.value) })}
                         className="w-full accent-sky-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
                       />
                     </div>
@@ -1076,9 +1081,9 @@ function ElectricalWorkbenchContent() {
                         {(['lagging', 'unity', 'leading'] as PowerFactorType[]).map((pf) => (
                           <button
                             key={pf}
-                            onClick={() => setAltParams({ ...altParams, powerFactorType: pf })}
+                            onClick={() => setAltParams({ ...altParams, loadPfType: pf })}
                             className={`px-2 py-1.5 rounded-lg text-xs font-mono font-semibold border text-center ${
-                              altParams.powerFactorType === pf
+                              altParams.loadPfType === pf
                                 ? 'border-sky-500 bg-sky-50 text-sky-900 font-bold'
                                 : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
                             }`}

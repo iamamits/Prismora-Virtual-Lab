@@ -30,23 +30,17 @@ export interface TwoWattmeterParameters {
   readonly lineVoltageV: number;        // V_L (e.g. 415 V)
   readonly perPhaseResistanceOhms: number; // R_ph in Ω (e.g. 20 Ω)
   readonly perPhaseReactanceOhms: number;  // X_L or -X_C in Ω (e.g. +15 Ω inductive, -10 Ω capacitive)
-  readonly phaseResistanceOhms?: number;
-  readonly phaseReactanceOhms?: number;
   readonly loadConnection: 'star' | 'delta';
 }
 
 export interface TwoWattmeterResult {
   readonly wattmeter1W: number;
-  readonly wattmeter1Watts: number;
   readonly wattmeter2W: number;
-  readonly wattmeter2Watts: number;
   readonly totalActivePowerW: number;
-  readonly totalActivePowerKw: number;
   readonly totalReactivePowerVar: number;
   readonly apparentPowerVa: number;
   readonly lineCurrentA: number;
   readonly powerFactor: number;
-  readonly calculatedPowerFactor: number;
   readonly phaseAngleDeg: number;
   readonly pfNature: 'lagging' | 'unity' | 'leading';
   readonly requiresReversalOfW2: boolean;
@@ -67,8 +61,8 @@ export const DEFAULT_TWO_WATTMETER_PARAMS: TwoWattmeterParameters = {
 export class TwoWattmeterEngine {
   static compute(params: TwoWattmeterParameters = DEFAULT_TWO_WATTMETER_PARAMS): TwoWattmeterResult {
     const VL = params.lineVoltageV;
-    const R = params.phaseResistanceOhms ?? params.perPhaseResistanceOhms;
-    const X = params.phaseReactanceOhms ?? params.perPhaseReactanceOhms;
+    const R = params.perPhaseResistanceOhms;
+    const X = params.perPhaseReactanceOhms;
 
     // Phase impedance
     const Zph = Math.hypot(R, X);
@@ -104,16 +98,12 @@ export class TwoWattmeterEngine {
 
     return {
       wattmeter1W: parseFloat(W1.toFixed(1)),
-      wattmeter1Watts: parseFloat(W1.toFixed(1)),
       wattmeter2W: parseFloat(W2.toFixed(1)),
-      wattmeter2Watts: parseFloat(W2.toFixed(1)),
       totalActivePowerW: parseFloat(totalP.toFixed(1)),
-      totalActivePowerKw: parseFloat((totalP / 1000).toFixed(2)),
       totalReactivePowerVar: parseFloat(totalQ.toFixed(1)),
       apparentPowerVa: parseFloat(S.toFixed(1)),
       lineCurrentA: parseFloat(IL.toFixed(2)),
       powerFactor: parseFloat(pf.toFixed(3)),
-      calculatedPowerFactor: parseFloat(pf.toFixed(3)),
       phaseAngleDeg: parseFloat(phiDeg.toFixed(1)),
       pfNature,
       requiresReversalOfW2: W2 < 0,
@@ -125,3 +115,4 @@ export class TwoWattmeterEngine {
     };
   }
 }
+

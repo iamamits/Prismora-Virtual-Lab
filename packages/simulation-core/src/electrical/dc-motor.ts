@@ -20,17 +20,13 @@
  *    \eta = \frac{P_{out}}{P_{in}} = \frac{T \omega}{V I_L} \times 100\%
  */
 
-export type MotorControlType = 'armature_resistance' | 'field_flux';
-
 export interface DcMotorParameters {
   readonly terminalVoltageV: number;    // V in Volts (e.g. 220V)
-  readonly supplyVoltageV?: number;
   readonly armatureResistanceOhms: number; // Ra (e.g. 0.5 Ω)
   readonly externalArmatureResOhms?: number; // R_ext (0 - 5 Ω)
   readonly fieldResistanceOhms: number; // Rf (e.g. 200 Ω)
   readonly fieldRheostatOhms?: number;  // R_fext (0 - 150 Ω)
   readonly mechanicalLoadTorqueNm: number; // Load Torque T_L in N·m (0 - 40 N·m)
-  readonly loadTorqueNm?: number;
 }
 
 export interface DcMotorResult {
@@ -56,10 +52,10 @@ export const DEFAULT_DC_MOTOR_PARAMS: DcMotorParameters = {
 
 export class DcMotorEngine {
   static compute(params: DcMotorParameters = DEFAULT_DC_MOTOR_PARAMS): DcMotorResult {
-    const V = params.supplyVoltageV ?? params.terminalVoltageV;
+    const V = params.terminalVoltageV;
     const Ra_total = params.armatureResistanceOhms + (params.externalArmatureResOhms ?? 0);
     const Rf_total = params.fieldResistanceOhms + (params.fieldRheostatOhms ?? 0);
-    const TL = params.loadTorqueNm ?? params.mechanicalLoadTorqueNm;
+    const TL = params.mechanicalLoadTorqueNm;
 
     // Field current If and relative flux phi
     const If = V / Rf_total;
@@ -110,3 +106,4 @@ export class DcMotorEngine {
     };
   }
 }
+

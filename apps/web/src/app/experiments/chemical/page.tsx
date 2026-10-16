@@ -148,6 +148,13 @@ function ChemicalWorkbenchContent() {
     CHEMICAL_EXPERIMENTS.some((e) => e.id === initialExp) ? initialExp : 'distillation',
   );
 
+  React.useEffect(() => {
+    const exp = searchParams.get('exp') as ChemicalExpId;
+    if (exp && CHEMICAL_EXPERIMENTS.some((e) => e.id === exp)) {
+      setActiveExpId(exp);
+    }
+  }, [searchParams]);
+
   const activeExp = useMemo(
     () => CHEMICAL_EXPERIMENTS.find((e) => e.id === activeExpId) ?? CHEMICAL_EXPERIMENTS[0]!,
     [activeExpId],

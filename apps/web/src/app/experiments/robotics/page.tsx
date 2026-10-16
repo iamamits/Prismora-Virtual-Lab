@@ -148,6 +148,13 @@ function RoboticsWorkbenchContent() {
     ROBOTICS_EXPERIMENTS.some((e) => e.id === initialExp) ? initialExp : 'arm-kinematics',
   );
 
+  React.useEffect(() => {
+    const exp = searchParams.get('exp') as RoboticsExpId;
+    if (exp && ROBOTICS_EXPERIMENTS.some((e) => e.id === exp)) {
+      setActiveExpId(exp);
+    }
+  }, [searchParams]);
+
   const activeExp = useMemo(
     () => ROBOTICS_EXPERIMENTS.find((e) => e.id === activeExpId) ?? ROBOTICS_EXPERIMENTS[0]!,
     [activeExpId],

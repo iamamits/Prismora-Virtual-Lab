@@ -1649,6 +1649,1472 @@ export function EnzymeKineticsPreview({ isHovered = false, className = '' }: Pre
 }
 
 /**
+ * 23. Venturi Flow & Bernoulli Equation Preview
+ */
+export function VenturiFlowPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#06B6D4" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        VENTURIMETER &amp; BERNOULLI THEOREM
+      </text>
+      {/* Venturi Tube Outline */}
+      <path
+        d="M 25 70 L 100 70 L 150 95 L 170 95 L 220 70 L 295 70 L 295 130 L 220 130 L 170 105 L 150 105 L 100 130 L 25 130 Z"
+        fill="#0E2F44"
+        stroke="#0284C7"
+        strokeWidth="1.5"
+      />
+      {/* Piezometer 1 (Inlet) */}
+      <rect x="58" y="38" width="14" height="32" fill="#0B1120" stroke="#0284C7" strokeWidth="1" />
+      <rect x="59" y="44" width="12" height="26" fill="#0284C7" opacity="0.6" />
+      <line x1="58" y1="44" x2="72" y2="44" stroke="#38BDF8" strokeWidth="1.5" />
+      <text x="65" y="41" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">h₁</text>
+      {/* Piezometer 2 (Throat) */}
+      <rect x="153" y="58" width="14" height="37" fill="#0B1120" stroke="#0284C7" strokeWidth="1" />
+      <rect x="154" y="78" width="12" height="17" fill="#0284C7" opacity="0.6" />
+      <line x1="153" y1="78" x2="167" y2="78" stroke="#F59E0B" strokeWidth="1.5" />
+      <text x="160" y="74" fill="#FBBF24" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">h₂</text>
+      {/* Streamlines */}
+      <path
+        d="M 25 100 L 100 100 L 150 100 L 170 100 L 220 100 L 295 100"
+        stroke="#38BDF8"
+        strokeWidth="1.2"
+        strokeDasharray="4 3"
+        strokeDashoffset={isHovered ? 0 : 7}
+        className="transition-all duration-700"
+      />
+      <path
+        d="M 25 85 L 100 85 L 150 98 L 170 98 L 220 85 L 295 85"
+        stroke="#06B6D4"
+        strokeWidth="1"
+        strokeDasharray="3 3"
+      />
+      <path
+        d="M 25 115 L 100 115 L 150 102 L 170 102 L 220 115 L 295 115"
+        stroke="#06B6D4"
+        strokeWidth="1"
+        strokeDasharray="3 3"
+      />
+      {/* Velocity Vectors */}
+      <text x="45" y="118" fill="#94A3B8" fontSize="7" fontFamily="JetBrains Mono, monospace">v₁ (low)</text>
+      <text x="145" y="120" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace" fontWeight="bold">v₂ (high)</text>
+      {/* Footer */}
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        P₁ + ½ρv₁² = P₂ + ½ρv₂² • Q = C_d · A₁A₂√(2gΔh / (A₁²-A₂²))
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 24. Tensile Test & Stress-Strain Curve Preview
+ */
+export function TensileTestPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#EF4444" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        UTM TENSILE TEST &amp; STRESS-STRAIN
+      </text>
+      {/* Left: Dogbone specimen in crossheads */}
+      <g transform="translate(30, 45)">
+        {/* Upper grip */}
+        <rect x="5" y="0" width="36" height="14" rx="2" fill="#334155" stroke="#64748B" strokeWidth="1" />
+        <line x1="23" y1="0" x2="23" y2="-8" stroke="#EF4444" strokeWidth="2" />
+        <polygon points="20,-8 23,-14 26,-8" fill="#EF4444" />
+        {/* Specimen */}
+        <path
+          d="M 12 14 L 34 14 L 28 30 L 28 65 L 34 80 L 12 80 L 18 65 L 18 30 Z"
+          fill="#475569"
+          stroke="#94A3B8"
+          strokeWidth="1"
+        />
+        {/* Necking zone */}
+        <ellipse cx="23" cy="48" rx="4" ry="2" fill="#F43F5E" opacity="0.6" />
+        {/* Lower grip */}
+        <rect x="5" y="80" width="36" height="14" rx="2" fill="#334155" stroke="#64748B" strokeWidth="1" />
+        <line x1="23" y1="94" x2="23" y2="102" stroke="#EF4444" strokeWidth="2" />
+        <polygon points="20,102 23,108 26,102" fill="#EF4444" />
+      </g>
+      {/* Right: Stress-Strain Curve */}
+      <g transform="translate(105, 45)">
+        <line x1="15" y1="95" x2="185" y2="95" stroke="#475569" strokeWidth="1.5" />
+        <line x1="15" y1="10" x2="15" y2="95" stroke="#475569" strokeWidth="1.5" />
+        <text x="185" y="105" fill="#64748B" fontSize="7" fontFamily="JetBrains Mono, monospace">Strain ε</text>
+        <text x="12" y="8" fill="#64748B" fontSize="7" fontFamily="JetBrains Mono, monospace">Stress σ (MPa)</text>
+        {/* Curve: Linear elastic -> Yield -> UTS peak -> Fracture */}
+        <path
+          d="M 15 95 L 45 45 Q 60 48 80 43 Q 120 22 150 25 L 165 40"
+          stroke="#EF4444"
+          strokeWidth="2.2"
+          fill="none"
+        />
+        {/* Markers */}
+        <circle cx="45" cy="45" r="2.5" fill="#FBBF24" />
+        <text x="50" y="42" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace">σ_y (Yield)</text>
+        <circle cx="140" cy="23" r="2.5" fill="#10B981" />
+        <text x="125" y="17" fill="#10B981" fontSize="6.5" fontFamily="JetBrains Mono, monospace">UTS = 460MPa</text>
+        <circle cx="165" cy="40" r="2.5" fill="#F43F5E" />
+        <text x="168" y="44" fill="#F43F5E" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Fracture</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        E = σ/ε (Young&apos;s Modulus) • Mild Steel • Yield: 250 MPa • Elongation: 26%
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 25. Pipe Friction & Moody Resistance Preview
+ */
+export function PipeFrictionPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#3B82F6" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        DARCY-WEISBACH PIPE FRICTION &amp; LOSSES
+      </text>
+      {/* Pipe section with velocity profile */}
+      <rect x="25" y="55" width="150" height="50" rx="3" fill="#0F172A" stroke="#334155" strokeWidth="1.5" />
+      <line x1="25" y1="80" x2="175" y2="80" stroke="#1E293B" strokeWidth="1" strokeDasharray="3 3" />
+      {/* Parabolic velocity profile arrows */}
+      {[60, 68, 76, 84, 92, 100].map((y) => {
+        const dy = Math.abs(y - 80);
+        const len = Math.max(10, 48 - (dy * dy) / 9);
+        return (
+          <g key={y}>
+            <line x1="35" y1={y} x2={35 + len} y2={y} stroke="#38BDF8" strokeWidth="1.2" />
+            <polygon points={`${35 + len},${y} ${30 + len},${y - 2} ${30 + len},${y + 2}`} fill="#38BDF8" />
+          </g>
+        );
+      })}
+      <path d="M 35 55 Q 85 80 35 105" stroke="#0EA5E9" strokeWidth="1.5" fill="none" />
+      {/* Manometer tubes */}
+      <line x1="55" y1="55" x2="55" y2="42" stroke="#38BDF8" strokeWidth="2" />
+      <line x1="145" y1="55" x2="145" y2="47" stroke="#38BDF8" strokeWidth="2" />
+      <text x="55" y="39" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">h₁</text>
+      <text x="145" y="44" fill="#F59E0B" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">h₂</text>
+      {/* Right: Moody chart miniature */}
+      <g transform="translate(195, 48)">
+        <rect x="0" y="0" width="95" height="65" fill="#0B1120" stroke="#334155" strokeWidth="1" />
+        <text x="4" y="10" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">f vs Re</text>
+        <line x1="5" y1="20" x2="30" y2="55" stroke="#10B981" strokeWidth="1.5" />
+        <text x="10" y="32" fill="#10B981" fontSize="6" fontFamily="JetBrains Mono, monospace">Laminar</text>
+        <path d="M 40 45 C 55 35 75 32 90 31" stroke="#F59E0B" strokeWidth="1.5" fill="none" />
+        <path d="M 40 40 C 55 28 75 25 90 24" stroke="#EF4444" strokeWidth="1.2" strokeDasharray="2 1" fill="none" />
+        <text x="52" y="60" fill="#64748B" fontSize="6" fontFamily="JetBrains Mono, monospace">Re &gt; 4000</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        h_f = f(L/D)(v²/2g) • f_laminar = 64/Re • Swamee-Jain Colebrook
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 26. Torsion Testing of Shaft Preview
+ */
+export function TorsionTestPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#8B5CF6" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        TORSION TEST &amp; SHEAR MODULUS (G)
+      </text>
+      {/* Fixed Chuck on Left */}
+      <rect x="25" y="60" width="22" height="60" rx="3" fill="#334155" stroke="#64748B" strokeWidth="1.5" />
+      {/* Circular Shaft */}
+      <rect x="47" y="70" width="150" height="40" fill="#1E293B" stroke="#475569" strokeWidth="1.2" />
+      {/* Torsion spiral / helical shear lines */}
+      <path
+        d="M 47 70 Q 75 80 100 90 Q 130 100 160 105 Q 185 108 197 110"
+        stroke="#8B5CF6"
+        strokeWidth="2"
+        strokeDasharray={isHovered ? 'none' : '3 2'}
+        fill="none"
+      />
+      <path
+        d="M 47 85 Q 75 95 100 102 Q 130 108 160 110"
+        stroke="#A78BFA"
+        strokeWidth="1.2"
+        strokeDasharray="3 2"
+        fill="none"
+      />
+      {/* Rotating Head on Right */}
+      <rect x="197" y="60" width="22" height="60" rx="3" fill="#334155" stroke="#8B5CF6" strokeWidth="1.5" />
+      {/* Torque circular arrow indicator */}
+      <path d="M 235 70 A 20 20 0 1 1 235 110" stroke="#F59E0B" strokeWidth="2.2" fill="none" />
+      <polygon points="233,65 242,70 236,75" fill="#F59E0B" />
+      <text x="260" y="93" fill="#FBBF24" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">T (N·m)</text>
+      {/* Twist angle marker */}
+      <text x="120" y="65" fill="#C4B5FD" fontSize="8" fontFamily="JetBrains Mono, monospace">Twist θ = 4.2°</text>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        T/J = τ/r = Gθ/L • J = πD⁴/32 • G = TL / (Jθ) • τ_max = Tr/J
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 27. Four-Bar Linkage Kinematics Preview
+ */
+export function FourBarPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#10B981" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        FOUR-BAR PLANAR MECHANISM (GRASHOF)
+      </text>
+      {/* Ground fixed link O2 - O4 */}
+      <line x1="80" y1="135" x2="220" y2="135" stroke="#475569" strokeWidth="3" strokeDasharray="4 2" />
+      <rect x="73" y="135" width="14" height="10" fill="#334155" />
+      <rect x="213" y="135" width="14" height="10" fill="#334155" />
+      {/* Crank circle orbit */}
+      <circle cx="80" cy="135" r="38" stroke="#334155" strokeWidth="1" strokeDasharray="2 2" fill="none" />
+      {/* Crank link (a) */}
+      <line x1="80" y1="135" x2="105" y2="105" stroke="#F59E0B" strokeWidth="3.5" strokeLinecap="round" />
+      {/* Coupler link (b) */}
+      <line x1="105" y1="105" x2="185" y2="85" stroke="#10B981" strokeWidth="3.5" strokeLinecap="round" />
+      {/* Rocker link (c) */}
+      <line x1="185" y1="85" x2="220" y2="135" stroke="#3B82F6" strokeWidth="3.5" strokeLinecap="round" />
+      {/* Coupler point tracer path */}
+      <path
+        d="M 145 95 C 130 65 170 50 190 75 C 210 100 160 125 145 95"
+        stroke="#EC4899"
+        strokeWidth="1.5"
+        strokeDasharray="2 2"
+        fill="none"
+      />
+      <circle cx="145" cy="95" r="3" fill="#EC4899" />
+      {/* Joint pins */}
+      <circle cx="80" cy="135" r="4" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+      <circle cx="105" cy="105" r="4" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+      <circle cx="185" cy="85" r="4" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+      <circle cx="220" cy="135" r="4" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Grashof: s + l ≤ p + q • Crank-Rocker • Transmission Angle μ = 62°
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 28. Beam Bending & Dual SFD/BMD Preview
+ */
+export function BeamBendingPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#F59E0B" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        BEAM BENDING &amp; SFD / BMD DIAGRAMS
+      </text>
+      {/* Loaded Beam with deflection */}
+      <line x1="40" y1="60" x2="280" y2="60" stroke="#475569" strokeWidth="4" />
+      {/* Deflected elastic curve */}
+      <path d="M 40 60 Q 160 74 280 60" stroke="#F59E0B" strokeWidth="2" strokeDasharray="3 2" fill="none" />
+      {/* Supports */}
+      <polygon points="34,70 40,62 46,70" fill="#94A3B8" />
+      <circle cx="280" cy="66" r="4" fill="#94A3B8" />
+      {/* Point load arrow */}
+      <line x1="160" y1="36" x2="160" y2="58" stroke="#EF4444" strokeWidth="2.5" />
+      <polygon points="156,54 160,60 164,54" fill="#EF4444" />
+      <text x="160" y="32" fill="#EF4444" fontSize="7.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">P = 20 kN</text>
+      {/* SFD (Shear Force Diagram) */}
+      <g transform="translate(40, 85)">
+        <line x1="0" y1="12" x2="240" y2="12" stroke="#334155" strokeWidth="1" />
+        <rect x="0" y="2" width="120" height="10" fill="#3B82F6" opacity="0.3" stroke="#3B82F6" strokeWidth="1" />
+        <rect x="120" y="12" width="120" height="10" fill="#EF4444" opacity="0.3" stroke="#EF4444" strokeWidth="1" />
+        <text x="2" y="8" fill="#38BDF8" fontSize="6.5" fontFamily="JetBrains Mono, monospace">+V</text>
+        <text x="220" y="20" fill="#F87171" fontSize="6.5" fontFamily="JetBrains Mono, monospace">-V</text>
+      </g>
+      {/* BMD (Bending Moment Diagram) */}
+      <g transform="translate(40, 120)">
+        <line x1="0" y1="0" x2="240" y2="0" stroke="#334155" strokeWidth="1" />
+        <path d="M 0 0 L 120 20 L 240 0 Z" fill="#10B981" opacity="0.25" stroke="#10B981" strokeWidth="1.5" />
+        <text x="120" y="16" fill="#34D399" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">M_max = PL/4</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        M/I = σ/y = E/R • Simply Supported • L = 6m • EI d²y/dx² = M(x)
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 29. Column Buckling (Euler Critical Load) Preview
+ */
+export function ColumnBucklingPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#78716C" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        EULER COLUMN BUCKLING &amp; SLENDERNESS
+      </text>
+      {/* Base fixed clamp */}
+      <rect x="135" y="135" width="50" height="12" fill="#334155" stroke="#64748B" strokeWidth="1" />
+      {/* Unbuckled reference line */}
+      <line x1="160" y1="45" x2="160" y2="135" stroke="#334155" strokeWidth="1" strokeDasharray="3 3" />
+      {/* Sinusoidal Buckled Mode Shape (n=1) */}
+      <path
+        d="M 160 45 Q 192 90 160 135"
+        stroke="#E11D48"
+        strokeWidth="3.2"
+        fill="none"
+        strokeDasharray={isHovered ? 'none' : '180'}
+      />
+      {/* Axial compressive load arrow */}
+      <line x1="160" y1="20" x2="160" y2="42" stroke="#EF4444" strokeWidth="2.5" />
+      <polygon points="156,38 160,45 164,38" fill="#EF4444" />
+      <text x="160" y="16" fill="#F87171" fontSize="7.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">P_cr</text>
+      {/* Max lateral deflection delta */}
+      <line x1="160" y1="90" x2="188" y2="90" stroke="#F59E0B" strokeWidth="1.2" strokeDasharray="2 1" />
+      <text x="195" y="93" fill="#FBBF24" fontSize="7" fontFamily="JetBrains Mono, monospace">δ_max</text>
+      {/* Formula & Slenderness annotations */}
+      <g transform="translate(30, 75)">
+        <text x="0" y="0" fill="#94A3B8" fontSize="7.5" fontFamily="JetBrains Mono, monospace">λ = L_eff / r</text>
+        <text x="0" y="14" fill="#64748B" fontSize="7" fontFamily="JetBrains Mono, monospace">Slenderness &gt; 100</text>
+        <text x="0" y="28" fill="#10B981" fontSize="7" fontFamily="JetBrains Mono, monospace">Elastic Regime</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        P_cr = π²EI / (KL)² • Both Ends Pinned (K=1.0) • σ_cr = π²E / λ²
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 30. Direct Shear Test & Mohr-Coulomb Preview
+ */
+export function DirectShearPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#D97706" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        DIRECT SHEAR TEST &amp; MOHR-COULOMB (SOIL)
+      </text>
+      {/* Shear Box Apparatus */}
+      <g transform="translate(30, 50)">
+        {/* Upper split box */}
+        <rect x="0" y="0" width="80" height="22" fill="#334155" stroke="#64748B" strokeWidth="1" />
+        {/* Normal Load P_N */}
+        <line x1="40" y1="-15" x2="40" y2="-2" stroke="#EF4444" strokeWidth="2" />
+        <polygon points="37,-4 40,0 43,-4" fill="#EF4444" />
+        <text x="40" y="-18" fill="#EF4444" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">σ_n</text>
+        {/* Horizontal Shear Force T */}
+        <line x1="-15" y1="11" x2="-2" y2="11" stroke="#3B82F6" strokeWidth="2" />
+        <polygon points="-4,8 0,11 -4,14" fill="#3B82F6" />
+        <text x="-18" y="14" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="end">τ</text>
+        {/* Shear plane */}
+        <line x1="0" y1="22" x2="80" y2="22" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="3 2" />
+        {/* Lower split box */}
+        <rect x="0" y="22" width="80" height="22" fill="#1E293B" stroke="#475569" strokeWidth="1" />
+      </g>
+      {/* Mohr-Coulomb Failure Envelope Graph */}
+      <g transform="translate(150, 48)">
+        <line x1="15" y1="80" x2="135" y2="80" stroke="#475569" strokeWidth="1.2" />
+        <line x1="15" y1="10" x2="15" y2="80" stroke="#475569" strokeWidth="1.2" />
+        <text x="135" y="90" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">σ_n</text>
+        <text x="10" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">τ</text>
+        {/* Failure Envelope Line: intercept c, angle phi */}
+        <line x1="15" y1="62" x2="125" y2="20" stroke="#F59E0B" strokeWidth="2" />
+        <circle cx="15" cy="62" r="2.5" fill="#F59E0B" />
+        <text x="22" y="62" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace">c (Cohesion)</text>
+        {/* Friction angle arc */}
+        <path d="M 55 48 A 20 20 0 0 1 65 44" stroke="#38BDF8" strokeWidth="1" fill="none" />
+        <text x="70" y="45" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace">φ = 32°</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        τ_f = c + σ_n · tan(φ) • Shear Strength of Soils • Peak vs Residual
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 31. Weir Flow Discharge Preview
+ */
+export function WeirFlowPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#0284C7" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        OPEN CHANNEL WEIR FLOW &amp; HYDRAULICS
+      </text>
+      {/* Channel flume bed */}
+      <rect x="25" y="130" width="265" height="15" fill="#1E293B" stroke="#334155" strokeWidth="1" />
+      {/* Weir Plate (V-notch or rectangular crest) */}
+      <rect x="140" y="85" width="14" height="45" fill="#475569" stroke="#94A3B8" strokeWidth="1.2" />
+      {/* Upstream water level */}
+      <rect x="25" y="65" width="115" height="65" fill="#0284C7" opacity="0.3" />
+      <line x1="25" y1="65" x2="140" y2="65" stroke="#38BDF8" strokeWidth="2" />
+      {/* Head over crest H */}
+      <line x1="125" y1="65" x2="125" y2="85" stroke="#F59E0B" strokeWidth="1.5" />
+      <text x="118" y="77" fill="#FBBF24" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="end">H</text>
+      {/* Overfalling water nappe */}
+      <path
+        d="M 140 65 Q 165 65 175 130 L 290 130 L 290 135 L 140 135 Z"
+        fill="#0EA5E9"
+        opacity="0.35"
+      />
+      <path
+        d="M 140 65 Q 165 65 175 130"
+        stroke="#38BDF8"
+        strokeWidth="2"
+        fill="none"
+      />
+      {/* Aerated aeration cavity under nappe */}
+      <ellipse cx="152" cy="105" rx="6" ry="12" fill="#0B1120" opacity="0.6" />
+      <text x="210" y="100" fill="#38BDF8" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        Discharge Q
+      </text>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Rectangular: Q = ⅔ C_d b √(2g) H^(3/2) • V-Notch (90°): Q = 8/15 C_d √(2g) tan(θ/2) H^(5/2)
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 32. Transformer OC & SC Test Preview
+ */
+export function TransformerTestPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#2563EB" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        TRANSFORMER EQUIVALENT CIRCUIT &amp; OC/SC
+      </text>
+      {/* Magnetic Core */}
+      <rect x="40" y="55" width="100" height="80" rx="4" fill="none" stroke="#64748B" strokeWidth="10" />
+      <rect x="55" y="70" width="70" height="50" rx="2" fill="#070D1A" />
+      {/* Magnetic Flux loop dashed */}
+      <rect x="47" y="62" width="86" height="66" rx="3" fill="none" stroke="#F59E0B" strokeWidth="1.2" strokeDasharray="3 3" />
+      <text x="90" y="97" fill="#FBBF24" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">Φ(t)</text>
+      {/* Primary Windings (Left) */}
+      {[65, 75, 85, 95, 105, 115].map((y) => (
+        <rect key={y} x="32" y={y} width="14" height="4" rx="2" fill="#D97706" />
+      ))}
+      <text x="28" y="95" fill="#F59E0B" fontSize="7.5" fontFamily="JetBrains Mono, monospace" textAnchor="end">N₁</text>
+      {/* Secondary Windings (Right) */}
+      {[70, 84, 98, 112].map((y) => (
+        <rect key={y} x="134" y={y} width="14" height="4" rx="2" fill="#D97706" />
+      ))}
+      <text x="154" y="95" fill="#F59E0B" fontSize="7.5" fontFamily="JetBrains Mono, monospace">N₂</text>
+      {/* Right: Equivalent Circuit Branch */}
+      <g transform="translate(170, 60)">
+        <text x="10" y="10" fill="#38BDF8" fontSize="7.5" fontFamily="JetBrains Mono, monospace">OC Test: R_c || X_m</text>
+        <text x="10" y="24" fill="#34D399" fontSize="7.5" fontFamily="JetBrains Mono, monospace">SC Test: R_eq + jX_eq</text>
+        {/* Efficiency Curve miniature */}
+        <path d="M 10 58 Q 50 34 110 42" stroke="#2563EB" strokeWidth="2" fill="none" />
+        <circle cx="50" cy="34" r="2.5" fill="#38BDF8" />
+        <text x="54" y="32" fill="#38BDF8" fontSize="6.5" fontFamily="JetBrains Mono, monospace">η_max = 98.4%</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        V₁/V₂ = N₁/N₂ • P_core = V_oc² / R_c • P_cu = I_sc² R_eq • %VR
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 33. RLC Resonance Circuit Preview
+ */
+export function RlcResonancePreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#38BDF8" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        SERIES RLC RESONANCE &amp; QUALITY FACTOR
+      </text>
+      {/* Left: Circuit Schematic */}
+      <g transform="translate(30, 50)">
+        {/* Source */}
+        <circle cx="20" cy="40" r="12" stroke="#38BDF8" strokeWidth="1.5" />
+        <text x="20" y="43" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">~V_s</text>
+        {/* Resistor R */}
+        <path d="M 20 28 L 20 15 L 40 15 L 44 10 L 50 20 L 56 10 L 62 20 L 66 15 L 75 15" stroke="#F59E0B" strokeWidth="1.5" fill="none" />
+        <text x="53" y="6" fill="#FBBF24" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">R</text>
+        {/* Inductor L */}
+        <path d="M 75 15 C 80 5 85 5 90 15 C 95 5 100 5 105 15" stroke="#10B981" strokeWidth="1.5" fill="none" />
+        <text x="90" y="6" fill="#34D399" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">L</text>
+        {/* Capacitor C */}
+        <line x1="105" y1="15" x2="115" y2="15" stroke="#38BDF8" strokeWidth="1.5" />
+        <line x1="115" y1="8" x2="115" y2="22" stroke="#38BDF8" strokeWidth="2" />
+        <line x1="120" y1="8" x2="120" y2="22" stroke="#38BDF8" strokeWidth="2" />
+        <line x1="120" y1="15" x2="128" y2="15" stroke="#38BDF8" strokeWidth="1.5" />
+        <text x="117" y="6" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">C</text>
+        {/* Return wire */}
+        <line x1="128" y1="15" x2="128" y2="65" stroke="#475569" strokeWidth="1.5" />
+        <line x1="128" y1="65" x2="20" y2="65" stroke="#475569" strokeWidth="1.5" />
+        <line x1="20" y1="65" x2="20" y2="52" stroke="#475569" strokeWidth="1.5" />
+      </g>
+      {/* Right: Resonant Bell Curve */}
+      <g transform="translate(170, 45)">
+        <line x1="15" y1="85" x2="130" y2="85" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="10" x2="15" y2="85" stroke="#475569" strokeWidth="1" />
+        <text x="130" y="95" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Freq f</text>
+        <text x="12" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Current I</text>
+        {/* Sharp Resonance Peak */}
+        <path
+          d="M 20 82 C 45 80 60 70 72 20 C 84 70 100 80 125 82"
+          stroke="#38BDF8"
+          strokeWidth="2.2"
+          fill="none"
+        />
+        {/* Resonant Frequency Line */}
+        <line x1="72" y1="20" x2="72" y2="85" stroke="#F59E0B" strokeWidth="1" strokeDasharray="2 2" />
+        <circle cx="72" cy="20" r="2.5" fill="#F59E0B" />
+        <text x="72" y="15" fill="#FBBF24" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">f₀</text>
+        {/* -3dB line */}
+        <line x1="56" y1="40" x2="88" y2="40" stroke="#10B981" strokeWidth="1" strokeDasharray="1.5 1.5" />
+        <text x="92" y="42" fill="#34D399" fontSize="6.5" fontFamily="JetBrains Mono, monospace">BW = f₀/Q</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        f₀ = 1 / (2π√LC) • Z_min = R • Q = ω₀L/R • Bandwidth Δf = R / (2πL)
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 34. DC Motor Characteristics Preview
+ */
+export function DcMotorPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#F97316" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        DC SHUNT MOTOR TORQUE-SPEED DYNAMICS
+      </text>
+      {/* Stator Poles & Armature */}
+      <g transform="translate(30, 48)">
+        {/* N Pole */}
+        <path d="M 10 30 C 25 30 25 60 10 60 Z" fill="#EF4444" opacity="0.8" />
+        <text x="14" y="48" fill="#FFFFFF" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">N</text>
+        {/* S Pole */}
+        <path d="M 90 30 C 75 30 75 60 90 60 Z" fill="#3B82F6" opacity="0.8" />
+        <text x="82" y="48" fill="#FFFFFF" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">S</text>
+        {/* Armature Rotor */}
+        <circle cx="50" cy="45" r="22" fill="#1E293B" stroke="#94A3B8" strokeWidth="1.5" />
+        <circle cx="50" cy="45" r="8" fill="#D97706" />
+        {/* Commutator Brushes */}
+        <rect x="46" y="18" width="8" height="6" fill="#334155" />
+        <rect x="46" y="66" width="8" height="6" fill="#334155" />
+        {/* Rotation Arrow */}
+        <path d="M 40 32 A 15 15 0 0 1 60 32" stroke="#F59E0B" strokeWidth="1.5" fill="none" />
+        <polygon points="62,32 58,28 58,36" fill="#F59E0B" />
+        <text x="50" y="85" fill="#94A3B8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">ω (rad/s)</text>
+      </g>
+      {/* Right: Torque-Speed Characteristic Line */}
+      <g transform="translate(155, 48)">
+        <line x1="15" y1="80" x2="130" y2="80" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="10" x2="15" y2="80" stroke="#475569" strokeWidth="1" />
+        <text x="130" y="90" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Torque T</text>
+        <text x="10" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Speed N (RPM)</text>
+        {/* Linear Drooping Characteristic */}
+        <line x1="15" y1="20" x2="120" y2="65" stroke="#F97316" strokeWidth="2.2" />
+        <circle cx="15" cy="20" r="2.5" fill="#38BDF8" />
+        <text x="20" y="18" fill="#38BDF8" fontSize="6.5" fontFamily="JetBrains Mono, monospace">N₀ (No Load)</text>
+        <circle cx="120" cy="65" r="2.5" fill="#EF4444" />
+        <text x="85" y="75" fill="#F87171" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Rated Load</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        E_b = V - I_a R_a = k_e Φ ω • T = k_t Φ I_a • Speed N = (V - I_a R_a) / kΦ
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 35. Two-Wattmeter 3-Phase Method Preview
+ */
+export function TwoWattmeterPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#EAB308" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        TWO-WATTMETER 3-PHASE POWER MEASUREMENT
+      </text>
+      {/* 3-Phase Lines: R, Y, B */}
+      <g transform="translate(25, 45)">
+        <line x1="0" y1="20" x2="120" y2="20" stroke="#EF4444" strokeWidth="2" />
+        <text x="5" y="15" fill="#EF4444" fontSize="7" fontFamily="JetBrains Mono, monospace">R</text>
+        <line x1="0" y1="50" x2="120" y2="50" stroke="#EAB308" strokeWidth="2" />
+        <text x="5" y="45" fill="#EAB308" fontSize="7" fontFamily="JetBrains Mono, monospace">Y</text>
+        <line x1="0" y1="80" x2="120" y2="80" stroke="#3B82F6" strokeWidth="2" />
+        <text x="5" y="75" fill="#3B82F6" fontSize="7" fontFamily="JetBrains Mono, monospace">B</text>
+        {/* Wattmeter W1 */}
+        <rect x="40" y="12" width="22" height="16" rx="2" fill="#0F172A" stroke="#EF4444" strokeWidth="1" />
+        <text x="51" y="23" fill="#EF4444" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">W₁</text>
+        {/* Wattmeter W2 */}
+        <rect x="40" y="72" width="22" height="16" rx="2" fill="#0F172A" stroke="#3B82F6" strokeWidth="1" />
+        <text x="51" y="83" fill="#3B82F6" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">W₂</text>
+      </g>
+      {/* Right: Phasor & Power Factor Star */}
+      <g transform="translate(180, 50)">
+        <circle cx="55" cy="45" r="35" stroke="#334155" strokeWidth="1" strokeDasharray="3 3" fill="none" />
+        {/* 120 deg Phasors */}
+        <line x1="55" y1="45" x2="55" y2="15" stroke="#EF4444" strokeWidth="1.8" />
+        <line x1="55" y1="45" x2="85" y2="60" stroke="#EAB308" strokeWidth="1.8" />
+        <line x1="55" y1="45" x2="25" y2="60" stroke="#3B82F6" strokeWidth="1.8" />
+        <text x="55" y="10" fill="#EF4444" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">V_R</text>
+        <text x="92" y="65" fill="#EAB308" fontSize="7" fontFamily="JetBrains Mono, monospace">V_Y</text>
+        <text x="18" y="65" fill="#3B82F6" fontSize="7" fontFamily="JetBrains Mono, monospace">V_B</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        P_total = W₁ + W₂ • tan φ = √3 (W₁ - W₂) / (W₁ + W₂) • PF = cos φ
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 36. Alternator Voltage Regulation Preview
+ */
+export function AlternatorRegulationPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#6366F1" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        SYNCHRONOUS ALTERNATOR REGULATION (OCC &amp; SCC)
+      </text>
+      {/* Synchronous Impedance Graph */}
+      <g transform="translate(40, 50)">
+        <line x1="15" y1="85" x2="160" y2="85" stroke="#475569" strokeWidth="1.2" />
+        <line x1="15" y1="10" x2="15" y2="85" stroke="#475569" strokeWidth="1.2" />
+        <text x="160" y="95" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Field Current I_f</text>
+        <text x="10" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">V_oc / I_sc</text>
+        {/* OCC (Open Circuit Curve - Saturates) */}
+        <path d="M 15 85 Q 70 30 145 22" stroke="#6366F1" strokeWidth="2.2" fill="none" />
+        <text x="148" y="24" fill="#818CF8" fontSize="7" fontFamily="JetBrains Mono, monospace">OCC</text>
+        {/* SCC (Short Circuit Characteristic - Linear) */}
+        <line x1="15" y1="85" x2="135" y2="30" stroke="#F59E0B" strokeWidth="1.8" strokeDasharray="3 2" />
+        <text x="138" y="34" fill="#FBBF24" fontSize="7" fontFamily="JetBrains Mono, monospace">SCC</text>
+      </g>
+      {/* Right: Voltage Regulation vs Power Factor */}
+      <g transform="translate(210, 50)">
+        <text x="0" y="15" fill="#EF4444" fontSize="7" fontFamily="JetBrains Mono, monospace">Lagging: +%VR</text>
+        <text x="0" y="30" fill="#10B981" fontSize="7" fontFamily="JetBrains Mono, monospace">Unity: ~5%</text>
+        <text x="0" y="45" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace">Leading: -%VR</text>
+        <text x="0" y="65" fill="#94A3B8" fontSize="7" fontFamily="JetBrains Mono, monospace">Z_s = V_oc / I_sc</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        %VR = (E₀ - V_rated)/V_rated × 100 • Synchronous Impedance Method
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 37. Chemical Reactor Kinetics Preview (CSTR vs PFR)
+ */
+export function ReactorKineticsPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#10B981" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        CHEMICAL REACTOR KINETICS (CSTR VS PFR)
+      </text>
+      {/* Left: CSTR Vessel */}
+      <g transform="translate(30, 48)">
+        <rect x="10" y="15" width="45" height="55" rx="10" fill="#0F172A" stroke="#10B981" strokeWidth="1.5" />
+        {/* Impeller agitator */}
+        <line x1="32" y1="5" x2="32" y2="48" stroke="#94A3B8" strokeWidth="1.5" />
+        <ellipse cx="32" cy="48" rx="14" ry="4" fill="#34D399" />
+        <text x="32" y="82" fill="#34D399" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">CSTR</text>
+      </g>
+      {/* Center: PFR Tubular Reactor */}
+      <g transform="translate(95, 48)">
+        <rect x="5" y="25" width="60" height="22" rx="4" fill="#0F172A" stroke="#3B82F6" strokeWidth="1.5" />
+        {/* Plug slices */}
+        {[20, 35, 50].map((x) => (
+          <line key={x} x1={x} y1="25" x2={x} y2="47" stroke="#38BDF8" strokeWidth="1" strokeDasharray="2 1" />
+        ))}
+        <text x="35" y="82" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">PFR</text>
+      </g>
+      {/* Right: Conversion Profile X_A vs Space Time */}
+      <g transform="translate(175, 48)">
+        <line x1="15" y1="75" x2="120" y2="75" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="10" x2="15" y2="75" stroke="#475569" strokeWidth="1" />
+        <text x="120" y="85" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">τ (s)</text>
+        <text x="12" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Conv X_A</text>
+        {/* PFR higher conversion curve */}
+        <path d="M 15 75 Q 45 22 110 18" stroke="#3B82F6" strokeWidth="2" fill="none" />
+        <text x="95" y="15" fill="#38BDF8" fontSize="6.5" fontFamily="JetBrains Mono, monospace">PFR</text>
+        {/* CSTR lower conversion curve */}
+        <path d="M 15 75 Q 60 45 110 32" stroke="#10B981" strokeWidth="1.8" strokeDasharray="3 2" fill="none" />
+        <text x="95" y="42" fill="#34D399" fontSize="6.5" fontFamily="JetBrains Mono, monospace">CSTR</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        τ_CSTR = C_A0 X_A / (-r_A) • τ_PFR = C_A0 ∫ dX_A / (-r_A) • Damköhler Da
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 38. Liquid-Liquid Extraction Ternary Preview
+ */
+export function LiquidExtractionPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#0D9488" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        LIQUID-LIQUID EXTRACTION (TERNARY EQUILIBRIUM)
+      </text>
+      {/* Gibbs Equilateral Triangle */}
+      <g transform="translate(60, 45)">
+        <polygon points="100,5 5,100 195,100" stroke="#475569" strokeWidth="1.5" fill="#0B1120" />
+        {/* Vertices */}
+        <text x="100" y="-1" fill="#F59E0B" fontSize="7.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">Solute (A)</text>
+        <text x="-5" y="112" fill="#06B6D4" fontSize="7.5" fontFamily="JetBrains Mono, monospace">Carrier (B)</text>
+        <text x="180" y="112" fill="#10B981" fontSize="7.5" fontFamily="JetBrains Mono, monospace">Solvent (S)</text>
+        {/* Binodal solubility curve */}
+        <path d="M 35 100 Q 100 35 165 100" stroke="#0D9488" strokeWidth="2.2" fill="#0D9488" fillOpacity="0.15" />
+        {/* Tie lines */}
+        <line x1="55" y1="88" x2="148" y2="82" stroke="#E11D48" strokeWidth="1" strokeDasharray="2 1" />
+        <line x1="72" y1="72" x2="132" y2="65" stroke="#E11D48" strokeWidth="1" strokeDasharray="2 1" />
+        {/* Plait Point */}
+        <circle cx="106" cy="48" r="2.5" fill="#F43F5E" />
+        <text x="110" y="46" fill="#F43F5E" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Plait Point</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Ternary Phase Diagram • Extract vs Raffinate Phases • Distribution Coeff K_d
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 39. Shell & Tube Heat Exchanger Preview
+ */
+export function HeatExchangerPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#F97316" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        SHELL &amp; TUBE HEAT EXCHANGER (LMTD)
+      </text>
+      {/* Shell cylinder */}
+      <rect x="30" y="55" width="160" height="55" rx="8" fill="#0F172A" stroke="#475569" strokeWidth="1.5" />
+      {/* Tubes (Hot Fluid - Red) */}
+      <line x1="15" y1="72" x2="205" y2="72" stroke="#EF4444" strokeWidth="3" />
+      <line x1="15" y1="92" x2="205" y2="92" stroke="#EF4444" strokeWidth="3" />
+      <polygon points="12,72 6,69 6,75" fill="#EF4444" />
+      <text x="15" y="65" fill="#EF4444" fontSize="7" fontFamily="JetBrains Mono, monospace">T_h,in</text>
+      <text x="205" y="65" fill="#F87171" fontSize="7" fontFamily="JetBrains Mono, monospace">T_h,out</text>
+      {/* Baffles in shell */}
+      <line x1="75" y1="55" x2="75" y2="95" stroke="#64748B" strokeWidth="2" />
+      <line x1="115" y1="70" x2="115" y2="110" stroke="#64748B" strokeWidth="2" />
+      <line x1="155" y1="55" x2="155" y2="95" stroke="#64748B" strokeWidth="2" />
+      {/* Shell Cold Fluid In/Out */}
+      <text x="40" y="125" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace">T_c,in</text>
+      <text x="175" y="48" fill="#0284C7" fontSize="7" fontFamily="JetBrains Mono, monospace">T_c,out</text>
+      {/* Right: Countercurrent LMTD temperature curves */}
+      <g transform="translate(205, 52)">
+        <path d="M 10 18 Q 45 35 85 45" stroke="#EF4444" strokeWidth="2" fill="none" />
+        <path d="M 10 70 Q 50 62 85 42" stroke="#38BDF8" strokeWidth="2" fill="none" />
+        <text x="45" y="14" fill="#F87171" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Hot Stream</text>
+        <text x="45" y="80" fill="#38BDF8" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Cold Stream</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Q = U·A·ΔT_lm • ΔT_lm = (ΔT₁ - ΔT₂) / ln(ΔT₁/ΔT₂) • NTU Method
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 40. Gas Absorption Packed Tower Preview
+ */
+export function GasAbsorptionPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#059669" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        GAS ABSORPTION &amp; PACKED TOWER (NTU / HTU)
+      </text>
+      {/* Packed Column */}
+      <g transform="translate(45, 42)">
+        <rect x="20" y="10" width="45" height="95" rx="8" fill="#0F172A" stroke="#059669" strokeWidth="1.5" />
+        {/* Packing bed with Raschig ring icons */}
+        <rect x="23" y="30" width="39" height="55" fill="#064E3B" opacity="0.4" stroke="#10B981" strokeWidth="1" strokeDasharray="2 2" />
+        {/* Liquid distributor at top */}
+        <line x1="28" y1="26" x2="57" y2="26" stroke="#38BDF8" strokeWidth="2" />
+        <polygon points="42,12 38,18 46,18" fill="#38BDF8" />
+        <text x="42" y="8" fill="#38BDF8" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">Liquid L</text>
+        {/* Gas inlet at bottom */}
+        <polygon points="12,90 18,86 18,94" fill="#F59E0B" />
+        <text x="5" y="92" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Gas G</text>
+      </g>
+      {/* Operating and Equilibrium Lines */}
+      <g transform="translate(150, 48)">
+        <line x1="15" y1="80" x2="130" y2="80" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="10" x2="15" y2="80" stroke="#475569" strokeWidth="1" />
+        <text x="130" y="90" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">x (Liq mole)</text>
+        <text x="12" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">y (Gas mole)</text>
+        {/* Equilibrium Line: y = mx */}
+        <line x1="15" y1="80" x2="110" y2="25" stroke="#10B981" strokeWidth="1.8" strokeDasharray="3 2" />
+        <text x="112" y="27" fill="#34D399" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Equil y*</text>
+        {/* Operating Line: steeper slope L/G */}
+        <line x1="30" y1="80" x2="120" y2="15" stroke="#F59E0B" strokeWidth="2" />
+        <text x="122" y="16" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Oper L/G</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Z = H_OG × N_OG • Height of Transfer Unit • Henry&apos;s Law y = H·x
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 41. Bacterial Growth Kinetics Preview
+ */
+export function BacterialGrowthPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#EC4899" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        MICROBIAL BATCH FERMENTATION PHASES
+      </text>
+      {/* 4-Phase Sigmoidal Growth Curve */}
+      <g transform="translate(40, 48)">
+        <line x1="15" y1="85" x2="230" y2="85" stroke="#475569" strokeWidth="1.2" />
+        <line x1="15" y1="10" x2="15" y2="85" stroke="#475569" strokeWidth="1.2" />
+        <text x="230" y="95" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Time t (h)</text>
+        <text x="10" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">ln(Cell Density X)</text>
+        {/* Sigmoid Curve: Lag -> Exponential -> Stationary -> Death */}
+        <path
+          d="M 15 78 L 50 78 Q 90 75 125 30 L 175 30 Q 200 35 225 65"
+          stroke="#EC4899"
+          strokeWidth="2.5"
+          fill="none"
+        />
+        {/* Phase Delimiters */}
+        <line x1="50" y1="15" x2="50" y2="85" stroke="#334155" strokeWidth="1" strokeDasharray="2 2" />
+        <line x1="125" y1="15" x2="125" y2="85" stroke="#334155" strokeWidth="1" strokeDasharray="2 2" />
+        <line x1="175" y1="15" x2="175" y2="85" stroke="#334155" strokeWidth="1" strokeDasharray="2 2" />
+        <text x="32" y="22" fill="#94A3B8" fontSize="6" fontFamily="JetBrains Mono, monospace">Lag</text>
+        <text x="85" y="22" fill="#F43F5E" fontSize="6" fontFamily="JetBrains Mono, monospace" fontWeight="bold">Exponential</text>
+        <text x="145" y="22" fill="#FBBF24" fontSize="6" fontFamily="JetBrains Mono, monospace">Stationary</text>
+        <text x="195" y="22" fill="#64748B" fontSize="6" fontFamily="JetBrains Mono, monospace">Death</text>
+        {/* Substrate depletion curve */}
+        <path d="M 15 25 Q 90 35 175 80" stroke="#38BDF8" strokeWidth="1.5" strokeDasharray="3 2" fill="none" />
+        <text x="25" y="32" fill="#38BDF8" fontSize="6" fontFamily="JetBrains Mono, monospace">Substrate [S]</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Monod: μ = μ_max·S / (K_s + S) • dX/dt = μX • Doubling Time t_d = ln(2)/μ
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 42. Kla Bioreactor Mass Transfer Preview
+ */
+export function KlaBioreactorPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#06B6D4" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        BIOREACTOR AERATION &amp; K_La OXYGEN TRANSFER
+      </text>
+      {/* Bioreactor Tank with Sparger */}
+      <g transform="translate(30, 48)">
+        <rect x="10" y="10" width="55" height="65" rx="8" fill="#0F172A" stroke="#06B6D4" strokeWidth="1.5" />
+        {/* Impeller shaft & Rushton blade */}
+        <line x1="37" y1="0" x2="37" y2="48" stroke="#94A3B8" strokeWidth="1.5" />
+        <rect x="25" y="44" width="24" height="6" rx="1" fill="#38BDF8" />
+        {/* Sparger bubbles rising */}
+        {[25, 33, 42, 49].map((bx, idx) => (
+          <circle key={bx} cx={bx} cy={58 - idx * 8} r="2.5" fill="#67E8F9" opacity="0.7" />
+        ))}
+      </g>
+      {/* Dissolved Oxygen Dynamic Response Curve */}
+      <g transform="translate(125, 48)">
+        <line x1="15" y1="75" x2="160" y2="75" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="10" x2="15" y2="75" stroke="#475569" strokeWidth="1" />
+        <text x="160" y="85" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Time t (s)</text>
+        <text x="12" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">DO (% Saturation)</text>
+        {/* Dynamic Gassing Out curve */}
+        <path d="M 15 75 L 40 75 Q 70 70 110 32 L 155 24" stroke="#06B6D4" strokeWidth="2.2" fill="none" />
+        {/* C* Equilibrium line */}
+        <line x1="15" y1="22" x2="155" y2="22" stroke="#F59E0B" strokeWidth="1" strokeDasharray="3 3" />
+        <text x="120" y="18" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace">C* (100% Sat)</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        dC_L/dt = k_La (C* - C_L) • Dynamic Gassing-Out Method • Aerobic Cultures
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 43. Chromatography Column & Elution Peaks Preview
+ */
+export function ChromatographyPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#A855F7" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        GEL FILTRATION CHROMATOGRAPHY (COLUMN RESOLUTION)
+      </text>
+      {/* Chromatography Glass Column */}
+      <g transform="translate(30, 48)">
+        <rect x="15" y="10" width="28" height="70" rx="3" fill="#0F172A" stroke="#A855F7" strokeWidth="1.5" />
+        {/* Separation bands */}
+        <rect x="17" y="25" width="24" height="6" rx="1" fill="#EF4444" opacity="0.8" />
+        <rect x="17" y="45" width="24" height="7" rx="1" fill="#3B82F6" opacity="0.8" />
+        <rect x="17" y="65" width="24" height="8" rx="1" fill="#10B981" opacity="0.8" />
+      </g>
+      {/* Elution Chromatogram UV Peaks */}
+      <g transform="translate(95, 48)">
+        <line x1="15" y1="75" x2="190" y2="75" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="10" x2="15" y2="75" stroke="#475569" strokeWidth="1" />
+        <text x="190" y="85" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Retention t_R (min)</text>
+        <text x="12" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">A₂₈₀ (UV)</text>
+        {/* Peak 1 (High MW) */}
+        <path d="M 35 75 Q 55 18 75 75" stroke="#EF4444" strokeWidth="2" fill="#EF4444" fillOpacity="0.15" />
+        <text x="55" y="14" fill="#F87171" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">Peak 1</text>
+        {/* Peak 2 (Medium MW) */}
+        <path d="M 85 75 Q 110 30 135 75" stroke="#3B82F6" strokeWidth="2" fill="#3B82F6" fillOpacity="0.15" />
+        <text x="110" y="26" fill="#60A5FA" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">Peak 2</text>
+        {/* Peak 3 (Small MW) */}
+        <path d="M 145 75 Q 165 42 185 75" stroke="#10B981" strokeWidth="2" fill="#10B981" fillOpacity="0.15" />
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        R_s = 2(t_R2 - t_R1)/(W₁ + W₂) • Theoretical Plates N = 16(t_R/W)²
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 44. PCR Amplification Kinetics Preview
+ */
+export function PcrKineticsPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#14B8A6" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        REAL-TIME QPCR AMPLIFICATION &amp; C_T KINETICS
+      </text>
+      {/* Thermal Cycler Profile on Left */}
+      <g transform="translate(30, 50)">
+        <text x="0" y="8" fill="#94A3B8" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Cycles: 95°→55°→72°C</text>
+        <path d="M 5 22 L 20 22 L 28 50 L 45 50 L 52 35 L 70 35 L 78 22" stroke="#F59E0B" strokeWidth="1.5" fill="none" />
+        <text x="12" y="18" fill="#EF4444" fontSize="6" fontFamily="JetBrains Mono, monospace">Denat</text>
+        <text x="32" y="60" fill="#38BDF8" fontSize="6" fontFamily="JetBrains Mono, monospace">Anneal</text>
+        <text x="56" y="32" fill="#10B981" fontSize="6" fontFamily="JetBrains Mono, monospace">Ext</text>
+      </g>
+      {/* qPCR Sigmoid Curves on Right */}
+      <g transform="translate(130, 48)">
+        <line x1="15" y1="75" x2="155" y2="75" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="10" x2="15" y2="75" stroke="#475569" strokeWidth="1" />
+        <text x="155" y="85" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Cycle #</text>
+        <text x="12" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Fluorescence (Rn)</text>
+        {/* Threshold Line */}
+        <line x1="15" y1="48" x2="155" y2="48" stroke="#EF4444" strokeWidth="1" strokeDasharray="3 2" />
+        <text x="135" y="45" fill="#F87171" fontSize="6.5" fontFamily="JetBrains Mono, monospace">C_t line</text>
+        {/* Sample 1 (High copy, early Ct) */}
+        <path d="M 15 72 L 50 72 Q 75 70 95 25 L 140 22" stroke="#14B8A6" strokeWidth="2.2" fill="none" />
+        <circle cx="85" cy="48" r="2.5" fill="#14B8A6" />
+        {/* Sample 2 (Low copy, late Ct) */}
+        <path d="M 15 74 L 80 74 Q 105 72 125 30 L 150 26" stroke="#8B5CF6" strokeWidth="1.8" strokeDasharray="3 1" fill="none" />
+        <circle cx="115" cy="48" r="2.5" fill="#8B5CF6" />
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        N_n = N₀ · (1 + E)^n • Threshold Cycle C_t • Taq Polymerase 5&apos;→3&apos;
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 45. Photoelectric Effect Preview
+ */
+export function PhotoelectricPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#E11D48" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        EINSTEIN PHOTOELECTRIC EFFECT &amp; WORK FUNCTION
+      </text>
+      {/* Vacuum Phototube */}
+      <g transform="translate(30, 48)">
+        <ellipse cx="60" cy="42" rx="42" ry="32" fill="#0F172A" stroke="#334155" strokeWidth="1.5" />
+        {/* Photocathode Emitter plate */}
+        <rect x="30" y="24" width="6" height="36" fill="#94A3B8" />
+        <text x="24" y="44" fill="#94A3B8" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="end">Cathode</text>
+        {/* Anode Collector plate */}
+        <rect x="85" y="24" width="6" height="36" fill="#94A3B8" />
+        <text x="95" y="44" fill="#94A3B8" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Anode</text>
+        {/* Light Photons striking plate */}
+        <path d="M 5 20 L 28 32 M 5 35 L 28 42 M 5 50 L 28 52" stroke="#F59E0B" strokeWidth="1.5" />
+        {/* Ejected photoelectrons */}
+        {[35, 42, 50].map((y, idx) => (
+          <circle key={y} cx={45 + idx * 14} cy={y} r="2" fill="#38BDF8" />
+        ))}
+      </g>
+      {/* Einstein K_max vs Frequency line */}
+      <g transform="translate(160, 48)">
+        <line x1="15" y1="75" x2="130" y2="75" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="10" x2="15" y2="75" stroke="#475569" strokeWidth="1" />
+        <text x="130" y="85" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">Freq ν</text>
+        <text x="12" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">K_max (eV)</text>
+        {/* Linear line with threshold ν₀ */}
+        <line x1="45" y1="75" x2="120" y2="15" stroke="#E11D48" strokeWidth="2.2" />
+        <circle cx="45" cy="75" r="2.5" fill="#FBBF24" />
+        <text x="45" y="86" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">ν₀</text>
+        <text x="95" y="32" fill="#E11D48" fontSize="7" fontFamily="JetBrains Mono, monospace">Slope = h</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        K_max = hν - Φ = e·V₀ • Planck Constant h = 6.626×10⁻³⁴ J·s • Work Function Φ
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 46. Newton's Rings Interference Preview
+ */
+export function NewtonsRingsPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#F59E0B" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        NEWTON&apos;S RINGS INTERFERENCE &amp; LENS RADIUS
+      </text>
+      {/* Concentric Newton's Rings Pattern */}
+      <g transform="translate(80, 95)">
+        <circle cx="0" cy="0" r="45" fill="#0B1120" stroke="#334155" strokeWidth="1" />
+        {/* Rings */}
+        {[8, 16, 23, 29, 34, 39, 43].map((r, idx) => (
+          <circle
+            key={r}
+            cx="0"
+            cy="0"
+            r={r}
+            stroke="#F59E0B"
+            strokeWidth={idx % 2 === 0 ? 2 : 1}
+            fill="none"
+            opacity={Math.max(0.2, 1 - idx * 0.12)}
+          />
+        ))}
+        {/* Central Dark Spot */}
+        <circle cx="0" cy="0" r="4" fill="#0F172A" stroke="#F59E0B" strokeWidth="1" />
+      </g>
+      {/* Plano-Convex Lens Schematic on Right */}
+      <g transform="translate(170, 55)">
+        {/* Glass Plate */}
+        <rect x="10" y="65" width="105" height="10" fill="#334155" stroke="#64748B" strokeWidth="1" />
+        {/* Plano-Convex Lens curve */}
+        <path d="M 15 40 Q 62 65 110 40 L 110 32 L 15 32 Z" fill="#1E293B" stroke="#38BDF8" strokeWidth="1.5" />
+        {/* Monochromatic sodium ray */}
+        <line x1="62" y1="12" x2="62" y2="32" stroke="#F59E0B" strokeWidth="1.8" />
+        <polygon points="59,28 62,34 65,28" fill="#F59E0B" />
+        <text x="62" y="8" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">λ = 589nm</text>
+        <text x="62" y="88" fill="#94A3B8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">Air Wedge Film</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        D_n² = 4n·λ·R • Dark Ring Condition • Radius of Curvature R = (D_(n+p)² - D_n²) / 4pλ
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 47. Diffraction Grating Preview
+ */
+export function DiffractionGratingPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#8B5CF6" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        DIFFRACTION GRATING &amp; SPECTRAL DISPERSION
+      </text>
+      {/* Laser / Collimator */}
+      <rect x="25" y="85" width="40" height="20" rx="3" fill="#1E293B" stroke="#475569" strokeWidth="1" />
+      <line x1="65" y1="95" x2="115" y2="95" stroke="#EC4899" strokeWidth="2.5" />
+      {/* Grating plate */}
+      <rect x="115" y="45" width="8" height="100" rx="2" fill="#0F172A" stroke="#8B5CF6" strokeWidth="1.5" />
+      {[55, 65, 75, 85, 95, 105, 115, 125, 135].map((gy) => (
+        <line key={gy} x1="115" y1={gy} x2="123" y2={gy} stroke="#000000" strokeWidth="1.5" />
+      ))}
+      <text x="119" y="38" fill="#A78BFA" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">d = 1/N</text>
+      {/* Diffracted Spectral Orders */}
+      {/* m = 0 central */}
+      <line x1="123" y1="95" x2="250" y2="95" stroke="#EC4899" strokeWidth="2.5" />
+      <text x="255" y="98" fill="#FDA4AF" fontSize="7" fontFamily="JetBrains Mono, monospace">m = 0</text>
+      {/* m = +1 */}
+      <line x1="123" y1="95" x2="250" y2="55" stroke="#38BDF8" strokeWidth="1.8" />
+      <text x="255" y="58" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace">m = +1</text>
+      {/* m = -1 */}
+      <line x1="123" y1="95" x2="250" y2="135" stroke="#38BDF8" strokeWidth="1.8" />
+      <text x="255" y="138" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace">m = -1</text>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        (a + b) sin θ = m λ • Grating Equation • Resolving Power R = λ/Δλ = m·N
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 48. Coupled Oscillators & Normal Modes Preview
+ */
+export function CoupledOscillatorsPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#38BDF8" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        COUPLED OSCILLATORS (BEATS &amp; NORMAL MODES)
+      </text>
+      {/* Top support bar */}
+      <line x1="40" y1="48" x2="160" y2="48" stroke="#475569" strokeWidth="3" />
+      {/* Pendulum 1 */}
+      <line x1="70" y1="48" x2="65" y2="110" stroke="#94A3B8" strokeWidth="1.5" />
+      <circle cx="65" cy="110" r="10" fill="#38BDF8" stroke="#0284C7" strokeWidth="1.5" />
+      <text x="65" y="113" fill="#0F172A" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">m₁</text>
+      {/* Pendulum 2 */}
+      <line x1="130" y1="48" x2="135" y2="110" stroke="#94A3B8" strokeWidth="1.5" />
+      <circle cx="135" cy="110" r="10" fill="#38BDF8" stroke="#0284C7" strokeWidth="1.5" />
+      <text x="135" y="113" fill="#0F172A" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">m₂</text>
+      {/* Coupling Spring */}
+      <path
+        d="M 65 85 L 75 80 L 85 90 L 95 80 L 105 90 L 115 80 L 125 90 L 135 85"
+        stroke="#F59E0B"
+        strokeWidth="1.5"
+        fill="none"
+      />
+      <text x="100" y="74" fill="#FBBF24" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">k_c</text>
+      {/* Right: Modulated Beat Wave Envelope */}
+      <g transform="translate(180, 50)">
+        <line x1="10" y1="45" x2="120" y2="45" stroke="#334155" strokeWidth="1" />
+        {/* Envelope */}
+        <path d="M 10 20 Q 35 45 60 20 Q 85 45 110 20" stroke="#64748B" strokeWidth="1" strokeDasharray="2 2" fill="none" />
+        <path d="M 10 70 Q 35 45 60 70 Q 85 45 110 70" stroke="#64748B" strokeWidth="1" strokeDasharray="2 2" fill="none" />
+        {/* Fast oscillations inside beat */}
+        <path
+          d="M 10 45 Q 16 28 22 45 Q 28 62 35 45 Q 42 32 48 45 Q 54 58 60 45 Q 67 30 73 45 Q 80 60 87 45 Q 94 34 100 45 Q 106 56 112 45"
+          stroke="#38BDF8"
+          strokeWidth="1.5"
+          fill="none"
+        />
+        <text x="65" y="85" fill="#38BDF8" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">Beats: ω_b = |ω₁ - ω₂|</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Mode 1 (In-phase): ω₁ = √(g/L) • Mode 2 (Anti-phase): ω₂ = √(g/L + 2k_c/m)
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 49. PID Controller Closed-Loop Tuning Preview
+ */
+export function PidTuningPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#0EA5E9" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        CLOSED-LOOP PID TUNING &amp; STEP TRANSIENT
+      </text>
+      {/* Feedback Block Diagram */}
+      <g transform="translate(25, 48)">
+        <line x1="0" y1="20" x2="16" y2="20" stroke="#94A3B8" strokeWidth="1.5" />
+        {/* Summing junction */}
+        <circle cx="22" cy="20" r="6" stroke="#94A3B8" strokeWidth="1.2" fill="#0B1120" />
+        <line x1="28" y1="20" x2="38" y2="20" stroke="#94A3B8" strokeWidth="1.5" />
+        {/* PID Block */}
+        <rect x="38" y="10" width="38" height="20" rx="3" fill="#0F172A" stroke="#0EA5E9" strokeWidth="1.2" />
+        <text x="57" y="23" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">PID</text>
+        <line x1="76" y1="20" x2="88" y2="20" stroke="#94A3B8" strokeWidth="1.5" />
+        {/* Plant G(s) */}
+        <rect x="88" y="10" width="38" height="20" rx="3" fill="#0F172A" stroke="#10B981" strokeWidth="1.2" />
+        <text x="107" y="23" fill="#34D399" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">G(s)</text>
+        {/* Output wire & feedback */}
+        <line x1="126" y1="20" x2="145" y2="20" stroke="#94A3B8" strokeWidth="1.5" />
+        <line x1="135" y1="20" x2="135" y2="40" stroke="#64748B" strokeWidth="1.2" />
+        <line x1="135" y1="40" x2="22" y2="40" stroke="#64748B" strokeWidth="1.2" />
+        <line x1="22" y1="40" x2="22" y2="26" stroke="#64748B" strokeWidth="1.2" />
+      </g>
+      {/* Right: Step Transient Response with Overshoot */}
+      <g transform="translate(170, 48)">
+        <line x1="15" y1="75" x2="130" y2="75" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="10" x2="15" y2="75" stroke="#475569" strokeWidth="1" />
+        {/* Setpoint dashed line */}
+        <line x1="15" y1="35" x2="130" y2="35" stroke="#64748B" strokeWidth="1" strokeDasharray="3 3" />
+        <text x="132" y="37" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">r(t)=1</text>
+        {/* Step Response: fast rise -> peak overshoot M_p -> settled */}
+        <path
+          d="M 15 75 Q 35 15 50 20 Q 65 45 80 32 Q 95 38 125 35"
+          stroke="#0EA5E9"
+          strokeWidth="2.2"
+          fill="none"
+        />
+        {/* Overshoot indicator */}
+        <circle cx="50" cy="20" r="2.5" fill="#EF4444" />
+        <text x="50" y="14" fill="#F87171" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">M_p = 18%</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        u(t) = K_p·e(t) + K_i ∫ e(τ)dτ + K_d · de/dt • Ziegler-Nichols Rules
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 50. Differential Drive Mobile Robot Preview
+ */
+export function DifferentialDrivePreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#06B6D4" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        DIFFERENTIAL DRIVE ROBOT (ODOMETRY &amp; ICC)
+      </text>
+      {/* Curved trajectory path */}
+      <path
+        d="M 40 135 C 90 120 120 70 200 65"
+        stroke="#06B6D4"
+        strokeWidth="2"
+        strokeDasharray="4 3"
+        fill="none"
+      />
+      {/* Robot Chassis at end of path */}
+      <g transform="translate(190, 65) rotate(-15)">
+        {/* Circular or rectangular chassis */}
+        <rect x="-18" y="-14" width="36" height="28" rx="6" fill="#1E293B" stroke="#0284C7" strokeWidth="1.5" />
+        {/* Left Wheel */}
+        <rect x="-14" y="-18" width="16" height="5" rx="1" fill="#EF4444" />
+        <text x="-6" y="-21" fill="#F87171" fontSize="6" fontFamily="JetBrains Mono, monospace">v_L</text>
+        {/* Right Wheel */}
+        <rect x="-14" y="13" width="16" height="5" rx="1" fill="#3B82F6" />
+        <text x="-6" y="24" fill="#60A5FA" fontSize="6" fontFamily="JetBrains Mono, monospace">v_R</text>
+        {/* Heading arrow */}
+        <line x1="0" y1="0" x2="20" y2="0" stroke="#F59E0B" strokeWidth="1.5" />
+        <polygon points="20,0 15,-3 15,3" fill="#F59E0B" />
+      </g>
+      {/* Instantaneous Center of Curvature (ICC) */}
+      <circle cx="140" cy="130" r="3" fill="#F43F5E" />
+      <text x="140" y="142" fill="#F43F5E" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">ICC</text>
+      <line x1="140" y1="130" x2="190" y2="65" stroke="#F43F5E" strokeWidth="1" strokeDasharray="2 2" />
+      <text x="160" y="95" fill="#FDA4AF" fontSize="6.5" fontFamily="JetBrains Mono, monospace">R = L(v_R+v_L)/2(v_R-v_L)</text>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        ω = (v_R - v_L) / L • v = (v_R + v_L)/2 • Non-holonomic Constraint: ẏ cos θ - ẋ sin θ = 0
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 51. Inverted Pendulum on Cart Preview
+ */
+export function InvertedPendulumPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#E11D48" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        INVERTED PENDULUM CART (STATE-SPACE &amp; LQR)
+      </text>
+      {/* Horizontal Track rail */}
+      <line x1="30" y1="135" x2="290" y2="135" stroke="#475569" strokeWidth="3" />
+      {/* Motorized Cart */}
+      <rect x="135" y="112" width="50" height="22" rx="3" fill="#1E293B" stroke="#0284C7" strokeWidth="1.5" />
+      {/* Cart Wheels */}
+      <circle cx="145" cy="135" r="5" fill="#64748B" />
+      <circle cx="175" cy="135" r="5" fill="#64748B" />
+      {/* Center Pivot Pin */}
+      <circle cx="160" cy="112" r="3.5" fill="#F59E0B" />
+      {/* Stabilized Upright Inverted Pendulum */}
+      <line x1="160" y1="112" x2="168" y2="48" stroke="#EF4444" strokeWidth="3" strokeLinecap="round" />
+      {/* Pendulum Bob / Tip mass */}
+      <circle cx="168" cy="48" r="9" fill="#F43F5E" stroke="#FFFFFF" strokeWidth="1.5" />
+      {/* Angle theta from vertical */}
+      <line x1="160" y1="112" x2="160" y2="45" stroke="#475569" strokeWidth="1" strokeDasharray="2 2" />
+      <text x="175" y="70" fill="#FBBF24" fontSize="7" fontFamily="JetBrains Mono, monospace">θ = 2.4°</text>
+      {/* Control Force vector u(t) */}
+      <line x1="110" y1="123" x2="132" y2="123" stroke="#10B981" strokeWidth="2.5" />
+      <polygon points="132,123 126,120 126,126" fill="#10B981" />
+      <text x="100" y="125" fill="#34D399" fontSize="7" fontFamily="JetBrains Mono, monospace">u(t)</text>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        (M + m)ẍ + ml θ̈ cos θ - ml θ̇² sin θ = u • (I + ml²)θ̈ + ml ẍ cos θ = mgl sin θ
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 52. Bode Plot Frequency Response Preview
+ */
+export function BodePlotPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#8B5CF6" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        BODE PLOT (GAIN &amp; PHASE MARGINS)
+      </text>
+      {/* Top: Magnitude [dB] plot */}
+      <g transform="translate(40, 45)">
+        <line x1="15" y1="40" x2="240" y2="40" stroke="#475569" strokeWidth="1" strokeDasharray="3 3" />
+        <text x="8" y="42" fill="#94A3B8" fontSize="6.5" fontFamily="JetBrains Mono, monospace">0dB</text>
+        {/* Magnitude Curve */}
+        <path d="M 15 20 L 90 22 C 140 25 180 65 240 85" stroke="#38BDF8" strokeWidth="2" fill="none" />
+        {/* Gain Crossover Frequency ω_gc */}
+        <circle cx="150" cy="40" r="2.5" fill="#F59E0B" />
+        <text x="150" y="34" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace">ω_gc</text>
+      </g>
+      {/* Bottom: Phase [deg] plot */}
+      <g transform="translate(40, 100)">
+        <line x1="15" y1="35" x2="240" y2="35" stroke="#EF4444" strokeWidth="1" strokeDasharray="3 3" />
+        <text x="0" y="38" fill="#F87171" fontSize="6.5" fontFamily="JetBrains Mono, monospace">-180°</text>
+        {/* Phase Curve */}
+        <path d="M 15 10 C 60 12 120 25 180 50 L 240 60" stroke="#A78BFA" strokeWidth="2" fill="none" />
+        {/* Phase Margin arrow */}
+        <line x1="150" y1="35" x2="150" y2="28" stroke="#10B981" strokeWidth="1.5" />
+        <text x="155" y="32" fill="#34D399" fontSize="6.5" fontFamily="JetBrains Mono, monospace">PM = 48°</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        GM = -20 log|G(jω_pc)| • PM = 180° + ∠G(jω_gc) • Asymptotic Stability
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 53. BJT Common-Emitter Characteristics Preview
+ */
+export function BjtCharacteristicsPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#3B82F6" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        BJT NPN TRANSISTOR OUTPUT CHARACTERISTICS
+      </text>
+      {/* BJT Schematic Symbol on Left */}
+      <g transform="translate(35, 50)">
+        {/* Base bar */}
+        <line x1="30" y1="20" x2="30" y2="50" stroke="#94A3B8" strokeWidth="3" />
+        {/* Base terminal wire */}
+        <line x1="10" y1="35" x2="30" y2="35" stroke="#94A3B8" strokeWidth="1.5" />
+        <text x="5" y="38" fill="#94A3B8" fontSize="7" fontFamily="JetBrains Mono, monospace">B</text>
+        {/* Collector */}
+        <line x1="30" y1="26" x2="48" y2="12" stroke="#94A3B8" strokeWidth="1.5" />
+        <line x1="48" y1="12" x2="48" y2="2" stroke="#94A3B8" strokeWidth="1.5" />
+        <text x="52" y="10" fill="#EF4444" fontSize="7" fontFamily="JetBrains Mono, monospace">C</text>
+        {/* Emitter with arrow */}
+        <line x1="30" y1="44" x2="48" y2="58" stroke="#94A3B8" strokeWidth="1.5" />
+        <line x1="48" y1="58" x2="48" y2="68" stroke="#94A3B8" strokeWidth="1.5" />
+        <polygon points="46,56 42,48 48,50" fill="#38BDF8" />
+        <text x="52" y="65" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace">E</text>
+      </g>
+      {/* Right: Family of Collector Curves (IC vs VCE) */}
+      <g transform="translate(125, 48)">
+        <line x1="15" y1="80" x2="165" y2="80" stroke="#475569" strokeWidth="1.2" />
+        <line x1="15" y1="10" x2="15" y2="80" stroke="#475569" strokeWidth="1.2" />
+        <text x="165" y="90" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">V_CE (V)</text>
+        <text x="10" y="8" fill="#64748B" fontSize="6.5" fontFamily="JetBrains Mono, monospace">I_C (mA)</text>
+        {/* Curves for IB = 40uA, 30uA, 20uA, 10uA */}
+        <path d="M 15 80 Q 25 18 160 15" stroke="#38BDF8" strokeWidth="1.8" fill="none" />
+        <text x="162" y="16" fill="#38BDF8" fontSize="6" fontFamily="JetBrains Mono, monospace">I_B=40μA</text>
+        <path d="M 15 80 Q 25 35 160 32" stroke="#60A5FA" strokeWidth="1.8" fill="none" />
+        <text x="162" y="33" fill="#60A5FA" fontSize="6" fontFamily="JetBrains Mono, monospace">I_B=30μA</text>
+        <path d="M 15 80 Q 25 52 160 50" stroke="#93C5FD" strokeWidth="1.8" fill="none" />
+        <text x="162" y="51" fill="#93C5FD" fontSize="6" fontFamily="JetBrains Mono, monospace">I_B=20μA</text>
+        {/* Saturation Region Line */}
+        <line x1="25" y1="10" x2="25" y2="80" stroke="#F59E0B" strokeWidth="1" strokeDasharray="2 2" />
+        <text x="27" y="70" fill="#FBBF24" fontSize="5.5" fontFamily="JetBrains Mono, monospace">Sat</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        I_C = β·I_B • Early Effect V_A • Active, Saturation &amp; Cutoff Regions
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 54. Operational Amplifier (Op-Amp) Preview
+ */
+export function OpAmpPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="32" fill="#10B981" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        OP-AMP INVERTING AMPLIFIER &amp; FREQUENCY RESPONSE
+      </text>
+      {/* Op-Amp Triangle Symbol */}
+      <g transform="translate(30, 50)">
+        <polygon points="50,15 50,75 100,45" fill="#0F172A" stroke="#10B981" strokeWidth="1.5" />
+        {/* Inverting (-) and Non-Inverting (+) */}
+        <text x="56" y="32" fill="#EF4444" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">-</text>
+        <text x="56" y="66" fill="#3B82F6" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">+</text>
+        {/* Inverting input line with R_in */}
+        <line x1="5" y1="28" x2="22" y2="28" stroke="#94A3B8" strokeWidth="1.5" />
+        <rect x="22" y="23" width="16" height="10" fill="#1E293B" stroke="#F59E0B" strokeWidth="1" />
+        <text x="30" y="31" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">R_in</text>
+        <line x1="38" y1="28" x2="50" y2="28" stroke="#94A3B8" strokeWidth="1.5" />
+        {/* Feedback resistor R_f */}
+        <line x1="44" y1="28" x2="44" y2="8" stroke="#94A3B8" strokeWidth="1.2" />
+        <line x1="44" y1="8" x2="60" y2="8" stroke="#94A3B8" strokeWidth="1.2" />
+        <rect x="60" y="3" width="20" height="10" fill="#1E293B" stroke="#F59E0B" strokeWidth="1" />
+        <text x="70" y="11" fill="#FBBF24" fontSize="6.5" fontFamily="JetBrains Mono, monospace" textAnchor="middle">R_f</text>
+        <line x1="80" y1="8" x2="110" y2="8" stroke="#94A3B8" strokeWidth="1.2" />
+        <line x1="110" y1="8" x2="110" y2="45" stroke="#94A3B8" strokeWidth="1.2" />
+        {/* Output pin */}
+        <line x1="100" y1="45" x2="125" y2="45" stroke="#10B981" strokeWidth="1.8" />
+        <text x="128" y="48" fill="#34D399" fontSize="7" fontFamily="JetBrains Mono, monospace">V_out</text>
+      </g>
+      {/* Right: Inverted Sine Waveforms (Input vs Output) */}
+      <g transform="translate(180, 50)">
+        <line x1="10" y1="45" x2="115" y2="45" stroke="#334155" strokeWidth="1" />
+        {/* Small Input Sine Wave */}
+        <path d="M 10 45 Q 22 25 35 45 Q 48 65 60 45 Q 72 25 85 45 Q 98 65 110 45" stroke="#38BDF8" strokeWidth="1.5" fill="none" />
+        <text x="15" y="24" fill="#38BDF8" fontSize="6.5" fontFamily="JetBrains Mono, monospace">V_in (1V)</text>
+        {/* Large 180 deg Inverted Output Sine Wave */}
+        <path d="M 10 45 Q 22 80 35 45 Q 48 10 60 45 Q 72 80 85 45 Q 98 10 110 45" stroke="#10B981" strokeWidth="2" strokeDasharray="3 1" fill="none" />
+        <text x="65" y="85" fill="#34D399" fontSize="6.5" fontFamily="JetBrains Mono, monospace">V_out (-5V)</text>
+      </g>
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        A_v = -R_f / R_in • Virtual Ground V⁻ ≈ V⁺ = 0V • Slew Rate SR = dV/dt
+      </text>
+    </svg>
+  );
+}
+
+/**
  * Universal Simulation Preview Dispatcher
  * Automatically routes simulation ID to its dedicated scientific visualization
  */
@@ -1665,6 +3131,7 @@ export function SimulationPreview({
 }) {
   switch (simId) {
     case 'projectile-motion':
+    case 'projectile-motion-physics':
       return <ProjectileMotionPreview isHovered={isHovered} className={className} />;
     case 'network-theorems':
     case 'thevenin-norton-power':
@@ -1698,6 +3165,7 @@ export function SimulationPreview({
     case 'full-adder-logic':
     case 'half-full-adder':
     case 'half-full-subtractor':
+    case 'adders-logic':
       return <AdderCircuitPreview isHovered={isHovered} className={className} />;
     case 'shift-registers':
       return <ShiftRegisterPreview isHovered={isHovered} className={className} />;
@@ -1718,6 +3186,7 @@ export function SimulationPreview({
       return <HarmonicOscillatorPreview isHovered={isHovered} className={className} />;
     case 'vector-field-studio':
     case 'mathematics-studio':
+    case 'numerical-methods':
       return <VectorFieldPreview isHovered={isHovered} className={className} />;
     case 'orbital-mechanics':
       return <KeplerOrbitPreview isHovered={isHovered} className={className} />;
@@ -1729,16 +3198,102 @@ export function SimulationPreview({
       return <WaveOpticsPreview isHovered={isHovered} className={className} />;
     case 'truss-structural-analysis':
     case 'truss-structural-mechanics':
+    case 'truss-analysis':
       return <TrussStructuralPreview isHovered={isHovered} className={className} />;
     case 'robotics-kinematics':
     case 'robot-kinematics-dh':
+    case 'arm-kinematics':
       return <RoboticsKinematicsPreview isHovered={isHovered} className={className} />;
     case 'distillation-column':
     case 'mccabe-thiele-distillation':
+    case 'distillation':
       return <DistillationColumnPreview isHovered={isHovered} className={className} />;
     case 'enzyme-kinetics':
     case 'enzyme-kinetics-michaelis-menten':
       return <EnzymeKineticsPreview isHovered={isHovered} className={className} />;
+
+    // Mechanical Engineering
+    case 'venturi-flow':
+      return <VenturiFlowPreview isHovered={isHovered} className={className} />;
+    case 'tensile-test':
+      return <TensileTestPreview isHovered={isHovered} className={className} />;
+    case 'pipe-friction':
+      return <PipeFrictionPreview isHovered={isHovered} className={className} />;
+    case 'torsion-test':
+      return <TorsionTestPreview isHovered={isHovered} className={className} />;
+    case 'four-bar':
+      return <FourBarPreview isHovered={isHovered} className={className} />;
+
+    // Civil & Structural Engineering
+    case 'beam-bending':
+      return <BeamBendingPreview isHovered={isHovered} className={className} />;
+    case 'column-buckling':
+      return <ColumnBucklingPreview isHovered={isHovered} className={className} />;
+    case 'direct-shear':
+      return <DirectShearPreview isHovered={isHovered} className={className} />;
+    case 'weir-flow':
+      return <WeirFlowPreview isHovered={isHovered} className={className} />;
+
+    // Electrical Engineering
+    case 'transformer-test':
+      return <TransformerTestPreview isHovered={isHovered} className={className} />;
+    case 'rlc-resonance':
+      return <RlcResonancePreview isHovered={isHovered} className={className} />;
+    case 'dc-motor':
+      return <DcMotorPreview isHovered={isHovered} className={className} />;
+    case 'two-wattmeter':
+      return <TwoWattmeterPreview isHovered={isHovered} className={className} />;
+    case 'alternator-regulation':
+      return <AlternatorRegulationPreview isHovered={isHovered} className={className} />;
+
+    // Chemical Engineering
+    case 'reactor-kinetics':
+    case 'chemical-kinetics':
+      return <ReactorKineticsPreview isHovered={isHovered} className={className} />;
+    case 'liquid-extraction':
+      return <LiquidExtractionPreview isHovered={isHovered} className={className} />;
+    case 'heat-exchanger':
+      return <HeatExchangerPreview isHovered={isHovered} className={className} />;
+    case 'gas-absorption':
+      return <GasAbsorptionPreview isHovered={isHovered} className={className} />;
+
+    // Biotechnology & Biomedical Engineering
+    case 'bacterial-growth':
+      return <BacterialGrowthPreview isHovered={isHovered} className={className} />;
+    case 'kla-bioreactor':
+      return <KlaBioreactorPreview isHovered={isHovered} className={className} />;
+    case 'chromatography':
+      return <ChromatographyPreview isHovered={isHovered} className={className} />;
+    case 'pcr-kinetics':
+      return <PcrKineticsPreview isHovered={isHovered} className={className} />;
+
+    // Physical Sciences
+    case 'photoelectric':
+    case 'photoelectric-effect':
+      return <PhotoelectricPreview isHovered={isHovered} className={className} />;
+    case 'newtons-rings':
+      return <NewtonsRingsPreview isHovered={isHovered} className={className} />;
+    case 'diffraction-grating':
+      return <DiffractionGratingPreview isHovered={isHovered} className={className} />;
+    case 'coupled-oscillators':
+      return <CoupledOscillatorsPreview isHovered={isHovered} className={className} />;
+
+    // Robotics & Interdisciplinary
+    case 'pid-tuning':
+      return <PidTuningPreview isHovered={isHovered} className={className} />;
+    case 'differential-drive':
+      return <DifferentialDrivePreview isHovered={isHovered} className={className} />;
+    case 'inverted-pendulum':
+      return <InvertedPendulumPreview isHovered={isHovered} className={className} />;
+    case 'bode-plot':
+      return <BodePlotPreview isHovered={isHovered} className={className} />;
+
+    // ECE / Analog Electronics
+    case 'bjt-characteristics':
+      return <BjtCharacteristicsPreview isHovered={isHovered} className={className} />;
+    case 'op-amp':
+      return <OpAmpPreview isHovered={isHovered} className={className} />;
+
     default:
       return <GenericEceTopicPreview category={category} className={className} />;
   }

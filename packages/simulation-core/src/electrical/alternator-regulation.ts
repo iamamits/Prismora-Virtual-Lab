@@ -21,15 +21,15 @@
  *    \% \text{Regulation} = \frac{E_0 - V}{V} \times 100\%
  */
 
+export type PowerFactorType = 'lagging' | 'unity' | 'leading';
+
 export interface AlternatorParameters {
   readonly ratedKva: number;             // Rated power (e.g. 10 kVA)
   readonly ratedVoltageLineV: number;    // Line voltage V_L (e.g. 400 V)
   readonly armatureResistancePerPhase: number; // Ra in Ω (e.g. 0.4 Ω)
   readonly fieldCurrentIfA: number;      // Test If (e.g. 1.2 A)
-  readonly loadPowerFactor?: number;      // cos phi (e.g. 0.8)
-  readonly powerFactor?: number;
-  readonly loadPfType?: 'lagging' | 'unity' | 'leading';
-  readonly powerFactorType?: 'lagging' | 'unity' | 'leading';
+  readonly loadPowerFactor: number;      // cos phi (e.g. 0.8)
+  readonly loadPfType: PowerFactorType;
   readonly loadPercentage: number;       // 25% - 125% of full load
 }
 
@@ -38,11 +38,8 @@ export interface AlternatorResult {
   readonly operatingCurrentIa: number;
   readonly terminalVoltagePerPhaseV: number;
   readonly synchronousImpedanceZs: number;
-  readonly synchronousImpedanceOhms: number;
   readonly synchronousReactanceXs: number;
-  readonly synchronousReactanceOhms: number;
   readonly noLoadInducedEmfE0: number;
-  readonly noLoadEmfV: number;
   readonly voltageRegulationPct: number;
   readonly occPoints: readonly { fieldCurrentA: number; openCircuitVoltageV: number }[];
   readonly sccPoints: readonly { fieldCurrentA: number; shortCircuitCurrentA: number }[];
@@ -64,9 +61,7 @@ export class AlternatorRegulationEngine {
     const VL = params.ratedVoltageLineV;
     const Vph = VL / Math.sqrt(3); // Star connected baseline
     const Ra = params.armatureResistancePerPhase;
-    const pfInput = params.powerFactor ?? params.loadPowerFactor ?? 0.8;
-    const pfType = params.powerFactorType ?? params.loadPfType ?? 'lagging';
-    const pf = Math.max(0.1, Math.min(1.0, pfInput));
+    const pf = Math.max(0.1, Math.min(1.0, params.loadPowerFactor));
     const sinPhi = Math.sqrt(1 - pf * pf);
 
     // Rated full-load current per phase
@@ -95,11 +90,11 @@ export class AlternatorRegulationEngine {
 
     // No-load EMF E0
     let E0: number;
-    if (pfType === 'lagging') {
+    if (params.loadPfType === 'lagging') {
       const term1 = Vph * pf + Ia * Ra;
       const term2 = Vph * sinPhi + Ia * Xs;
       E0 = Math.hypot(term1, term2);
-    } else if (pfType === 'leading') {
+    } else if (params.loadPfType === 'leading') {
       const term1 = Vph * pf + Ia * Ra;
       const term2 = Vph * sinPhi - Ia * Xs;
       E0 = Math.hypot(term1, term2);
@@ -136,14 +131,12 @@ export class AlternatorRegulationEngine {
       operatingCurrentIa: parseFloat(Ia.toFixed(2)),
       terminalVoltagePerPhaseV: parseFloat(Vph.toFixed(1)),
       synchronousImpedanceZs: parseFloat(Zs.toFixed(2)),
-      synchronousImpedanceOhms: parseFloat(Zs.toFixed(2)),
       synchronousReactanceXs: parseFloat(Xs.toFixed(2)),
-      synchronousReactanceOhms: parseFloat(Xs.toFixed(2)),
       noLoadInducedEmfE0: parseFloat(E0.toFixed(1)),
-      noLoadEmfV: parseFloat(E0.toFixed(1)),
       voltageRegulationPct: parseFloat(regPct.toFixed(2)),
       occPoints,
       sccPoints,
     };
   }
 }
+

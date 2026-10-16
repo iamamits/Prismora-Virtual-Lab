@@ -147,6 +147,13 @@ function CivilWorkbenchContent() {
     CIVIL_EXPERIMENTS.some((e) => e.id === initialExp) ? initialExp : 'truss-analysis',
   );
 
+  React.useEffect(() => {
+    const exp = searchParams.get('exp') as CivilExpId;
+    if (exp && CIVIL_EXPERIMENTS.some((e) => e.id === exp)) {
+      setActiveExpId(exp);
+    }
+  }, [searchParams]);
+
   const activeExp = useMemo(
     () => CIVIL_EXPERIMENTS.find((e) => e.id === activeExpId) ?? CIVIL_EXPERIMENTS[0]!,
     [activeExpId],

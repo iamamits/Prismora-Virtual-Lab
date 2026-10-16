@@ -40,8 +40,6 @@ export interface FourBarResult {
   readonly isGrashof: boolean;
   readonly transmissionAngleDeg: number;
   readonly isLockupOrToggle: boolean;
-  readonly couplerAngleDeg: number;
-  readonly rockerAngleDeg: number;
   readonly jointA: { x: number; y: number }; // Ground Left (0, 0)
   readonly jointB: { x: number; y: number }; // Input Crank Pin
   readonly jointC: { x: number; y: number }; // Coupler-Rocker Pin
@@ -135,11 +133,7 @@ export class FourBarLinkageEngine {
         y: jB.y + u * Math.sin(th3) + v * Math.cos(th3),
       };
 
-      const th4 = Math.atan2(jC.y - jD.y, jC.x - jD.x);
-      const th3Deg = (th3 * 180) / Math.PI;
-      const th4Deg = (th4 * 180) / Math.PI;
-
-      return { jA, jB, jC, jD, muDeg, th3Deg, th4Deg, tracer };
+      return { jA, jB, jC, jD, muDeg, tracer };
     };
 
     const currentSol = computePositions(params.inputAngleTheta2Deg);
@@ -149,8 +143,6 @@ export class FourBarLinkageEngine {
       jC: { x: d - c * 0.7, y: c * 0.7 },
       jD: { x: d, y: 0 },
       muDeg: 90,
-      th3Deg: 0,
-      th4Deg: 90,
       tracer: { x: (a + d) / 2, y: 30 },
     };
 
@@ -171,8 +163,6 @@ export class FourBarLinkageEngine {
       isGrashof,
       transmissionAngleDeg: parseFloat(validSol.muDeg.toFixed(1)),
       isLockupOrToggle: currentSol === null,
-      couplerAngleDeg: parseFloat(validSol.th3Deg.toFixed(1)),
-      rockerAngleDeg: parseFloat(validSol.th4Deg.toFixed(1)),
       jointA: { x: parseFloat(validSol.jA.x.toFixed(1)), y: parseFloat(validSol.jA.y.toFixed(1)) },
       jointB: { x: parseFloat(validSol.jB.x.toFixed(1)), y: parseFloat(validSol.jB.y.toFixed(1)) },
       jointC: { x: parseFloat(validSol.jC.x.toFixed(1)), y: parseFloat(validSol.jC.y.toFixed(1)) },
@@ -182,3 +172,4 @@ export class FourBarLinkageEngine {
     };
   }
 }
+
