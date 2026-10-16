@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { PhetWorkbench } from './phet-workbench';
 import {
-  Crosshair,
-  Ruler,
-  Grid,
-  Zap,
-  Sliders,
-  RotateCcw,
-} from 'lucide-react';
+  VIRTUAL_WIDTH,
+  VIRTUAL_HEIGHT,
+  computeViewport,
+  applyVirtualViewport,
+  screenToVirtualCoords,
+} from './viewport-helper';
 
 export interface RealtimeBeamSceneProps {
   spanLengthM: number;
@@ -39,7 +39,16 @@ export function RealtimeBeamScene({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Interactive Load State
+  // Playback & Interaction
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
+  const [simTime, setSimTime] = useState<number>(0);
+
+  // Camera
+  const [userZoom, setUserZoom] = useState<number>(1.0);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  // Load state
   const [pointLoadKn, setPointLoadKn] = useState<number>(initialPointLoadKn);
   const [loadPosM, setLoadPosM] = useState<number>(initialLoadPositionM ?? spanLengthM * 0.5);
   const [isDraggingLoad, setIsDraggingLoad] = useState<boolean>(false);
@@ -47,33 +56,22 @@ export function RealtimeBeamScene({
   // Tools
   const [showProbe, setShowProbe] = useState<boolean>(true);
   const [showRuler, setShowRuler] = useState<boolean>(false);
+  const [showStopwatch, setShowStopwatch] = useState<boolean>(false);
   const [showSfdBmd, setShowSfdBmd] = useState<boolean>(true);
   const [showGrid, setShowGrid] = useState<boolean>(true);
 
-  // Deflectometer Dial Gauge Probe
+  // Dial Gauge
   const [dialGaugeM, setDialGaugeM] = useState<number>(spanLengthM * 0.5);
   const [isDraggingDial, setIsDraggingDial] = useState<boolean>(false);
 
-  // Ruler Tape
-  const [rulerTape, setRulerTape] = useState<{ x1: number; y1: number; x2: number; y2: number }>({
-    x1: 80,
-    y1: 170,
-    x2: 300,
-    y2: 170,
-  });
-  const [activeTapeHandle, setActiveTapeHandle] = useState<'none' | 'p1' | 'p2'>('none');
-
-  // Deflection computation function
-  // For simply supported beam with point load P at distance a from left support:
-  // v(x) = - (P b x) / (6 E I L) * (L^2 - b^2 - x^2) for x <= a
-  // v(x) = - (P a (L - x)) / (6 E I L) * (2 L x - x^2 - a^2) for x > a
+  // Deflection function
   const computeDeflectionMm = useCallback(
     (xM: number, aM: number, pKn: number) => {
       const L = spanLengthM;
       const bM = L - aM;
-      const E = elasticModulusGpa * 1e9; // Pa
-      const I = momentOfInertiaCm4 * 1e-8; // m^4
-      const P = pKn * 1e3; // N
+      const E = elasticModulusGpa * 1e9;
+      const I = momentOfInertiaCm4 * 1e-8;
+      const P = pKn * 1e3;
 
       const EI = E * I;
       if (EI <= 0) return 0;
@@ -85,16 +83,20 @@ export function RealtimeBeamScene({
         const xDist = L - xM;
         vM = (P * aM * xDist / (6 * EI * L)) * (L * L - aM * aM - xDist * xDist);
       }
-      return vM * 1e3; // return mm
+      return vM * 1e3;
     },
     [spanLengthM, elasticModulusGpa, momentOfInertiaCm4],
   );
 
-  // Animation & Rendering Loop
+  // Render Loop
   useEffect(() => {
     let animId: number;
+    let lastTime = performance.now();
 
-    const render = () => {
+    const render = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.1) * playbackSpeed;
+      lastTime = now;
+
       const canvas = canvasRef.current;
       if (!canvas) {
         animId = requestAnimationFrame(render);
@@ -107,24 +109,22 @@ export function RealtimeBeamScene({
       }
 
       const dpr = window.devicePixelRatio || 1;
-      const width = canvas.width / dpr;
-      const height = canvas.height / dpr;
+      if (isPlaying) {
+        setSimTime((t) => t + dt);
+      }
 
-      // Coordinate scaling
-      const beamStartX = 70;
-      const beamEndX = width - 70;
+      // Virtual Coordinate Anchors (900 x 520)
+      const beamStartX = 110;
+      const beamEndX = 790;
       const beamPixelSpan = beamEndX - beamStartX;
       const pixelsPerMeter = beamPixelSpan / spanLengthM;
-      const undeflectedY = 90;
+      const undeflectedY = 120;
 
-      // Reactions
       const a = loadPosM;
       const b = spanLengthM - a;
       const ra = (pointLoadKn * b) / spanLengthM;
       const rb = (pointLoadKn * a) / spanLengthM;
-      const maxM = (pointLoadKn * a * b) / spanLengthM; // kNm
-
-      // Maximum deflection
+      const maxM = (pointLoadKn * a * b) / spanLengthM;
       const maxDefl = computeDeflectionMm(spanLengthM / 2, a, pointLoadKn);
 
       if (onStateChange) {
@@ -139,231 +139,223 @@ export function RealtimeBeamScene({
       }
 
       // -------------------------------------------------------------
-      // DRAW CANVAS
+      // DRAW CANVAS (Virtual Viewport)
       // -------------------------------------------------------------
       ctx.save();
-      ctx.scale(dpr, dpr);
-
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.fillStyle = '#0B1120';
-      ctx.fillRect(0, 0, width, height);
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Grid
+      const vp = computeViewport(canvas.width, canvas.height, dpr, userZoom, pan.x, pan.y);
+      applyVirtualViewport(ctx, vp, dpr);
+
+      // Background
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, VIRTUAL_HEIGHT);
+      bgGrad.addColorStop(0, '#0F172A');
+      bgGrad.addColorStop(1, '#020617');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
       if (showGrid) {
-        ctx.strokeStyle = '#1E293B';
+        ctx.strokeStyle = 'rgba(51, 65, 85, 0.4)';
         ctx.lineWidth = 1;
-        for (let x = 0; x < width; x += 30) {
+        for (let x = 0; x <= VIRTUAL_WIDTH; x += 45) {
           ctx.beginPath();
           ctx.moveTo(x, 0);
-          ctx.lineTo(x, height);
+          ctx.lineTo(x, VIRTUAL_HEIGHT);
           ctx.stroke();
         }
-        for (let y = 0; y < height; y += 30) {
+        for (let y = 0; y <= VIRTUAL_HEIGHT; y += 45) {
           ctx.beginPath();
           ctx.moveTo(0, y);
-          ctx.lineTo(width, y);
+          ctx.lineTo(VIRTUAL_WIDTH, y);
           ctx.stroke();
         }
       }
 
-      // Visual exaggeration factor for deflection
       const visualDeflScale = 6.0;
 
-      // 1. Draw Supports (Pin at left, Roller at right)
-      // Left Pin Support
+      // 1. Supports
+      // Left Pin
       ctx.fillStyle = '#64748B';
       ctx.beginPath();
       ctx.moveTo(beamStartX, undeflectedY);
-      ctx.lineTo(beamStartX - 14, undeflectedY + 24);
-      ctx.lineTo(beamStartX + 14, undeflectedY + 24);
+      ctx.lineTo(beamStartX - 16, undeflectedY + 28);
+      ctx.lineTo(beamStartX + 16, undeflectedY + 28);
       ctx.closePath();
       ctx.fill();
       ctx.strokeStyle = '#94A3B8';
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 2;
       ctx.stroke();
-
-      // Pin ground plate
       ctx.fillStyle = '#334155';
-      ctx.fillRect(beamStartX - 18, undeflectedY + 24, 36, 4);
+      ctx.fillRect(beamStartX - 22, undeflectedY + 28, 44, 5);
 
-      // Right Roller Support
+      // Right Roller
       ctx.beginPath();
       ctx.moveTo(beamEndX, undeflectedY);
-      ctx.lineTo(beamEndX - 14, undeflectedY + 18);
-      ctx.lineTo(beamEndX + 14, undeflectedY + 18);
+      ctx.lineTo(beamEndX - 16, undeflectedY + 20);
+      ctx.lineTo(beamEndX + 16, undeflectedY + 20);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Roller wheels
-      [-7, 7].forEach((dx) => {
+      [-8, 8].forEach((dx) => {
         ctx.fillStyle = '#94A3B8';
         ctx.beginPath();
-        ctx.arc(beamEndX + dx, undeflectedY + 22, 3.5, 0, Math.PI * 2);
+        ctx.arc(beamEndX + dx, undeflectedY + 25, 4, 0, Math.PI * 2);
         ctx.fill();
       });
       ctx.fillStyle = '#334155';
-      ctx.fillRect(beamEndX - 18, undeflectedY + 26, 36, 4);
+      ctx.fillRect(beamEndX - 22, undeflectedY + 29, 44, 5);
 
-      // Reaction force arrows
+      // Reaction Vectors
       ctx.strokeStyle = '#10B981';
       ctx.fillStyle = '#10B981';
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 3;
 
-      // R_A arrow (pointing UP)
       ctx.beginPath();
-      ctx.moveTo(beamStartX, undeflectedY + 50);
-      ctx.lineTo(beamStartX, undeflectedY + 30);
+      ctx.moveTo(beamStartX, undeflectedY + 65);
+      ctx.lineTo(beamStartX, undeflectedY + 38);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(beamStartX - 4, undeflectedY + 34);
-      ctx.lineTo(beamStartX, undeflectedY + 28);
-      ctx.lineTo(beamStartX + 4, undeflectedY + 34);
+      ctx.moveTo(beamStartX - 5, undeflectedY + 44);
+      ctx.lineTo(beamStartX, undeflectedY + 36);
+      ctx.lineTo(beamStartX + 5, undeflectedY + 44);
       ctx.fill();
-      ctx.font = 'bold 9px JetBrains Mono, monospace';
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(`R_A = ${ra.toFixed(1)} kN`, beamStartX, undeflectedY + 62);
+      ctx.fillText(`R_A = ${ra.toFixed(1)} kN`, beamStartX, undeflectedY + 80);
 
-      // R_B arrow (pointing UP)
       ctx.beginPath();
-      ctx.moveTo(beamEndX, undeflectedY + 50);
-      ctx.lineTo(beamEndX, undeflectedY + 32);
+      ctx.moveTo(beamEndX, undeflectedY + 65);
+      ctx.lineTo(beamEndX, undeflectedY + 40);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(beamEndX - 4, undeflectedY + 36);
-      ctx.lineTo(beamEndX, undeflectedY + 30);
-      ctx.lineTo(beamEndX + 4, undeflectedY + 36);
+      ctx.moveTo(beamEndX - 5, undeflectedY + 46);
+      ctx.lineTo(beamEndX, undeflectedY + 38);
+      ctx.lineTo(beamEndX + 5, undeflectedY + 46);
       ctx.fill();
-      ctx.fillText(`R_B = ${rb.toFixed(1)} kN`, beamEndX, undeflectedY + 62);
+      ctx.fillText(`R_B = ${rb.toFixed(1)} kN`, beamEndX, undeflectedY + 80);
 
-      // 2. Draw Elastic Deflected Beam
+      // 2. Elastic Deflected Beam
       ctx.save();
-      const beamThick = 12;
-      const numPoints = 80;
+      const beamThick = 14;
+      const numPts = 90;
 
-      // Top edge of beam
       ctx.beginPath();
-      for (let i = 0; i <= numPoints; i++) {
-        const xFrac = i / numPoints;
-        const curX = beamStartX + xFrac * beamPixelSpan;
-        const curM = xFrac * spanLengthM;
-        const deflMm = computeDeflectionMm(curM, a, pointLoadKn);
-        const curY = undeflectedY + deflMm * visualDeflScale - beamThick / 2;
+      for (let i = 0; i <= numPts; i++) {
+        const xF = i / numPts;
+        const curX = beamStartX + xF * beamPixelSpan;
+        const curM = xF * spanLengthM;
+        const defl = computeDeflectionMm(curM, a, pointLoadKn);
+        const curY = undeflectedY + defl * visualDeflScale - beamThick / 2;
         if (i === 0) ctx.moveTo(curX, curY);
         else ctx.lineTo(curX, curY);
       }
-      // Bottom edge of beam (reverse)
-      for (let i = numPoints; i >= 0; i--) {
-        const xFrac = i / numPoints;
-        const curX = beamStartX + xFrac * beamPixelSpan;
-        const curM = xFrac * spanLengthM;
-        const deflMm = computeDeflectionMm(curM, a, pointLoadKn);
-        const curY = undeflectedY + deflMm * visualDeflScale + beamThick / 2;
+      for (let i = numPts; i >= 0; i--) {
+        const xF = i / numPts;
+        const curX = beamStartX + xF * beamPixelSpan;
+        const curM = xF * spanLengthM;
+        const defl = computeDeflectionMm(curM, a, pointLoadKn);
+        const curY = undeflectedY + defl * visualDeflScale + beamThick / 2;
         ctx.lineTo(curX, curY);
       }
       ctx.closePath();
 
-      // Steel I-beam gradient
-      const steelGrad = ctx.createLinearGradient(0, undeflectedY - 10, 0, undeflectedY + 30);
-      steelGrad.addColorStop(0, '#38BDF8');
-      steelGrad.addColorStop(0.5, '#0284C7');
-      steelGrad.addColorStop(1, '#0369A1');
-      ctx.fillStyle = steelGrad;
+      const beamGrad = ctx.createLinearGradient(0, undeflectedY - 15, 0, undeflectedY + 35);
+      beamGrad.addColorStop(0, '#38BDF8');
+      beamGrad.addColorStop(0.5, '#0284C7');
+      beamGrad.addColorStop(1, '#0369A1');
+      ctx.fillStyle = beamGrad;
       ctx.fill();
-      ctx.strokeStyle = '#BAE6FD';
+      ctx.strokeStyle = '#E0F2FE';
       ctx.lineWidth = 1.5;
       ctx.stroke();
       ctx.restore();
 
-      // 3. Draggable Point Load Arrow (P)
+      // 3. Draggable Load Arrow
       const loadPxX = beamStartX + loadPosM * pixelsPerMeter;
       const deflAtLoad = computeDeflectionMm(loadPosM, a, pointLoadKn);
       const loadTipY = undeflectedY + deflAtLoad * visualDeflScale - beamThick / 2;
-      const loadArrowLen = Math.min(65, 30 + pointLoadKn * 1.2);
+      const loadArrowLen = Math.min(75, 35 + pointLoadKn * 1.2);
 
       ctx.save();
       ctx.strokeStyle = isDraggingLoad ? '#F59E0B' : '#EF4444';
       ctx.fillStyle = isDraggingLoad ? '#F59E0B' : '#EF4444';
-      ctx.lineWidth = 3.5;
+      ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.moveTo(loadPxX, loadTipY - loadArrowLen);
       ctx.lineTo(loadPxX, loadTipY);
       ctx.stroke();
 
-      // Arrowhead pointing down
       ctx.beginPath();
-      ctx.moveTo(loadPxX - 7, loadTipY - 10);
+      ctx.moveTo(loadPxX - 8, loadTipY - 12);
       ctx.lineTo(loadPxX, loadTipY);
-      ctx.lineTo(loadPxX + 7, loadTipY - 10);
+      ctx.lineTo(loadPxX + 8, loadTipY - 12);
       ctx.closePath();
       ctx.fill();
 
-      // Load grip handle circle
       ctx.beginPath();
-      ctx.arc(loadPxX, loadTipY - loadArrowLen, 8, 0, Math.PI * 2);
+      ctx.arc(loadPxX, loadTipY - loadArrowLen, 9, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 2;
       ctx.stroke();
 
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 10px JetBrains Mono, monospace';
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(`P = ${pointLoadKn} kN`, loadPxX, loadTipY - loadArrowLen - 12);
+      ctx.fillText(`P = ${pointLoadKn} kN`, loadPxX, loadTipY - loadArrowLen - 14);
       ctx.fillStyle = '#F59E0B';
-      ctx.font = '9px JetBrains Mono, monospace';
+      ctx.font = '10px JetBrains Mono, monospace';
       ctx.fillText(`x = ${loadPosM.toFixed(2)} m`, loadPxX, loadTipY - loadArrowLen - 2);
       ctx.restore();
 
-      // 4. Dial Gauge (Deflectometer Probe)
+      // 4. Dial Gauge (Deflectometer)
       if (showProbe) {
         const dialPxX = beamStartX + dialGaugeM * pixelsPerMeter;
         const deflAtDial = computeDeflectionMm(dialGaugeM, a, pointLoadKn);
         const dialTipY = undeflectedY + deflAtDial * visualDeflScale + beamThick / 2;
 
         ctx.save();
-        // Dial gauge probe stem
         ctx.strokeStyle = '#94A3B8';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.moveTo(dialPxX, dialTipY);
-        ctx.lineTo(dialPxX, dialTipY + 20);
+        ctx.lineTo(dialPxX, dialTipY + 22);
         ctx.stroke();
 
-        // Dial face
-        const dialCenterY = dialTipY + 34;
+        const dialCenterY = dialTipY + 38;
         ctx.fillStyle = '#1E293B';
         ctx.strokeStyle = '#38BDF8';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(dialPxX, dialCenterY, 14, 0, Math.PI * 2);
+        ctx.arc(dialPxX, dialCenterY, 16, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // Needle
-        const needleAng = deflAtDial * 0.4;
+        const needleAng = deflAtDial * 0.45;
         ctx.strokeStyle = '#EF4444';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(dialPxX, dialCenterY);
-        ctx.lineTo(dialPxX + Math.sin(needleAng) * 10, dialCenterY - Math.cos(needleAng) * 10);
+        ctx.lineTo(dialPxX + Math.sin(needleAng) * 11, dialCenterY - Math.cos(needleAng) * 11);
         ctx.stroke();
 
-        // Readout badge
         ctx.fillStyle = '#38BDF8';
-        ctx.font = 'bold 9px JetBrains Mono, monospace';
+        ctx.font = 'bold 10px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(`δ = ${deflAtDial.toFixed(2)} mm`, dialPxX, dialCenterY + 24);
-        ctx.fillText(`@ x = ${dialGaugeM.toFixed(2)}m`, dialPxX, dialCenterY + 35);
+        ctx.fillText(`δ = ${deflAtDial.toFixed(2)} mm`, dialPxX, dialCenterY + 28);
+        ctx.fillText(`@ x = ${dialGaugeM.toFixed(2)}m`, dialPxX, dialCenterY + 40);
         ctx.restore();
       }
 
-      // 5. Live SFD & BMD (Bottom diagrams)
+      // 5. Live SFD & BMD
       if (showSfdBmd) {
-        const sfdZeroY = height * 0.65;
-        const bmdZeroY = height * 0.88;
-        const diagW = beamPixelSpan;
+        const sfdZeroY = 320;
+        const bmdZeroY = 445;
 
-        // SFD (Shear Force Diagram)
+        // SFD
         ctx.strokeStyle = '#475569';
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -372,11 +364,11 @@ export function RealtimeBeamScene({
         ctx.stroke();
 
         ctx.fillStyle = '#94A3B8';
-        ctx.font = '8px JetBrains Mono, monospace';
+        ctx.font = 'bold 9px JetBrains Mono, monospace';
         ctx.textAlign = 'left';
-        ctx.fillText('Shear Force (SFD)', 10, sfdZeroY + 3);
+        ctx.fillText('Shear Force V(x)', 15, sfdZeroY + 4);
 
-        const sfdScale = 0.55;
+        const sfdScale = 0.6;
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(beamStartX, sfdZeroY);
@@ -387,14 +379,14 @@ export function RealtimeBeamScene({
         ctx.lineTo(beamEndX, sfdZeroY);
         ctx.closePath();
 
-        ctx.fillStyle = 'rgba(6, 182, 212, 0.2)';
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.25)';
         ctx.fill();
         ctx.strokeStyle = '#06B6D4';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.restore();
 
-        // BMD (Bending Moment Diagram)
+        // BMD
         ctx.strokeStyle = '#475569';
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -403,10 +395,10 @@ export function RealtimeBeamScene({
         ctx.stroke();
 
         ctx.fillStyle = '#94A3B8';
-        ctx.font = '8px JetBrains Mono, monospace';
-        ctx.fillText('Bending Moment (BMD)', 10, bmdZeroY + 3);
+        ctx.font = 'bold 9px JetBrains Mono, monospace';
+        ctx.fillText('Bending Moment M(x)', 15, bmdZeroY + 4);
 
-        const bmdScale = 0.5;
+        const bmdScale = 0.55;
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(beamStartX, bmdZeroY);
@@ -414,16 +406,16 @@ export function RealtimeBeamScene({
         ctx.lineTo(beamEndX, bmdZeroY);
         ctx.closePath();
 
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
         ctx.fill();
         ctx.strokeStyle = '#F59E0B';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2;
         ctx.stroke();
 
         ctx.fillStyle = '#F59E0B';
-        ctx.font = 'bold 9px JetBrains Mono, monospace';
+        ctx.font = 'bold 10px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(`M_max = ${maxM.toFixed(1)} kN·m`, loadPxX, bmdZeroY - maxM * bmdScale - 5);
+        ctx.fillText(`M_max = ${maxM.toFixed(1)} kN·m`, loadPxX, bmdZeroY - maxM * bmdScale - 6);
         ctx.restore();
       }
 
@@ -434,6 +426,10 @@ export function RealtimeBeamScene({
     animId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animId);
   }, [
+    isPlaying,
+    playbackSpeed,
+    userZoom,
+    pan,
     spanLengthM,
     loadPosM,
     pointLoadKn,
@@ -446,38 +442,40 @@ export function RealtimeBeamScene({
     onStateChange,
   ]);
 
-  // Pointer interactions
+  // Pointer interaction
+  const getVirtualPointer = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const dpr = window.devicePixelRatio || 1;
+    const vp = computeViewport(canvas.width, canvas.height, dpr, userZoom, pan.x, pan.y);
+    return screenToVirtualCoords(e.clientX, e.clientY, canvas, vp);
+  };
+
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
+    const { x, y } = getVirtualPointer(e);
 
-    const dpr = window.devicePixelRatio || 1;
-    const width = canvas.width / dpr;
-    const beamStartX = 70;
-    const beamEndX = width - 70;
+    const beamStartX = 110;
+    const beamEndX = 790;
     const beamPixelSpan = beamEndX - beamStartX;
     const pixelsPerMeter = beamPixelSpan / spanLengthM;
 
-    // Check Load Grip handle
     const loadPxX = beamStartX + loadPosM * pixelsPerMeter;
     const deflAtLoad = computeDeflectionMm(loadPosM, loadPosM, pointLoadKn);
-    const loadTipY = 90 + deflAtLoad * 6.0 - 6;
-    const loadArrowLen = Math.min(65, 30 + pointLoadKn * 1.2);
+    const loadTipY = 120 + deflAtLoad * 6.0 - 7;
+    const loadArrowLen = Math.min(75, 35 + pointLoadKn * 1.2);
     const handleY = loadTipY - loadArrowLen;
 
-    if (Math.hypot(px - loadPxX, py - handleY) <= 22) {
+    if (Math.hypot(x - loadPxX, y - handleY) <= 25) {
       setIsDraggingLoad(true);
       canvas.setPointerCapture(e.pointerId);
       return;
     }
 
-    // Check Dial Gauge handle
     if (showProbe) {
       const dialPxX = beamStartX + dialGaugeM * pixelsPerMeter;
-      if (Math.abs(px - dialPxX) <= 20 && py >= 80 && py <= 160) {
+      if (Math.abs(x - dialPxX) <= 25 && y >= 100 && y <= 210) {
         setIsDraggingDial(true);
         canvas.setPointerCapture(e.pointerId);
         return;
@@ -488,23 +486,20 @@ export function RealtimeBeamScene({
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const px = e.clientX - rect.left;
+    const { x } = getVirtualPointer(e);
 
-    const dpr = window.devicePixelRatio || 1;
-    const width = canvas.width / dpr;
-    const beamStartX = 70;
-    const beamEndX = width - 70;
+    const beamStartX = 110;
+    const beamEndX = 790;
     const beamPixelSpan = beamEndX - beamStartX;
 
     if (isDraggingLoad) {
-      const frac = Math.max(0.05, Math.min(0.95, (px - beamStartX) / beamPixelSpan));
+      const frac = Math.max(0.05, Math.min(0.95, (x - beamStartX) / beamPixelSpan));
       setLoadPosM(parseFloat((frac * spanLengthM).toFixed(2)));
       return;
     }
 
     if (isDraggingDial) {
-      const frac = Math.max(0.02, Math.min(0.98, (px - beamStartX) / beamPixelSpan));
+      const frac = Math.max(0.02, Math.min(0.98, (x - beamStartX) / beamPixelSpan));
       setDialGaugeM(parseFloat((frac * spanLengthM).toFixed(2)));
     }
   };
@@ -519,7 +514,6 @@ export function RealtimeBeamScene({
     }
   };
 
-  // Adjust canvas size
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -537,56 +531,40 @@ export function RealtimeBeamScene({
   }, []);
 
   return (
-    <div className={`flex flex-col rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl ${className}`}>
-      {/* Workbench Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900 border-b border-zinc-800 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse" />
-          <span className="font-mono font-bold text-zinc-100">Flexural Beam Deflection & Stress Bench</span>
-          <span className="text-zinc-500">|</span>
-          <span className="font-mono text-zinc-400">Span: {spanLengthM} m</span>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setShowProbe(!showProbe)}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-mono flex items-center gap-1 transition-all ${
-              showProbe
-                ? 'bg-sky-500/20 text-sky-400 border border-sky-500/40'
-                : 'text-zinc-400 hover:bg-zinc-800 border border-transparent'
-            }`}
-          >
-            <Crosshair className="w-3.5 h-3.5" />
-            <span>Dial Gauge</span>
-          </button>
-
-          <button
-            onClick={() => setShowSfdBmd(!showSfdBmd)}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-mono flex items-center gap-1 transition-all ${
-              showSfdBmd
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                : 'text-zinc-400 hover:bg-zinc-800 border border-transparent'
-            }`}
-          >
-            <Zap className="w-3.5 h-3.5" />
-            <span>SFD & BMD</span>
-          </button>
-
-          <button
-            onClick={() => setShowGrid(!showGrid)}
-            className={`p-1 rounded-md text-zinc-400 hover:bg-zinc-800 transition-all ${
-              showGrid ? 'text-zinc-200' : 'text-zinc-600'
-            }`}
-          >
-            <Grid className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Main Canvas */}
+    <PhetWorkbench
+      title="Flexural Beam Deflection & Stress Bench"
+      subtitle={`Span: ${spanLengthM} m`}
+      disciplineColor="#2563EB"
+      isPlaying={isPlaying}
+      onPlayPause={() => setIsPlaying(!isPlaying)}
+      onReset={() => {
+        setLoadPosM(spanLengthM * 0.5);
+        setDialGaugeM(spanLengthM * 0.5);
+        setPointLoadKn(25);
+        setSimTime(0);
+      }}
+      simTime={simTime}
+      playbackSpeed={playbackSpeed}
+      onSpeedChange={setPlaybackSpeed}
+      showProbe={showProbe}
+      onToggleProbe={() => setShowProbe(!showProbe)}
+      showStopwatch={showStopwatch}
+      onToggleStopwatch={() => setShowStopwatch(!showStopwatch)}
+      showVectors={showSfdBmd}
+      onToggleVectors={() => setShowSfdBmd(!showSfdBmd)}
+      showGrid={showGrid}
+      onToggleGrid={() => setShowGrid(!showGrid)}
+      onZoomIn={() => setUserZoom((z) => Math.min(2.5, z + 0.15))}
+      onZoomOut={() => setUserZoom((z) => Math.max(0.6, z - 0.15))}
+      onResetCamera={() => {
+        setUserZoom(1.0);
+        setPan({ x: 0, y: 0 });
+      }}
+      className={className}
+    >
       <div
         ref={containerRef}
-        className="relative w-full h-[320px] sm:h-[380px] bg-[#0B1120] cursor-crosshair select-none touch-none"
+        className="w-full h-full relative cursor-crosshair select-none touch-none"
       >
         <canvas
           ref={canvasRef}
@@ -596,42 +574,11 @@ export function RealtimeBeamScene({
           className="w-full h-full block"
         />
 
-        <div className="absolute bottom-3 left-4 pointer-events-none text-[11px] font-mono text-zinc-400/80 bg-zinc-900/70 backdrop-blur-xs px-2.5 py-1 rounded border border-zinc-800/80 flex items-center gap-2">
-          <span className="text-blue-400 font-bold">💡 Tip:</span>
-          <span>Click & drag the red load arrow (P) along the beam, or drag the dial indicator!</span>
+        <div className="absolute bottom-3 left-4 pointer-events-none text-[11px] font-mono text-zinc-400/80 bg-zinc-900/80 backdrop-blur-xs px-2.5 py-1 rounded border border-zinc-800 flex items-center gap-2">
+          <span className="text-blue-400 font-bold">💡 PhET Tip:</span>
+          <span>Click & drag the red point load arrow (P) along the span, or slide the dial indicator probe!</span>
         </div>
       </div>
-
-      {/* Load Adjust Slider Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-zinc-900/90 border-t border-zinc-800 text-xs font-mono">
-        <div className="flex items-center gap-3">
-          <span className="text-zinc-400">Point Load (P):</span>
-          <input
-            type="range"
-            min="5"
-            max="100"
-            step="5"
-            value={pointLoadKn}
-            onChange={(e) => setPointLoadKn(parseFloat(e.target.value))}
-            className="w-32 accent-red-500 h-1.5 bg-zinc-700 rounded cursor-pointer"
-          />
-          <span className="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800 text-red-400 font-bold">
-            {pointLoadKn} kN
-          </span>
-        </div>
-
-        <button
-          onClick={() => {
-            setLoadPosM(spanLengthM * 0.5);
-            setPointLoadKn(25);
-            setDialGaugeM(spanLengthM * 0.5);
-          }}
-          className="flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-all"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Reset Load</span>
-        </button>
-      </div>
-    </div>
+    </PhetWorkbench>
   );
 }

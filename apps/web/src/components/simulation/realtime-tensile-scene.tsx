@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { PhetWorkbench } from './phet-workbench';
 import {
-  Play,
-  Pause,
-  RotateCcw,
-  SkipForward,
-  Gauge,
-  Activity,
-  Layers,
-  Sparkles,
-} from 'lucide-react';
+  VIRTUAL_WIDTH,
+  VIRTUAL_HEIGHT,
+  computeViewport,
+  applyVirtualViewport,
+} from './viewport-helper';
 
 export interface RealtimeTensileSceneProps {
   materialName: string;
@@ -48,20 +45,26 @@ export function RealtimeTensileScene({
   // Test State
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
+  const [simTime, setSimTime] = useState<number>(0);
   const [isFractured, setIsFractured] = useState<boolean>(false);
 
-  // State ref for high-frequency physics
+  // Camera
+  const [userZoom, setUserZoom] = useState<number>(1.0);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  // Tools
+  const [showStopwatch, setShowStopwatch] = useState<boolean>(false);
+  const [showGrid, setShowGrid] = useState<boolean>(true);
+
   const testRef = useRef<{
-    strain: number; // engineering strain (fraction)
-    crossheadY: number; // mm
+    strain: number;
+    crossheadY: number;
     isFractured: boolean;
-    fractureProgress: number; // 0 to 1 for snap animation
     stressStrainHistory: Array<{ strain: number; stress: number }>;
   }>({
     strain: 0,
     crossheadY: 0,
     isFractured: false,
-    fractureProgress: 0,
     stressStrainHistory: [{ strain: 0, stress: 0 }],
   });
 
@@ -69,10 +72,10 @@ export function RealtimeTensileScene({
     testRef.current.strain = 0;
     testRef.current.crossheadY = 0;
     testRef.current.isFractured = false;
-    testRef.current.fractureProgress = 0;
     testRef.current.stressStrainHistory = [{ strain: 0, stress: 0 }];
     setIsFractured(false);
     setIsPlaying(false);
+    setSimTime(0);
   }, []);
 
   // Animation Loop
@@ -96,14 +99,11 @@ export function RealtimeTensileScene({
       }
 
       const dpr = window.devicePixelRatio || 1;
-      const width = canvas.width / dpr;
-      const height = canvas.height / dpr;
-
       const t = testRef.current;
 
-      // Advance strain if test is running and not fractured
       if (isPlaying && !t.isFractured) {
-        const strainRate = 0.018 * dt; // strain per second
+        setSimTime((time) => time + dt);
+        const strainRate = 0.018 * dt;
         t.strain += strainRate;
 
         const maxStrain = fractureStrainPct / 100;
@@ -114,18 +114,17 @@ export function RealtimeTensileScene({
           setIsPlaying(false);
         }
 
-        // Calculate Ramberg-Osgood / Hollomon stress
         const yieldStrain = yieldStrengthMpa / (elasticModulusGpa * 1000);
         let stress = 0;
         if (t.strain <= yieldStrain) {
           stress = t.strain * elasticModulusGpa * 1000;
         } else {
-          // Plastic region with strain hardening up to UTS then necking softening
           const plasticStrain = t.strain - yieldStrain;
-          const hardening = (ultimateStrengthMpa - yieldStrengthMpa) * Math.pow(plasticStrain / (maxStrain - yieldStrain), 0.35);
+          const hardening =
+            (ultimateStrengthMpa - yieldStrengthMpa) *
+            Math.pow(plasticStrain / (maxStrain - yieldStrain), 0.35);
           stress = yieldStrengthMpa + hardening;
 
-          // Necking reduction after 60% of plastic strain
           const neckThreshold = yieldStrain + 0.6 * (maxStrain - yieldStrain);
           if (t.strain > neckThreshold) {
             const drop = (t.strain - neckThreshold) / (maxStrain - neckThreshold);
@@ -136,7 +135,6 @@ export function RealtimeTensileScene({
         t.stressStrainHistory.push({ strain: t.strain, stress });
         if (t.stressStrainHistory.length > 500) t.stressStrainHistory.shift();
 
-        // Calculate force & elongation
         const areaMm2 = Math.PI * Math.pow(gaugeDiameterMm / 2, 2);
         const forceKn = (stress * areaMm2) / 1000;
         const elongationMm = t.strain * gaugeLengthMm;
@@ -154,219 +152,244 @@ export function RealtimeTensileScene({
       }
 
       // -------------------------------------------------------------
-      // DRAW CANVAS
+      // DRAW CANVAS (Virtual Viewport: 900 x 520)
       // -------------------------------------------------------------
       ctx.save();
-      ctx.scale(dpr, dpr);
-
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.fillStyle = '#0B1120';
-      ctx.fillRect(0, 0, width, height);
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Left side: UTM Machine Frame. Right side: Live Stress-Strain Plot
-      const frameW = width * 0.46;
-      const plotX = frameW + 15;
-      const plotW = width - plotX - 20;
+      const vp = computeViewport(canvas.width, canvas.height, dpr, userZoom, pan.x, pan.y);
+      applyVirtualViewport(ctx, vp, dpr);
 
-      // 1. UTM Machine Frame Columns
-      const colX1 = 45;
-      const colX2 = frameW - 45;
-      const basePlateY = height - 45;
-      const topPlateY = 40;
+      // Lab Background
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, VIRTUAL_HEIGHT);
+      bgGrad.addColorStop(0, '#0F172A');
+      bgGrad.addColorStop(1, '#020617');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
-      // Base plate
+      if (showGrid) {
+        ctx.strokeStyle = 'rgba(51, 65, 85, 0.4)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= VIRTUAL_WIDTH; x += 45) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, VIRTUAL_HEIGHT);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= VIRTUAL_HEIGHT; y += 45) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(VIRTUAL_WIDTH, y);
+          ctx.stroke();
+        }
+      }
+
+      // Left: UTM Machine (x: 40 to 420)
+      // Right: Live Graph (x: 450 to 860)
+      const colX1 = 110;
+      const colX2 = 350;
+      const basePlateY = 440;
+      const topPlateY = 70;
+      const centerMachineX = (colX1 + colX2) / 2;
+
+      // Base
       ctx.fillStyle = '#1E293B';
-      ctx.fillRect(colX1 - 20, basePlateY, (colX2 - colX1) + 40, 25);
+      ctx.fillRect(colX1 - 30, basePlateY, colX2 - colX1 + 60, 30);
       ctx.strokeStyle = '#475569';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(colX1 - 20, basePlateY, (colX2 - colX1) + 40, 25);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(colX1 - 30, basePlateY, colX2 - colX1 + 60, 30);
 
-      // Top crosshead plate
+      // Top plate
       ctx.fillStyle = '#1E293B';
-      ctx.fillRect(colX1 - 20, topPlateY - 20, (colX2 - colX1) + 40, 20);
-      ctx.strokeRect(colX1 - 20, topPlateY - 20, (colX2 - colX1) + 40, 20);
+      ctx.fillRect(colX1 - 30, topPlateY - 25, colX2 - colX1 + 60, 25);
+      ctx.strokeRect(colX1 - 30, topPlateY - 25, colX2 - colX1 + 60, 25);
 
-      // Dual Lead Screws / Chrome Columns
+      // Columns
       [colX1, colX2].forEach((cx) => {
-        const colGrad = ctx.createLinearGradient(cx - 7, 0, cx + 7, 0);
+        const colGrad = ctx.createLinearGradient(cx - 9, 0, cx + 9, 0);
         colGrad.addColorStop(0, '#64748B');
-        colGrad.addColorStop(0.5, '#E2E8F0');
+        colGrad.addColorStop(0.5, '#F1F5F9');
         colGrad.addColorStop(1, '#475569');
         ctx.fillStyle = colGrad;
-        ctx.fillRect(cx - 7, topPlateY, 14, basePlateY - topPlateY);
+        ctx.fillRect(cx - 9, topPlateY, 18, basePlateY - topPlateY);
       });
 
-      // Motorized Moving Crosshead
-      // Moves upwards as strain increases
-      const elongationPx = t.strain * 55;
-      const crossheadDefaultY = height * 0.38;
-      const crossheadY = crossheadDefaultY - elongationPx;
+      // Motorized Crosshead
+      const elongationPx = t.strain * 70;
+      const crossheadY = 190 - elongationPx;
 
       ctx.save();
-      const crossheadGrad = ctx.createLinearGradient(0, crossheadY - 14, 0, crossheadY + 14);
+      const crossheadGrad = ctx.createLinearGradient(0, crossheadY - 18, 0, crossheadY + 18);
       crossheadGrad.addColorStop(0, '#334155');
       crossheadGrad.addColorStop(1, '#0F172A');
       ctx.fillStyle = crossheadGrad;
-      ctx.fillRect(colX1 - 10, crossheadY - 14, (colX2 - colX1) + 20, 28);
-      ctx.strokeStyle = '#38BDF8';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(colX1 - 10, crossheadY - 14, (colX2 - colX1) + 20, 28);
+      ctx.fillRect(colX1 - 15, crossheadY - 18, colX2 - colX1 + 30, 36);
+      ctx.strokeStyle = '#EF4444';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(colX1 - 15, crossheadY - 18, colX2 - colX1 + 30, 36);
       ctx.restore();
 
       // Lower Stationary Grip
-      const lowerGripY = height * 0.72;
-      const gripW = 34;
-      const gripH = 26;
-      const centerMachineX = (colX1 + colX2) / 2;
+      const lowerGripY = 340;
+      const gripW = 44;
+      const gripH = 34;
 
       ctx.fillStyle = '#475569';
       ctx.fillRect(centerMachineX - gripW / 2, lowerGripY, gripW, gripH);
       ctx.strokeRect(centerMachineX - gripW / 2, lowerGripY, gripW, gripH);
 
-      // Upper Moving Grip (attached to crosshead)
-      const upperGripY = crossheadY + 14;
+      // Upper Moving Grip
+      const upperGripY = crossheadY + 18;
       ctx.fillStyle = '#475569';
       ctx.fillRect(centerMachineX - gripW / 2, upperGripY, gripW, gripH);
       ctx.strokeRect(centerMachineX - gripW / 2, upperGripY, gripW, gripH);
 
-      // 2. Dogbone Specimen
+      // Dogbone Specimen
       const specimenTopY = upperGripY + gripH;
       const specimenBottomY = lowerGripY;
       const specimenH = specimenBottomY - specimenTopY;
-      const gaugeRadiusPx = 7;
+      const gaugeRadiusPx = 9;
 
-      // Necking calculation: when strain > 0.08, middle radius decreases
-      const neckAmount = Math.max(0, Math.min(0.55, (t.strain - 0.08) * 3));
+      const neckAmount = Math.max(0, Math.min(0.6, (t.strain - 0.08) * 3));
       const midRadius = gaugeRadiusPx * (1 - neckAmount);
 
       ctx.save();
-      const specGrad = ctx.createLinearGradient(centerMachineX - gaugeRadiusPx, 0, centerMachineX + gaugeRadiusPx, 0);
+      const specGrad = ctx.createLinearGradient(
+        centerMachineX - gaugeRadiusPx,
+        0,
+        centerMachineX + gaugeRadiusPx,
+        0,
+      );
       specGrad.addColorStop(0, '#94A3B8');
       specGrad.addColorStop(0.5, '#F8FAFC');
       specGrad.addColorStop(1, '#64748B');
       ctx.fillStyle = specGrad;
 
       if (!t.isFractured) {
-        // Continuous specimen with necking profile
         ctx.beginPath();
-        // Top shoulder
-        ctx.moveTo(centerMachineX - gaugeRadiusPx - 4, specimenTopY);
-        ctx.lineTo(centerMachineX - gaugeRadiusPx, specimenTopY + 8);
-        // Left contour with neck
-        ctx.quadraticCurveTo(centerMachineX - midRadius, specimenTopY + specimenH * 0.5, centerMachineX - gaugeRadiusPx, specimenBottomY - 8);
-        // Bottom shoulder
-        ctx.lineTo(centerMachineX - gaugeRadiusPx - 4, specimenBottomY);
-        ctx.lineTo(centerMachineX + gaugeRadiusPx + 4, specimenBottomY);
-        ctx.lineTo(centerMachineX + gaugeRadiusPx, specimenBottomY - 8);
-        // Right contour with neck
-        ctx.quadraticCurveTo(centerMachineX + midRadius, specimenTopY + specimenH * 0.5, centerMachineX + gaugeRadiusPx, specimenTopY + 8);
-        ctx.lineTo(centerMachineX + gaugeRadiusPx + 4, specimenTopY);
+        ctx.moveTo(centerMachineX - gaugeRadiusPx - 6, specimenTopY);
+        ctx.lineTo(centerMachineX - gaugeRadiusPx, specimenTopY + 10);
+        ctx.quadraticCurveTo(
+          centerMachineX - midRadius,
+          specimenTopY + specimenH * 0.5,
+          centerMachineX - gaugeRadiusPx,
+          specimenBottomY - 10,
+        );
+        ctx.lineTo(centerMachineX - gaugeRadiusPx - 6, specimenBottomY);
+        ctx.lineTo(centerMachineX + gaugeRadiusPx + 6, specimenBottomY);
+        ctx.lineTo(centerMachineX + gaugeRadiusPx, specimenBottomY - 10);
+        ctx.quadraticCurveTo(
+          centerMachineX + midRadius,
+          specimenTopY + specimenH * 0.5,
+          centerMachineX + gaugeRadiusPx,
+          specimenTopY + 10,
+        );
+        ctx.lineTo(centerMachineX + gaugeRadiusPx + 6, specimenTopY);
         ctx.closePath();
         ctx.fill();
         ctx.strokeStyle = '#CBD5E1';
         ctx.lineWidth = 1;
         ctx.stroke();
       } else {
-        // Fractured in two pieces with gap!
-        const fractureGap = 12;
+        const fractureGap = 16;
         const midY = specimenTopY + specimenH * 0.5;
 
         // Top half
         ctx.beginPath();
-        ctx.moveTo(centerMachineX - gaugeRadiusPx - 4, specimenTopY);
-        ctx.lineTo(centerMachineX - gaugeRadiusPx, specimenTopY + 8);
+        ctx.moveTo(centerMachineX - gaugeRadiusPx - 6, specimenTopY);
+        ctx.lineTo(centerMachineX - gaugeRadiusPx, specimenTopY + 10);
         ctx.lineTo(centerMachineX - midRadius, midY - fractureGap / 2);
-        // Jagged fracture surface
-        ctx.lineTo(centerMachineX - midRadius * 0.4, midY - fractureGap / 2 - 2);
+        ctx.lineTo(centerMachineX - midRadius * 0.4, midY - fractureGap / 2 - 3);
         ctx.lineTo(centerMachineX + midRadius * 0.3, midY - fractureGap / 2 + 3);
         ctx.lineTo(centerMachineX + midRadius, midY - fractureGap / 2);
-        ctx.lineTo(centerMachineX + gaugeRadiusPx, specimenTopY + 8);
-        ctx.lineTo(centerMachineX + gaugeRadiusPx + 4, specimenTopY);
+        ctx.lineTo(centerMachineX + gaugeRadiusPx, specimenTopY + 10);
+        ctx.lineTo(centerMachineX + gaugeRadiusPx + 6, specimenTopY);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
         // Bottom half
         ctx.beginPath();
-        ctx.moveTo(centerMachineX - gaugeRadiusPx - 4, specimenBottomY);
-        ctx.lineTo(centerMachineX - gaugeRadiusPx, specimenBottomY - 8);
+        ctx.moveTo(centerMachineX - gaugeRadiusPx - 6, specimenBottomY);
+        ctx.lineTo(centerMachineX - gaugeRadiusPx, specimenBottomY - 10);
         ctx.lineTo(centerMachineX - midRadius, midY + fractureGap / 2);
-        // Jagged fracture surface
-        ctx.lineTo(centerMachineX - midRadius * 0.4, midY + fractureGap / 2 - 2);
+        ctx.lineTo(centerMachineX - midRadius * 0.4, midY + fractureGap / 2 - 3);
         ctx.lineTo(centerMachineX + midRadius * 0.3, midY + fractureGap / 2 + 3);
         ctx.lineTo(centerMachineX + midRadius, midY + fractureGap / 2);
-        ctx.lineTo(centerMachineX + gaugeRadiusPx, specimenBottomY - 8);
-        ctx.lineTo(centerMachineX + gaugeRadiusPx + 4, specimenBottomY);
+        ctx.lineTo(centerMachineX + gaugeRadiusPx, specimenBottomY - 10);
+        ctx.lineTo(centerMachineX + gaugeRadiusPx + 6, specimenBottomY);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
-        // Fracture sparks / warning badge
         ctx.fillStyle = '#EF4444';
-        ctx.font = 'bold 11px JetBrains Mono, monospace';
+        ctx.font = 'bold 12px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
         ctx.fillText('⚡ SPECIMEN FRACTURED', centerMachineX, midY + 4);
       }
       ctx.restore();
 
-      // 3. Extensometer Clip Gauge with Dial Indicator
+      // Dial Extensometer
       if (!t.isFractured) {
-        const extX = centerMachineX + 22;
-        const extY = specimenTopY + specimenH * 0.4;
+        const extX = centerMachineX + 28;
+        const extY = specimenTopY + specimenH * 0.38;
         ctx.strokeStyle = '#F59E0B';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(extX, extY, 26, 26);
+        ctx.lineWidth = 2;
+        ctx.strokeRect(extX, extY, 32, 32);
         ctx.fillStyle = '#1E293B';
-        ctx.fillRect(extX, extY, 26, 26);
+        ctx.fillRect(extX, extY, 32, 32);
 
-        // Dial face
         ctx.fillStyle = '#F8FAFC';
         ctx.beginPath();
-        ctx.arc(extX + 13, extY + 13, 10, 0, Math.PI * 2);
+        ctx.arc(extX + 16, extY + 16, 12, 0, Math.PI * 2);
         ctx.fill();
 
-        // Dial needle
         const needleAngle = t.strain * Math.PI * 8;
         ctx.strokeStyle = '#EF4444';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(extX + 13, extY + 13);
-        ctx.lineTo(extX + 13 + Math.cos(needleAngle) * 8, extY + 13 + Math.sin(needleAngle) * 8);
+        ctx.moveTo(extX + 16, extY + 16);
+        ctx.lineTo(extX + 16 + Math.cos(needleAngle) * 9, extY + 16 + Math.sin(needleAngle) * 9);
         ctx.stroke();
 
         ctx.fillStyle = '#F59E0B';
-        ctx.font = '8px JetBrains Mono, monospace';
-        ctx.fillText('EXTENSOMETER', extX + 13, extY + 34);
+        ctx.font = 'bold 8px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('EXTENSOMETER', extX + 16, extY + 42);
       }
 
       // -------------------------------------------------------------
-      // 4. Real-time Streaming Stress-Strain Curve Plot (Right Pane)
+      // Right Pane: Streaming Stress-Strain Curve (x: 450 to 860)
       // -------------------------------------------------------------
-      const plotH = height - 70;
-      const plotTopY = 35;
+      const plotX = 450;
+      const plotY = 60;
+      const plotW = 410;
+      const plotH = 400;
 
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
       ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(plotX, plotTopY, plotW, plotH, 8);
+      ctx.roundRect(plotX, plotY, plotW, plotH, 10);
       ctx.fill();
       ctx.stroke();
 
-      // Plot Axes
-      const originX = plotX + 45;
-      const originY = plotTopY + plotH - 30;
-      const axisW = plotW - 65;
-      const axisH = plotH - 55;
+      const originX = plotX + 60;
+      const originY = plotY + plotH - 45;
+      const axisW = plotW - 85;
+      const axisH = plotH - 75;
 
       ctx.strokeStyle = '#64748B';
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(originX, originY - axisH);
       ctx.lineTo(originX, originY);
       ctx.lineTo(originX + axisW, originY);
       ctx.stroke();
 
-      // Grid lines in plot
+      // Plot grid
       ctx.strokeStyle = '#1E293B';
       ctx.lineWidth = 1;
       for (let i = 1; i <= 4; i++) {
@@ -383,27 +406,24 @@ export function RealtimeTensileScene({
         ctx.stroke();
       }
 
-      // Axis labels
       ctx.fillStyle = '#94A3B8';
-      ctx.font = '9px JetBrains Mono, monospace';
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('Strain ε (%)', originX + axisW / 2, originY + 22);
+      ctx.fillText('Engineering Strain ε (%)', originX + axisW / 2, originY + 30);
 
       ctx.save();
-      ctx.translate(originX - 30, originY - axisH / 2);
+      ctx.translate(originX - 40, originY - axisH / 2);
       ctx.rotate(-Math.PI / 2);
-      ctx.fillText('Stress σ (MPa)', 0, 0);
+      ctx.fillText('Engineering Stress σ (MPa)', 0, 0);
       ctx.restore();
 
-      // Max scale values
       const maxPlotStress = ultimateStrengthMpa * 1.25;
       const maxPlotStrain = (fractureStrainPct / 100) * 1.15;
 
-      // Plot Stress-Strain curve path
       const hist = t.stressStrainHistory;
       if (hist.length > 1) {
         ctx.strokeStyle = '#EF4444';
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         hist.forEach((pt, idx) => {
           const px = originX + (pt.strain / maxPlotStrain) * axisW;
@@ -413,25 +433,23 @@ export function RealtimeTensileScene({
         });
         ctx.stroke();
 
-        // Current point tracer
         const lastPt = hist[hist.length - 1]!;
         const currPx = originX + (lastPt.strain / maxPlotStrain) * axisW;
         const currPy = originY - (lastPt.stress / maxPlotStress) * axisH;
 
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.arc(currPx, currPy, 4, 0, Math.PI * 2);
+        ctx.arc(currPx, currPy, 5, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#EF4444';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // Digital readouts in plot
         ctx.fillStyle = '#EF4444';
-        ctx.font = 'bold 10px JetBrains Mono, monospace';
+        ctx.font = 'bold 12px JetBrains Mono, monospace';
         ctx.textAlign = 'right';
-        ctx.fillText(`σ = ${lastPt.stress.toFixed(1)} MPa`, plotX + plotW - 14, plotTopY + 20);
-        ctx.fillText(`ε = ${(lastPt.strain * 100).toFixed(2)} %`, plotX + plotW - 14, plotTopY + 34);
+        ctx.fillText(`σ = ${lastPt.stress.toFixed(1)} MPa`, plotX + plotW - 20, plotY + 28);
+        ctx.fillText(`ε = ${(lastPt.strain * 100).toFixed(2)} %`, plotX + plotW - 20, plotY + 44);
       }
 
       ctx.restore();
@@ -443,16 +461,18 @@ export function RealtimeTensileScene({
   }, [
     isPlaying,
     playbackSpeed,
+    userZoom,
+    pan,
     fractureStrainPct,
     yieldStrengthMpa,
     ultimateStrengthMpa,
     elasticModulusGpa,
     gaugeLengthMm,
     gaugeDiameterMm,
+    showGrid,
     onSampleChange,
   ]);
 
-  // Adjust canvas size
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -470,68 +490,33 @@ export function RealtimeTensileScene({
   }, []);
 
   return (
-    <div className={`flex flex-col rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl ${className}`}>
-      {/* Workbench Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900 border-b border-zinc-800 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="font-mono font-bold text-zinc-100">UTM Uniaxial Tensile Testing Bench</span>
-          <span className="text-zinc-500">|</span>
-          <span className="font-mono text-zinc-400">Specimen: {materialName}</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-            isFractured ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-emerald-500/20 text-emerald-400'
-          }`}>
-            {isFractured ? 'Fractured' : isPlaying ? 'Straining...' : 'Ready'}
-          </span>
-        </div>
-      </div>
-
-      {/* Canvas */}
-      <div ref={containerRef} className="relative w-full h-[320px] sm:h-[380px] bg-[#0B1120]">
+    <PhetWorkbench
+      title="Universal Testing Machine (UTM)"
+      subtitle={`Specimen: ${materialName}`}
+      disciplineColor="#EF4444"
+      isPlaying={isPlaying}
+      onPlayPause={() => {
+        if (!isFractured) setIsPlaying(!isPlaying);
+      }}
+      onReset={handleReset}
+      simTime={simTime}
+      playbackSpeed={playbackSpeed}
+      onSpeedChange={setPlaybackSpeed}
+      showStopwatch={showStopwatch}
+      onToggleStopwatch={() => setShowStopwatch(!showStopwatch)}
+      showGrid={showGrid}
+      onToggleGrid={() => setShowGrid(!showGrid)}
+      onZoomIn={() => setUserZoom((z) => Math.min(2.5, z + 0.15))}
+      onZoomOut={() => setUserZoom((z) => Math.max(0.6, z - 0.15))}
+      onResetCamera={() => {
+        setUserZoom(1.0);
+        setPan({ x: 0, y: 0 });
+      }}
+      className={className}
+    >
+      <div ref={containerRef} className="w-full h-full relative select-none">
         <canvas ref={canvasRef} className="w-full h-full block" />
       </div>
-
-      {/* Transport Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-zinc-900/90 border-t border-zinc-800">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsPlaying(!isPlaying)}
-            disabled={isFractured}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-40 text-white font-mono text-xs font-bold transition-all shadow-md active:scale-95"
-          >
-            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            <span>{isPlaying ? 'Pause Crosshead' : 'Start Pull Test'}</span>
-          </button>
-
-          <button
-            onClick={handleReset}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-mono text-xs transition-all"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>New Specimen</span>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-1 font-mono text-xs">
-          <span className="text-zinc-500 mr-1 text-[11px]">Pull Rate:</span>
-          {[0.5, 1.0, 2.0, 4.0].map((spd) => (
-            <button
-              key={spd}
-              onClick={() => setPlaybackSpeed(spd)}
-              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all ${
-                playbackSpeed === spd
-                  ? 'bg-red-600 text-white'
-                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-              }`}
-            >
-              {spd}x
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+    </PhetWorkbench>
   );
 }

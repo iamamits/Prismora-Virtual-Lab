@@ -30,6 +30,7 @@ import {
   TitrationPoint,
 } from '@prismora/simulation-core';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { RealtimeTitrationScene } from '@/components/simulation/realtime-titration-scene';
 import {
   Activity,
   Award,
@@ -349,141 +350,19 @@ export default function AcidBaseTitrationLabPage() {
                       V_added = {volumeAdded.toFixed(2)} mL
                     </span>
                   </div>
-
-                  {/* Quick Dispense Buttons */}
-                  <div className="flex items-center space-x-1.5">
-                    <button
-                      onClick={() => dispenseTitrant(0.1)}
-                      className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-100"
-                    >
-                      +0.1 mL
-                    </button>
-                    <button
-                      onClick={() => dispenseTitrant(0.5)}
-                      className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-100"
-                    >
-                      +0.5 mL
-                    </button>
-                    <button
-                      onClick={() => dispenseTitrant(1.0)}
-                      className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-100"
-                    >
-                      +1.0 mL
-                    </button>
-                    <button
-                      onClick={() => dispenseTitrant(5.0)}
-                      className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-100"
-                    >
-                      +5.0 mL
-                    </button>
-                    <button
-                      onClick={resetTitration}
-                      className="px-2.5 py-1 text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 rounded"
-                    >
-                      Reset
-                    </button>
-                  </div>
                 </div>
 
-                {/* SVG Visual Workbench */}
-                <div className="relative bg-slate-900 rounded-lg p-4 overflow-hidden shadow-inner flex items-center justify-center min-h-[300px]">
-                  <svg viewBox="0 0 600 320" className="w-full max-h-[300px]">
-                    {/* Retort Stand */}
-                    <rect x="110" y="290" width="160" height="15" fill="#334155" rx="3" />
-                    <line x1="140" y1="290" x2="140" y2="20" stroke="#64748B" strokeWidth="6" />
-                    {/* Clamps holding burette */}
-                    <line x1="140" y1="60" x2="220" y2="60" stroke="#94A3B8" strokeWidth="3" />
-                    <line x1="140" y1="140" x2="220" y2="140" stroke="#94A3B8" strokeWidth="3" />
-
-                    {/* 1. Burette Column (Glass cylinder) */}
-                    <rect x="220" y="30" width="24" height="140" fill="#0F172A" stroke="#CBD5E1" strokeWidth="2" opacity="0.8" rx="2" />
-                    {/* Graduations on burette */}
-                    {Array.from({ length: 11 }).map((_, i) => (
-                      <line key={i} x1="220" y1={40 + i * 11} x2="228" y2={40 + i * 11} stroke="#94A3B8" strokeWidth="1" />
-                    ))}
-                    {/* Liquid inside burette (drops as volumeAdded increases) */}
-                    {(() => {
-                      const maxV = summary.equivalenceVolumeMl * 2.0;
-                      const fractionRemaining = Math.max(0, 1 - volumeAdded / maxV);
-                      const liquidH = fractionRemaining * 120;
-                      return (
-                        <rect
-                          x="222"
-                          y={160 - liquidH}
-                          width="20"
-                          height={liquidH}
-                          fill="#38BDF8"
-                          opacity="0.6"
-                        />
-                      );
-                    })()}
-
-                    {/* Burette Stopcock Valve */}
-                    <circle cx="232" cy="180" r="5" fill="#F59E0B" />
-                    <line x1="225" y1="180" x2="239" y2="180" stroke="#D97706" strokeWidth="3" />
-                    {/* Burette Tip */}
-                    <polygon points="228,185 236,185 233,198 231,198" fill="#CBD5E1" />
-
-                    {/* Droplet falling into flask if dispensing */}
-                    {volumeAdded > 0 && (
-                      <circle cx="232" cy="208" r="2.5" fill="#38BDF8" className="animate-bounce" />
-                    )}
-
-                    {/* 2. Magnetic Stirrer Base Plate */}
-                    <rect x="180" y="275" width="130" height="18" fill="#1E293B" stroke="#475569" strokeWidth="1.5" rx="4" />
-                    <text x="245" y="287" textAnchor="middle" fill="#94A3B8" fontSize="8" fontWeight="bold">
-                      MAGNETIC STIRRER
-                    </text>
-
-                    {/* 3. Conical / Erlenmeyer Flask */}
-                    <g>
-                      {/* Flask glass neck and cone */}
-                      <path
-                        d="M 218 205 L 246 205 L 246 220 L 290 270 L 200 270 L 218 220 Z"
-                        fill="none"
-                        stroke="#E2E8F0"
-                        strokeWidth="2.5"
-                      />
-
-                      {/* Solution Fluid Inside Flask */}
-                      <path
-                        d="M 203 268 L 287 268 L 275 240 L 215 240 Z"
-                        fill={currentPoint.solutionColor}
-                        opacity="0.85"
-                        className="transition-colors duration-300"
-                      />
-
-                      {/* Rotating Magnetic Stir Bar */}
-                      {isStirring && (
-                        <rect x="238" y="263" width="14" height="4" fill="#FFFFFF" rx="2" className="animate-spin origin-center" />
-                      )}
-                    </g>
-
-                    {/* 4. Digital pH Glass Electrode Probe */}
-                    <g>
-                      <line x1="260" y1="160" x2="255" y2="255" stroke="#64748B" strokeWidth="4" />
-                      <circle cx="255" cy="256" r="4" fill="#38BDF8" stroke="#0284C7" strokeWidth="1.5" />
-                      {/* Cable connecting probe to meter */}
-                      <path d="M 260 160 Q 320 120 400 130" fill="none" stroke="#475569" strokeWidth="2" strokeDasharray="3 3" />
-                    </g>
-
-                    {/* 5. Benchtop Digital pH Meter Instrument */}
-                    <g>
-                      <rect x="400" y="90" width="160" height="110" fill="#0F172A" stroke="#334155" strokeWidth="2" rx="8" />
-                      <rect x="415" y="105" width="130" height="45" fill="#020617" stroke="#1E293B" strokeWidth="1.5" rx="4" />
-                      {/* Large 7-segment style pH readout */}
-                      <text x="480" y="137" textAnchor="middle" fill="#22C55E" fontSize="24" fontFamily="monospace" fontWeight="bold">
-                        {currentPoint.ph.toFixed(2)}
-                      </text>
-                      <text x="420" y="175" fill="#94A3B8" fontSize="10" fontWeight="bold">
-                        DIGITAL pH METER
-                      </text>
-                      <text x="420" y="190" fill="#64748B" fontSize="9">
-                        Glass Combination Electrode
-                      </text>
-                    </g>
-                  </svg>
-                </div>
+                {/* Real-time PhET-Standard Chemistry Titration Workbench */}
+                <RealtimeTitrationScene
+                  analyteVolumeMl={analyteVolume}
+                  analyteMolarity={analyteMolarity}
+                  titrantMolarity={titrantMolarity}
+                  systemType={systemType}
+                  indicator={indicator}
+                  onPointChange={(pt) => {
+                    setVolumeAdded(pt.volumeAdded);
+                  }}
+                />
 
                 {/* Real-time Measurements */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">

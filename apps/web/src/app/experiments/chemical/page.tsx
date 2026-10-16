@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { RealtimeDistillationScene } from '@/components/simulation/realtime-distillation-scene';
 import {
   DistillationEngine,
   DEFAULT_DISTILLATION_PARAMS,
@@ -272,42 +273,15 @@ function ChemicalWorkbenchContent() {
                     </span>
                   </div>
 
-                  {/* McCabe-Thiele Diagram */}
-                  <div className="h-64 sm:h-72 w-full bg-zinc-900 rounded-xl overflow-hidden relative p-4 flex flex-col justify-between">
-                    <svg className="w-full h-full" viewBox="0 0 500 200">
-                      <rect x="0" y="0" width="500" height="200" fill="#09090B" />
-                      {/* Diagonal line y = x */}
-                      <line x1="40" y1="170" x2="440" y2="20" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
-
-                      {/* VLE Equilibrium Curve */}
-                      {(() => {
-                        const pts = distillResult.equilibriumCurve;
-                        const toX = (x: number) => 40 + x * 400;
-                        const toY = (y: number) => 170 - y * 150;
-                        const path = pts.map((p: { x: number; y: number }, i: number) => `${i === 0 ? 'M' : 'L'} ${toX(p.x).toFixed(1)} ${toY(p.y).toFixed(1)}`).join(' ');
-                        return <path d={path} fill="none" stroke="#10B981" strokeWidth="2.5" />;
-                      })()}
-
-                      {/* Stepped Trays */}
-                      {(() => {
-                        const trays = distillResult.steppedTrays;
-                        const toX = (x: number) => 40 + x * 400;
-                        const toY = (y: number) => 170 - y * 150;
-                        return trays.map((t: { x: number; y: number; nextX: number; nextY: number }, idx: number) => (
-                          <g key={idx}>
-                            <line x1={toX(t.x)} y1={toY(t.y)} x2={toX(t.nextX)} y2={toY(t.y)} stroke="#F59E0B" strokeWidth="1.5" />
-                            <line x1={toX(t.nextX)} y1={toY(t.y)} x2={toX(t.nextX)} y2={toY(t.nextY)} stroke="#F59E0B" strokeWidth="1.5" />
-                          </g>
-                        ));
-                      })()}
-                    </svg>
-
-                    <div className="flex justify-between text-[9px] font-mono text-zinc-500">
-                      <span>Bottoms xB = {distillParams.bottomsMoleFraction}</span>
-                      <span className="text-emerald-400">Feed xF = {distillParams.feedMoleFraction}</span>
-                      <span>Distillate xD = {distillParams.distillateMoleFraction}</span>
-                    </div>
-                  </div>
+                  {/* Realtime Interactive PhET Distillation Workbench */}
+                  <RealtimeDistillationScene
+                    relativeVolatility={distillParams.relativeVolatility ?? 2.5}
+                    feedMoleFraction={distillParams.feedMoleFraction ?? 0.45}
+                    distillateMoleFraction={distillParams.distillateMoleFraction ?? 0.95}
+                    bottomsMoleFraction={distillParams.bottomsMoleFraction ?? 0.05}
+                    refluxRatio={distillParams.refluxRatio ?? 2.2}
+                    feedQuality={distillParams.feedThermalConditionQ ?? 1.0}
+                  />
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">

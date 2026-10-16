@@ -13,6 +13,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { RealtimeDistillationScene } from '@/components/simulation/realtime-distillation-scene';
 import {
   solveMcCabeThiele,
   DEFAULT_DISTILLATION_PARAMS,
@@ -339,97 +340,15 @@ export default function DistillationPage() {
                     </span>
                   </div>
 
-                  {/* SVG McCabe Thiele Plot */}
-                  <div className="w-full aspect-16/10 bg-slate-50 border border-zinc-200 rounded-lg relative overflow-hidden flex items-center justify-center p-3">
-                    <svg viewBox="-0.1 -0.1 1.2 1.2" className="w-full h-full text-zinc-800">
-                      {/* Grid Box & y = x Diagonal */}
-                      <rect x="0" y="0" width="1" height="1" fill="#ffffff" stroke="#cbd5e1" strokeWidth="0.005" />
-                      <line x1="0" y1="1" x2="1" y2="0" stroke="#94a3b8" strokeWidth="0.006" strokeDasharray="0.02 0.02" />
-
-                      {/* VLE Equilibrium Curve */}
-                      <polyline
-                        fill="none"
-                        stroke="#059669"
-                        strokeWidth="0.008"
-                        points={analysisResult.vlePoints.map((p) => `${p.x},${1 - p.y}`).join(' ')}
-                      />
-
-                      {/* Q-Line */}
-                      <polyline
-                        fill="none"
-                        stroke="#8b5cf6"
-                        strokeWidth="0.008"
-                        points={analysisResult.qLinePoints.map((p) => `${p.x},${1 - p.y}`).join(' ')}
-                      />
-
-                      {/* Rectifying Operating Line (ROL) */}
-                      <polyline
-                        fill="none"
-                        stroke="#2563eb"
-                        strokeWidth="0.008"
-                        points={analysisResult.rolPoints.map((p) => `${p.x},${1 - p.y}`).join(' ')}
-                      />
-
-                      {/* Stripping Operating Line (SOL) */}
-                      <polyline
-                        fill="none"
-                        stroke="#ea580c"
-                        strokeWidth="0.008"
-                        points={analysisResult.solPoints.map((p) => `${p.x},${1 - p.y}`).join(' ')}
-                      />
-
-                      {/* Stepped Trays (Triangles) */}
-                      {analysisResult.stages.map((stg) => {
-                        // Horizontal: (stg.xEquilibrium, 1 - stg.yVapor) to (stg.xNext, 1 - stg.yNext)
-                        const pts = [
-                          `${stg.xEquilibrium},${1 - stg.yVapor}`,
-                          `${stg.xEquilibrium},${1 - stg.yNext}`,
-                        ];
-                        return (
-                          <g key={stg.stageNumber}>
-                            <polyline
-                              fill="none"
-                              stroke={stg.isFeedStage ? '#dc2626' : '#0f172a'}
-                              strokeWidth={stg.isFeedStage ? 0.008 : 0.005}
-                              points={pts.join(' ')}
-                            />
-                            {/* Horizontal segment */}
-                            <line
-                              x1={stg.xNext}
-                              y1={1 - stg.yNext}
-                              x2={analysisResult.stages[stg.stageNumber]?.xEquilibrium ?? stg.xNext}
-                              y2={1 - stg.yNext}
-                              stroke="#0f172a"
-                              strokeWidth="0.005"
-                            />
-                          </g>
-                        );
-                      })}
-
-                      {/* Pin markers for xD, xF, xB */}
-                      <circle cx={xD} cy={1 - xD} r="0.015" className="fill-blue-600" />
-                      <circle cx={xF} cy={1 - xF} r="0.015" className="fill-purple-600" />
-                      <circle cx={xB} cy={1 - xB} r="0.015" className="fill-orange-600" />
-                    </svg>
-                  </div>
-
-                  {/* Diagram Legend */}
-                  <div className="flex items-center justify-between text-xs pt-1 px-1 text-zinc-600">
-                    <div className="flex items-center gap-4 flex-wrap">
-                      <span className="flex items-center gap-1">
-                        <span className="w-2.5 h-2.5 rounded bg-emerald-600" /> VLE Curve
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="w-2.5 h-2.5 rounded bg-blue-600" /> ROL (Rectifying)
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="w-2.5 h-2.5 rounded bg-orange-600" /> SOL (Stripping)
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="w-2.5 h-2.5 rounded bg-purple-600" /> q-Line
-                      </span>
-                    </div>
-                  </div>
+                  {/* Realtime Interactive PhET Distillation Workbench */}
+                  <RealtimeDistillationScene
+                    relativeVolatility={alpha}
+                    feedMoleFraction={xF}
+                    distillateMoleFraction={xD}
+                    bottomsMoleFraction={xB}
+                    refluxRatio={refluxRatio}
+                    feedQuality={feedQuality}
+                  />
                 </div>
 
                 {/* Column Hardware Simulation Readout */}

@@ -1,19 +1,15 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { PhetWorkbench } from './phet-workbench';
 import {
-  Play,
-  Pause,
-  RotateCcw,
-  SkipForward,
-  Gauge,
-  Sliders,
-  Ruler,
-  Crosshair,
-  Grid,
-  Activity,
-  Zap,
-} from 'lucide-react';
+  VIRTUAL_WIDTH,
+  VIRTUAL_HEIGHT,
+  computeViewport,
+  applyVirtualViewport,
+  screenToVirtualCoords,
+  type ViewportTransform,
+} from './viewport-helper';
 
 export interface RealtimeOscillatorSceneProps {
   mass: number; // kg
@@ -50,6 +46,17 @@ export function RealtimeOscillatorScene({
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const [simTime, setSimTime] = useState<number>(0);
 
+  // Camera Zoom & Pan
+  const [userZoom, setUserZoom] = useState<number>(1.0);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  // Tools
+  const [showRuler, setShowRuler] = useState<boolean>(false);
+  const [showStopwatch, setShowStopwatch] = useState<boolean>(false);
+  const [showProbe, setShowProbe] = useState<boolean>(true);
+  const [showVectors, setShowVectors] = useState<boolean>(true);
+  const [showGrid, setShowGrid] = useState<boolean>(true);
+
   // Physics state (world units: x in meters, v in m/s)
   const stateRef = useRef<{
     t: number;
@@ -59,7 +66,6 @@ export function RealtimeOscillatorScene({
     dragStartX: number;
     dragStartDisp: number;
     phaseHistory: Array<{ x: number; v: number }>;
-    timeHistory: Array<{ t: number; x: number; v: number }>;
   }>({
     t: 0,
     x: 0.12, // start with 12 cm initial displacement
@@ -68,80 +74,60 @@ export function RealtimeOscillatorScene({
     dragStartX: 0,
     dragStartDisp: 0,
     phaseHistory: [],
-    timeHistory: [],
   });
 
-  // Tools toggle state
-  const [showRuler, setShowRuler] = useState<boolean>(false);
-  const [showProbe, setShowProbe] = useState<boolean>(true);
-  const [showVectors, setShowVectors] = useState<boolean>(true);
-  const [showGrid, setShowGrid] = useState<boolean>(true);
-
-  // Interactive tool coordinates (canvas pixels)
-  const [probePos, setProbePos] = useState<{ x: number; y: number }>({ x: 380, y: 70 });
+  // Tools in Virtual Space
+  const [probePos, setProbePos] = useState<{ x: number; y: number }>({ x: 580, y: 110 });
   const [isDraggingProbe, setIsDraggingProbe] = useState<boolean>(false);
 
   const [rulerTape, setRulerTape] = useState<{ x1: number; y1: number; x2: number; y2: number }>({
-    x1: 260,
-    y1: 180,
-    x2: 380,
-    y2: 180,
+    x1: 320,
+    y1: 270,
+    x2: 480,
+    y2: 270,
   });
-  const [activeTapeHandle, setActiveTapeHandle] = useState<'none' | 'p1' | 'p2' | 'body'>('none');
-  const tapeDragOffset = useRef<{ dx: number; dy: number }>({ dx: 0, dy: 0 });
+  const [activeTapeHandle, setActiveTapeHandle] = useState<'none' | 'p1' | 'p2'>('none');
 
-  // Reset function
+  // Reset
   const handleReset = useCallback(() => {
     stateRef.current.t = 0;
     stateRef.current.x = 0.12;
     stateRef.current.v = 0;
     stateRef.current.phaseHistory = [];
-    stateRef.current.timeHistory = [];
     setSimTime(0);
   }, []);
 
-  // Step function
+  // Step (single frame advancement)
   const handleStep = useCallback(() => {
     const dt = 0.02 * playbackSpeed;
     const s = stateRef.current;
     if (s.isDragging) return;
 
-    // Numerical integration (Runge-Kutta 4th order for harmonic oscillator)
-    const computeDerivs = (x: number, v: number, t: number) => {
-      const fSpring = -stiffness * x;
-      const fDamp = -damping * v;
-      const fDrive = drivingForce * Math.cos(drivingFreq * t);
-      const a = (fSpring + fDamp + fDrive) / mass;
-      return { dx: v, dv: a };
-    };
+    const fSpring = -stiffness * s.x;
+    const fDamp = -damping * s.v;
+    const fDrive = drivingForce * Math.cos(drivingFreq * s.t);
+    const a = (fSpring + fDamp + fDrive) / mass;
 
-    const k1 = computeDerivs(s.x, s.v, s.t);
-    const k2 = computeDerivs(s.x + 0.5 * dt * k1.dx, s.v + 0.5 * dt * k1.dv, s.t + 0.5 * dt);
-    const k3 = computeDerivs(s.x + 0.5 * dt * k2.dx, s.v + 0.5 * dt * k2.dv, s.t + 0.5 * dt);
-    const k4 = computeDerivs(s.x + dt * k3.dx, s.v + dt * k3.dv, s.t + dt);
-
-    s.x += (dt / 6) * (k1.dx + 2 * k2.dx + 2 * k3.dx + k4.dx);
-    s.v += (dt / 6) * (k1.dv + 2 * k2.dv + 2 * k3.dv + k4.dv);
+    s.v += a * dt;
+    s.x += s.v * dt;
     s.t += dt;
-
     setSimTime(s.t);
   }, [stiffness, damping, drivingForce, drivingFreq, mass, playbackSpeed]);
 
-  // Main Animation Loop
+  // Main Render Loop
   useEffect(() => {
     let animId: number;
-    let lastTimestamp = performance.now();
+    let lastTime = performance.now();
 
     const render = (now: number) => {
-      const wallDelta = Math.min((now - lastTimestamp) / 1000, 0.1);
-      lastTimestamp = now;
+      const dt = Math.min((now - lastTime) / 1000, 0.1) * playbackSpeed;
+      lastTime = now;
 
       const canvas = canvasRef.current;
       if (!canvas) {
         animId = requestAnimationFrame(render);
         return;
       }
-
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         animId = requestAnimationFrame(render);
@@ -149,49 +135,40 @@ export function RealtimeOscillatorScene({
       }
 
       const dpr = window.devicePixelRatio || 1;
-      const width = canvas.width / dpr;
-      const height = canvas.height / dpr;
-
       const s = stateRef.current;
 
-      // Integrate if playing and not user-dragging mass
+      // Numerical Physics Integration (RK4)
       if (isPlaying && !s.isDragging) {
-        const dt = wallDelta * playbackSpeed;
         const subSteps = 4;
         const subDt = dt / subSteps;
 
         for (let i = 0; i < subSteps; i++) {
-          const computeDerivs = (x: number, v: number, t: number) => {
-            const fSpring = -stiffness * x;
-            const fDamp = -damping * v;
-            const fDrive = drivingForce * Math.cos(drivingFreq * t);
-            const a = (fSpring + fDamp + fDrive) / mass;
-            return { dx: v, dv: a };
-          };
+          const computeA = (x: number, v: number, t: number) =>
+            (-stiffness * x - damping * v + drivingForce * Math.cos(drivingFreq * t)) / mass;
 
-          const k1 = computeDerivs(s.x, s.v, s.t);
-          const k2 = computeDerivs(s.x + 0.5 * subDt * k1.dx, s.v + 0.5 * subDt * k1.dv, s.t + 0.5 * subDt);
-          const k3 = computeDerivs(s.x + 0.5 * subDt * k2.dx, s.v + 0.5 * subDt * k2.dv, s.t + 0.5 * subDt);
-          const k4 = computeDerivs(s.x + subDt * k3.dx, s.v + subDt * k3.dv, s.t + subDt);
+          const k1v = computeA(s.x, s.v, s.t);
+          const k1x = s.v;
 
-          s.x += (subDt / 6) * (k1.dx + 2 * k2.dx + 2 * k3.dx + k4.dx);
-          s.v += (subDt / 6) * (k1.dv + 2 * k2.dv + 2 * k3.dv + k4.dv);
+          const k2v = computeA(s.x + 0.5 * subDt * k1x, s.v + 0.5 * subDt * k1v, s.t + 0.5 * subDt);
+          const k2x = s.v + 0.5 * subDt * k1v;
+
+          const k3v = computeA(s.x + 0.5 * subDt * k2x, s.v + 0.5 * subDt * k2v, s.t + 0.5 * subDt);
+          const k3x = s.v + 0.5 * subDt * k2v;
+
+          const k4v = computeA(s.x + subDt * k3x, s.v + subDt * k3v, s.t + subDt);
+          const k4x = s.v + subDt * k3v;
+
+          s.x += (subDt / 6) * (k1x + 2 * k2x + 2 * k3x + k4x);
+          s.v += (subDt / 6) * (k1v + 2 * k2v + 2 * k3v + k4v);
           s.t += subDt;
         }
 
-        // Clamp extreme numerical explosions
-        s.x = Math.max(-0.4, Math.min(0.4, s.x));
-
-        // Record history for phase portrait and streaming waveforms
+        s.x = Math.max(-0.35, Math.min(0.35, s.x));
         s.phaseHistory.push({ x: s.x, v: s.v });
-        if (s.phaseHistory.length > 250) s.phaseHistory.shift();
-
-        s.timeHistory.push({ t: s.t, x: s.x, v: s.v });
-        if (s.timeHistory.length > 300) s.timeHistory.shift();
+        if (s.phaseHistory.length > 200) s.phaseHistory.shift();
 
         setSimTime(s.t);
 
-        // Notify probe
         if (onProbeSample) {
           const ke = 0.5 * mass * s.v * s.v;
           const pe = 0.5 * stiffness * s.x * s.x;
@@ -209,160 +186,178 @@ export function RealtimeOscillatorScene({
       }
 
       // -------------------------------------------------------------
-      // DRAW CANVAS
+      // DRAW CANVAS (Using Universal Viewport)
       // -------------------------------------------------------------
       ctx.save();
-      ctx.scale(dpr, dpr);
-
-      // Deep scientific dark background
+      // Clear physical screen
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.fillStyle = '#0B1120';
-      ctx.fillRect(0, 0, width, height);
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Background Grid
+      // Compute and apply virtual viewport (900 x 520)
+      const vp = computeViewport(canvas.width, canvas.height, dpr, userZoom, pan.x, pan.y);
+      applyVirtualViewport(ctx, vp, dpr);
+
+      // 1. Environmental Lab Background
+      // Soft scientific gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, VIRTUAL_HEIGHT);
+      bgGrad.addColorStop(0, '#0F172A');
+      bgGrad.addColorStop(1, '#020617');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
+      // Grid overlay
       if (showGrid) {
-        ctx.strokeStyle = '#1E293B';
+        ctx.strokeStyle = 'rgba(51, 65, 85, 0.4)';
         ctx.lineWidth = 1;
-        const gridStep = 30;
-        for (let x = 0; x < width; x += gridStep) {
+        for (let x = 0; x <= VIRTUAL_WIDTH; x += 45) {
           ctx.beginPath();
           ctx.moveTo(x, 0);
-          ctx.lineTo(x, height);
+          ctx.lineTo(x, VIRTUAL_HEIGHT);
           ctx.stroke();
         }
-        for (let y = 0; y < height; y += gridStep) {
+        for (let y = 0; y <= VIRTUAL_HEIGHT; y += 45) {
           ctx.beginPath();
           ctx.moveTo(0, y);
-          ctx.lineTo(width, y);
+          ctx.lineTo(VIRTUAL_WIDTH, y);
           ctx.stroke();
         }
       }
 
-      // Coordinate anchors
-      const anchorWallX = 70;
-      const eqCenterMassX = width * 0.48; // equilibrium x of mass center
-      const massCenterY = height * 0.44;
-      const pixelsPerMeter = 320; // 1 meter = 320 px (0.1m = 32px)
+      // Workbench Floor & Rail
+      const anchorWallX = 110;
+      const eqCenterMassX = 460;
+      const massCenterY = 220;
+      const pixelsPerMeter = 420; // 0.1m = 42px in virtual space
 
       const currentMassCenterX = eqCenterMassX + s.x * pixelsPerMeter;
-      const massWidth = 84;
-      const massHeight = 64;
+      const massWidth = 95;
+      const massHeight = 70;
       const massLeftX = currentMassCenterX - massWidth / 2;
       const massTopY = massCenterY - massHeight / 2;
 
-      // 1. Draw Fixed Rigid Anchor Wall (Left)
-      const wallGrad = ctx.createLinearGradient(anchorWallX - 30, 0, anchorWallX, 0);
+      // 2. Fixed Anchor Wall (Left)
+      const wallGrad = ctx.createLinearGradient(anchorWallX - 40, 0, anchorWallX, 0);
       wallGrad.addColorStop(0, '#1E293B');
-      wallGrad.addColorStop(1, '#334155');
+      wallGrad.addColorStop(1, '#475569');
       ctx.fillStyle = wallGrad;
-      ctx.fillRect(anchorWallX - 25, 40, 25, height - 80);
+      ctx.fillRect(anchorWallX - 35, 60, 35, 300);
 
       // Wall hatch stripes
-      ctx.strokeStyle = '#475569';
+      ctx.strokeStyle = '#64748B';
       ctx.lineWidth = 2;
-      for (let y = 45; y < height - 80; y += 14) {
+      for (let y = 70; y < 350; y += 18) {
         ctx.beginPath();
-        ctx.moveTo(anchorWallX - 25, y + 10);
+        ctx.moveTo(anchorWallX - 35, y + 14);
         ctx.lineTo(anchorWallX, y);
         ctx.stroke();
       }
+      ctx.fillStyle = '#94A3B8';
+      ctx.fillRect(anchorWallX - 4, 60, 4, 300);
 
-      // Wall face plate
-      ctx.fillStyle = '#64748B';
-      ctx.fillRect(anchorWallX - 4, 40, 4, height - 80);
-
-      // 2. Draw Precision Guide Rail (Floor)
-      const railY = massTopY + massHeight + 12;
+      // 3. Precision Optical Guide Rail (Floor)
+      const railY = massTopY + massHeight + 14;
       ctx.fillStyle = '#1E293B';
-      ctx.fillRect(anchorWallX, railY, width - anchorWallX - 20, 8);
+      ctx.fillRect(anchorWallX, railY, VIRTUAL_WIDTH - anchorWallX - 40, 10);
       ctx.fillStyle = '#38BDF8';
-      ctx.fillRect(anchorWallX, railY, width - anchorWallX - 20, 2);
+      ctx.fillRect(anchorWallX, railY, VIRTUAL_WIDTH - anchorWallX - 40, 2);
 
-      // Equilibrium dashed reference line
-      ctx.strokeStyle = '#38BDF8';
+      // Metric ticks on rail
+      ctx.strokeStyle = '#64748B';
+      ctx.lineWidth = 1;
+      for (let rx = anchorWallX; rx < VIRTUAL_WIDTH - 40; rx += 21) {
+        ctx.beginPath();
+        ctx.moveTo(rx, railY + 2);
+        ctx.lineTo(rx, railY + 6);
+        ctx.stroke();
+      }
+
+      // Equilibrium dashed reference
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
-      ctx.moveTo(eqCenterMassX, 35);
+      ctx.moveTo(eqCenterMassX, 55);
       ctx.lineTo(eqCenterMassX, railY + 25);
       ctx.stroke();
       ctx.setLineDash([]);
 
       ctx.fillStyle = '#38BDF8';
       ctx.font = '10px JetBrains Mono, monospace';
-      ctx.fillText('Equilibrium (x = 0)', eqCenterMassX - 52, 30);
+      ctx.textAlign = 'center';
+      ctx.fillText('Equilibrium (x = 0)', eqCenterMassX, 48);
 
-      // 3. Draw Spring Coils (Upper Mount)
+      // 4. Spring Coils (Upper Mount)
       const springMountY = massCenterY - 14;
       const springLength = massLeftX - anchorWallX;
       const numCoils = 14;
-      const coilAmp = 14;
+      const coilAmp = 15;
 
       ctx.save();
       ctx.strokeStyle = '#F59E0B';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 3.5;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
       ctx.moveTo(anchorWallX, springMountY);
-      ctx.lineTo(anchorWallX + 15, springMountY);
+      ctx.lineTo(anchorWallX + 18, springMountY);
 
-      const coilSegmentLen = (springLength - 30) / numCoils;
+      const coilStep = (springLength - 36) / numCoils;
       for (let i = 0; i < numCoils; i++) {
-        const cx = anchorWallX + 15 + i * coilSegmentLen;
-        ctx.lineTo(cx + coilSegmentLen * 0.25, springMountY - coilAmp);
-        ctx.lineTo(cx + coilSegmentLen * 0.75, springMountY + coilAmp);
-        ctx.lineTo(cx + coilSegmentLen, springMountY);
+        const cx = anchorWallX + 18 + i * coilStep;
+        ctx.lineTo(cx + coilStep * 0.25, springMountY - coilAmp);
+        ctx.lineTo(cx + coilStep * 0.75, springMountY + coilAmp);
+        ctx.lineTo(cx + coilStep, springMountY);
       }
       ctx.lineTo(massLeftX, springMountY);
       ctx.stroke();
 
-      // Spring glow effect
-      ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
-      ctx.lineWidth = 6;
+      // Golden glow
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
+      ctx.lineWidth = 7;
       ctx.stroke();
       ctx.restore();
 
-      // 4. Draw Viscous Damper Dashpot (Lower Mount)
+      // 5. Viscous Damper Dashpot (Lower Mount)
       const damperY = massCenterY + 16;
-      const cylinderLen = 65;
-      const cylinderRadius = 11;
-      const cylinderStartX = anchorWallX + 20;
+      const cylinderLen = 75;
+      const cylinderR = 12;
+      const cylStartX = anchorWallX + 24;
 
-      // Damper connecting rod from wall
       ctx.strokeStyle = '#94A3B8';
       ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.moveTo(anchorWallX, damperY);
-      ctx.lineTo(cylinderStartX, damperY);
+      ctx.lineTo(cylStartX, damperY);
       ctx.stroke();
 
-      // Damper Cylinder Housing
+      // Cylinder body
       ctx.fillStyle = '#1E293B';
       ctx.strokeStyle = '#64748B';
       ctx.lineWidth = 2;
-      ctx.fillRect(cylinderStartX, damperY - cylinderRadius, cylinderLen, cylinderRadius * 2);
-      ctx.strokeRect(cylinderStartX, damperY - cylinderRadius, cylinderLen, cylinderRadius * 2);
+      ctx.fillRect(cylStartX, damperY - cylinderR, cylinderLen, cylinderR * 2);
+      ctx.strokeRect(cylStartX, damperY - cylinderR, cylinderLen, cylinderR * 2);
 
-      // Fluid inside cylinder
-      ctx.fillStyle = 'rgba(6, 182, 212, 0.25)';
-      ctx.fillRect(cylinderStartX + 2, damperY - cylinderRadius + 2, cylinderLen - 4, cylinderRadius * 2 - 4);
+      // Silicone oil
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.3)';
+      ctx.fillRect(cylStartX + 2, damperY - cylinderR + 2, cylinderLen - 4, cylinderR * 2 - 4);
 
-      // Damper Piston Rod & Head connected to Mass
-      const pistonHeadX = Math.max(cylinderStartX + 8, Math.min(cylinderStartX + cylinderLen - 8, massLeftX - 35));
+      // Piston connected to mass
+      const pistonX = Math.max(cylStartX + 10, Math.min(cylStartX + cylinderLen - 10, massLeftX - 35));
       ctx.fillStyle = '#38BDF8';
-      ctx.fillRect(pistonHeadX - 4, damperY - cylinderRadius + 3, 6, cylinderRadius * 2 - 6);
+      ctx.fillRect(pistonX - 4, damperY - cylinderR + 3, 6, cylinderR * 2 - 6);
 
-      ctx.strokeStyle = '#CBD5E1';
+      ctx.strokeStyle = '#E2E8F0';
       ctx.lineWidth = 3.5;
       ctx.beginPath();
-      ctx.moveTo(pistonHeadX, damperY);
+      ctx.moveTo(pistonX, damperY);
       ctx.lineTo(massLeftX, damperY);
       ctx.stroke();
 
-      // 5. Draw Mass Roller Bearings
-      const rollerR = 6;
-      const roller1X = massLeftX + 18;
-      const roller2X = massLeftX + massWidth - 18;
+      // 6. Mass Roller Bearings
+      const rollerR = 7;
+      const roller1X = massLeftX + 20;
+      const roller2X = massLeftX + massWidth - 20;
       const rollerY = massTopY + massHeight + rollerR;
 
       [roller1X, roller2X].forEach((rx) => {
@@ -373,14 +368,13 @@ export function RealtimeOscillatorScene({
         ctx.strokeStyle = '#94A3B8';
         ctx.lineWidth = 1.5;
         ctx.stroke();
-        // Inner bearing axle
-        ctx.fillStyle = '#F8FAFC';
+        ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.arc(rx, rollerY, 2, 0, Math.PI * 2);
+        ctx.arc(rx, rollerY, 2.5, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // 6. Draw Mass Block (Interactive Draggable)
+      // 7. Mass Block (Direct Dragging Target)
       ctx.save();
       const massGrad = ctx.createLinearGradient(massLeftX, massTopY, massLeftX + massWidth, massTopY + massHeight);
       if (s.isDragging) {
@@ -392,9 +386,8 @@ export function RealtimeOscillatorScene({
       }
       ctx.fillStyle = massGrad;
       ctx.shadowColor = s.isDragging ? 'rgba(245, 158, 11, 0.5)' : 'rgba(2, 132, 199, 0.4)';
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14;
 
-      // Rounded rectangle for mass
       ctx.beginPath();
       ctx.roundRect(massLeftX, massTopY, massWidth, massHeight, 10);
       ctx.fill();
@@ -406,31 +399,28 @@ export function RealtimeOscillatorScene({
       ctx.roundRect(massLeftX, massTopY, massWidth, massHeight, 10);
       ctx.stroke();
 
-      // Drag Handle grip lines on mass
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      // Drag Grip grooves
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
       ctx.lineWidth = 2;
       for (let i = -1; i <= 1; i++) {
         ctx.beginPath();
-        ctx.moveTo(currentMassCenterX + i * 8, massTopY + 14);
-        ctx.lineTo(currentMassCenterX + i * 8, massTopY + massHeight - 14);
+        ctx.moveTo(currentMassCenterX + i * 9, massTopY + 16);
+        ctx.lineTo(currentMassCenterX + i * 9, massTopY + massHeight - 16);
         ctx.stroke();
       }
 
-      // Mass label
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 12px JetBrains Mono, monospace';
+      ctx.font = 'bold 13px JetBrains Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(`${mass.toFixed(1)} kg`, currentMassCenterX, massTopY + massHeight / 2 + 4);
+      ctx.fillText(`${mass.toFixed(1)} kg`, currentMassCenterX, massTopY + massHeight / 2 + 5);
 
-      // Displacement annotation above mass
       ctx.fillStyle = s.x >= 0 ? '#38BDF8' : '#F43F5E';
       ctx.font = '11px JetBrains Mono, monospace';
       ctx.fillText(`x = ${(s.x * 100).toFixed(1)} cm`, currentMassCenterX, massTopY - 10);
 
-      // 7. Dynamic Force Vectors
+      // 8. Dynamic Vectors
       if (showVectors) {
-        // Velocity Vector (Green)
-        const velLen = s.v * 70;
+        const velLen = s.v * 85;
         if (Math.abs(velLen) > 3) {
           ctx.strokeStyle = '#10B981';
           ctx.fillStyle = '#10B981';
@@ -440,48 +430,44 @@ export function RealtimeOscillatorScene({
           ctx.lineTo(currentMassCenterX + velLen, massCenterY);
           ctx.stroke();
 
-          // Arrowhead
-          const headAngle = velLen > 0 ? 0 : Math.PI;
           ctx.beginPath();
-          ctx.arc(currentMassCenterX + velLen, massCenterY, 4, 0, Math.PI * 2);
+          ctx.arc(currentMassCenterX + velLen, massCenterY, 4.5, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.font = '9px JetBrains Mono, monospace';
-          ctx.fillText(`v = ${s.v.toFixed(2)} m/s`, currentMassCenterX + velLen, massCenterY - 8);
+          ctx.font = 'bold 9px JetBrains Mono, monospace';
+          ctx.fillText(`v = ${s.v.toFixed(2)} m/s`, currentMassCenterX + velLen, massCenterY - 10);
         }
 
-        // Restoring Spring Force Vector (Amber)
         const fSpring = -stiffness * s.x;
-        const springVecLen = (fSpring / (stiffness * 0.15)) * 50;
+        const springVecLen = (fSpring / (stiffness * 0.15)) * 60;
         if (Math.abs(springVecLen) > 3) {
           ctx.strokeStyle = '#F59E0B';
           ctx.fillStyle = '#F59E0B';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(currentMassCenterX, massTopY + 8);
-          ctx.lineTo(currentMassCenterX + springVecLen, massTopY + 8);
+          ctx.moveTo(currentMassCenterX, massTopY + 10);
+          ctx.lineTo(currentMassCenterX + springVecLen, massTopY + 10);
           ctx.stroke();
           ctx.beginPath();
-          ctx.arc(currentMassCenterX + springVecLen, massTopY + 8, 3, 0, Math.PI * 2);
+          ctx.arc(currentMassCenterX + springVecLen, massTopY + 10, 3.5, 0, Math.PI * 2);
           ctx.fill();
         }
       }
 
-      // 8. Inset Live Phase Portrait (x vs v)
-      const phaseBoxW = 120;
-      const phaseBoxH = 80;
-      const phaseBoxX = width - phaseBoxW - 16;
-      const phaseBoxY = 16;
+      // 9. Inset Phase Space Portrait (Top Right)
+      const phaseBoxW = 140;
+      const phaseBoxH = 95;
+      const phaseBoxX = VIRTUAL_WIDTH - phaseBoxW - 20;
+      const phaseBoxY = 20;
 
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
       ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(phaseBoxX, phaseBoxY, phaseBoxW, phaseBoxH, 6);
+      ctx.roundRect(phaseBoxX, phaseBoxY, phaseBoxW, phaseBoxH, 8);
       ctx.fill();
       ctx.stroke();
 
-      // Axis crosshairs in phase box
       const phaseCenterX = phaseBoxX + phaseBoxW / 2;
       const phaseCenterY = phaseBoxY + phaseBoxH / 2;
       ctx.strokeStyle = '#1E293B';
@@ -492,45 +478,41 @@ export function RealtimeOscillatorScene({
       ctx.lineTo(phaseCenterX, phaseBoxY + phaseBoxH);
       ctx.stroke();
 
-      ctx.fillStyle = '#64748B';
+      ctx.fillStyle = '#94A3B8';
       ctx.font = '8px JetBrains Mono, monospace';
       ctx.textAlign = 'left';
-      ctx.fillText('Phase Orbit (x-v)', phaseBoxX + 6, phaseBoxY + 12);
+      ctx.fillText('Phase Portrait (x - v)', phaseBoxX + 8, phaseBoxY + 14);
 
-      // Plot phase history curve
       if (s.phaseHistory.length > 1) {
         ctx.strokeStyle = '#F59E0B';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         s.phaseHistory.forEach((pt, idx) => {
-          const px = phaseCenterX + pt.x * 220;
-          const py = phaseCenterY - pt.v * 35;
+          const px = phaseCenterX + pt.x * 240;
+          const py = phaseCenterY - pt.v * 38;
           if (idx === 0) ctx.moveTo(px, py);
           else ctx.lineTo(px, py);
         });
         ctx.stroke();
 
-        // Current phase state dot
-        const currPx = phaseCenterX + s.x * 220;
-        const currPy = phaseCenterY - s.v * 35;
+        const currPx = phaseCenterX + s.x * 240;
+        const currPy = phaseCenterY - s.v * 38;
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.arc(currPx, currPy, 2.5, 0, Math.PI * 2);
+        ctx.arc(currPx, currPy, 3, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // 9. Calibrated Sensor Probe Tool
+      // 10. Sensor Diagnostic Probe
       if (showProbe) {
         const prX = probePos.x;
         const prY = probePos.y;
 
-        // Draw crosshair ring
         ctx.strokeStyle = isDraggingProbe ? '#F59E0B' : '#38BDF8';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(prX, prY, 14, 0, Math.PI * 2);
         ctx.stroke();
-
         ctx.beginPath();
         ctx.moveTo(prX - 18, prY);
         ctx.lineTo(prX + 18, prY);
@@ -538,21 +520,19 @@ export function RealtimeOscillatorScene({
         ctx.lineTo(prX, prY + 18);
         ctx.stroke();
 
-        // Small center dot
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
         ctx.arc(prX, prY, 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Probe readout glass panel
         const ke = 0.5 * mass * s.v * s.v;
         const pe = 0.5 * stiffness * s.x * s.x;
-        const cardW = 140;
-        const cardH = 58;
-        const cardX = prX + 20;
-        const cardY = prY - 29;
+        const cardW = 150;
+        const cardH = 65;
+        const cardX = Math.min(VIRTUAL_WIDTH - cardW - 15, prX + 20);
+        const cardY = Math.max(15, prY - 32);
 
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
         ctx.strokeStyle = '#38BDF8';
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -563,24 +543,24 @@ export function RealtimeOscillatorScene({
         ctx.fillStyle = '#38BDF8';
         ctx.font = 'bold 9px JetBrains Mono, monospace';
         ctx.textAlign = 'left';
-        ctx.fillText('DIAGNOSTIC PROBE', cardX + 8, cardY + 14);
+        ctx.fillText('DIAGNOSTIC PROBE', cardX + 8, cardY + 15);
 
         ctx.fillStyle = '#CBD5E1';
         ctx.font = '9px JetBrains Mono, monospace';
-        ctx.fillText(`x: ${(s.x * 100).toFixed(1)} cm`, cardX + 8, cardY + 28);
-        ctx.fillText(`v: ${s.v.toFixed(2)} m/s`, cardX + 72, cardY + 28);
-        ctx.fillText(`KE: ${ke.toFixed(2)} J`, cardX + 8, cardY + 42);
-        ctx.fillText(`PE: ${pe.toFixed(2)} J`, cardX + 72, cardY + 42);
-        ctx.fillText(`Total E: ${(ke + pe).toFixed(2)} J`, cardX + 8, cardY + 54);
+        ctx.fillText(`x: ${(s.x * 100).toFixed(1)} cm`, cardX + 8, cardY + 30);
+        ctx.fillText(`v: ${s.v.toFixed(2)} m/s`, cardX + 78, cardY + 30);
+        ctx.fillText(`KE: ${ke.toFixed(2)} J`, cardX + 8, cardY + 46);
+        ctx.fillText(`PE: ${pe.toFixed(2)} J`, cardX + 78, cardY + 46);
+        ctx.fillText(`Total E: ${(ke + pe).toFixed(2)} J`, cardX + 8, cardY + 58);
       }
 
-      // 10. Measurement Tape Tool
+      // 11. Measurement Tape
       if (showRuler) {
         const { x1, y1, x2, y2 } = rulerTape;
         const dx = x2 - x1;
         const dy = y2 - y1;
-        const tapeDistPx = Math.sqrt(dx * dx + dy * dy);
-        const tapeDistM = tapeDistPx / pixelsPerMeter;
+        const distPx = Math.sqrt(dx * dx + dy * dy);
+        const distM = distPx / pixelsPerMeter;
 
         ctx.save();
         ctx.strokeStyle = '#FACC15';
@@ -590,23 +570,6 @@ export function RealtimeOscillatorScene({
         ctx.lineTo(x2, y2);
         ctx.stroke();
 
-        // Metric ticks along tape
-        const numTicks = Math.floor(tapeDistPx / 15);
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 1.5;
-        for (let i = 1; i < numTicks; i++) {
-          const frac = i / numTicks;
-          const tx = x1 + dx * frac;
-          const ty = y1 + dy * frac;
-          const perpX = -dy / tapeDistPx;
-          const perpY = dx / tapeDistPx;
-          ctx.beginPath();
-          ctx.moveTo(tx - perpX * 3, ty - perpY * 3);
-          ctx.lineTo(tx + perpX * 3, ty + perpY * 3);
-          ctx.stroke();
-        }
-
-        // Tape Endpoints
         [
           { x: x1, y: y1 },
           { x: x2, y: y2 },
@@ -620,18 +583,17 @@ export function RealtimeOscillatorScene({
           ctx.stroke();
         });
 
-        // Measurement badge
         const midX = (x1 + x2) / 2;
         const midY = (y1 + y2) / 2;
         ctx.fillStyle = '#000000';
         ctx.beginPath();
-        ctx.roundRect(midX - 35, midY - 20, 70, 16, 4);
+        ctx.roundRect(midX - 35, midY - 20, 70, 18, 4);
         ctx.fill();
 
         ctx.fillStyle = '#FACC15';
         ctx.font = 'bold 9px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(`${(tapeDistM * 100).toFixed(1)} cm`, midX, midY - 9);
+        ctx.fillText(`${(distM * 100).toFixed(1)} cm`, midX, midY - 8);
         ctx.restore();
       }
 
@@ -644,11 +606,13 @@ export function RealtimeOscillatorScene({
   }, [
     isPlaying,
     playbackSpeed,
+    userZoom,
+    pan,
+    mass,
     stiffness,
     damping,
     drivingForce,
     drivingFreq,
-    mass,
     showGrid,
     showVectors,
     showProbe,
@@ -659,34 +623,35 @@ export function RealtimeOscillatorScene({
     onProbeSample,
   ]);
 
-  // Pointer interactions for dragging mass, probe, and ruler
+  // Pointer interactions in Virtual Space
+  const getVirtualPointer = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const dpr = window.devicePixelRatio || 1;
+    const vp = computeViewport(canvas.width, canvas.height, dpr, userZoom, pan.x, pan.y);
+    return screenToVirtualCoords(e.clientX, e.clientY, canvas, vp);
+  };
+
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
+    const { x, y } = getVirtualPointer(e);
 
-    // Check Probe hit (within 20px)
-    if (showProbe) {
-      const dProbe = Math.hypot(px - probePos.x, py - probePos.y);
-      if (dProbe <= 25) {
-        setIsDraggingProbe(true);
-        canvas.setPointerCapture(e.pointerId);
-        return;
-      }
+    // Check Probe
+    if (showProbe && Math.hypot(x - probePos.x, y - probePos.y) <= 25) {
+      setIsDraggingProbe(true);
+      canvas.setPointerCapture(e.pointerId);
+      return;
     }
 
-    // Check Tape Handles
+    // Check Ruler Tape
     if (showRuler) {
-      const d1 = Math.hypot(px - rulerTape.x1, py - rulerTape.y1);
-      const d2 = Math.hypot(px - rulerTape.x2, py - rulerTape.y2);
-      if (d1 <= 15) {
+      if (Math.hypot(x - rulerTape.x1, y - rulerTape.y1) <= 18) {
         setActiveTapeHandle('p1');
         canvas.setPointerCapture(e.pointerId);
         return;
       }
-      if (d2 <= 15) {
+      if (Math.hypot(x - rulerTape.x2, y - rulerTape.y2) <= 18) {
         setActiveTapeHandle('p2');
         canvas.setPointerCapture(e.pointerId);
         return;
@@ -694,17 +659,14 @@ export function RealtimeOscillatorScene({
     }
 
     // Check Mass Hit
-    const dpr = window.devicePixelRatio || 1;
-    const width = canvas.width / dpr;
-    const height = canvas.height / dpr;
-    const eqCenterMassX = width * 0.48;
-    const pixelsPerMeter = 320;
+    const eqCenterMassX = 460;
+    const pixelsPerMeter = 420;
     const massCenterX = eqCenterMassX + stateRef.current.x * pixelsPerMeter;
-    const massCenterY = height * 0.44;
+    const massCenterY = 220;
 
-    if (Math.abs(px - massCenterX) <= 45 && Math.abs(py - massCenterY) <= 35) {
+    if (Math.abs(x - massCenterX) <= 50 && Math.abs(y - massCenterY) <= 40) {
       stateRef.current.isDragging = true;
-      stateRef.current.dragStartX = px;
+      stateRef.current.dragStartX = x;
       stateRef.current.dragStartDisp = stateRef.current.x;
       canvas.setPointerCapture(e.pointerId);
     }
@@ -713,43 +675,38 @@ export function RealtimeOscillatorScene({
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
+    const { x, y } = getVirtualPointer(e);
 
     if (isDraggingProbe) {
-      setProbePos({ x: px, y: py });
+      setProbePos({
+        x: Math.max(20, Math.min(VIRTUAL_WIDTH - 20, x)),
+        y: Math.max(20, Math.min(VIRTUAL_HEIGHT - 20, y)),
+      });
       return;
     }
 
     if (activeTapeHandle === 'p1') {
-      setRulerTape((prev) => ({ ...prev, x1: px, y1: py }));
+      setRulerTape((prev) => ({ ...prev, x1: x, y1: y }));
       return;
     }
     if (activeTapeHandle === 'p2') {
-      setRulerTape((prev) => ({ ...prev, x2: px, y2: py }));
+      setRulerTape((prev) => ({ ...prev, x2: x, y2: y }));
       return;
     }
 
     if (stateRef.current.isDragging) {
-      const pixelsPerMeter = 320;
-      const deltaPx = px - stateRef.current.dragStartX;
-      const newX = stateRef.current.dragStartDisp + deltaPx / pixelsPerMeter;
+      const pixelsPerMeter = 420;
+      const deltaVirtual = x - stateRef.current.dragStartX;
+      const newX = stateRef.current.dragStartDisp + deltaVirtual / pixelsPerMeter;
       stateRef.current.x = Math.max(-0.35, Math.min(0.35, newX));
-      stateRef.current.v = 0; // zero velocity while held
+      stateRef.current.v = 0;
     }
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (stateRef.current.isDragging) {
-      stateRef.current.isDragging = false;
-    }
-    if (isDraggingProbe) {
-      setIsDraggingProbe(false);
-    }
-    if (activeTapeHandle !== 'none') {
-      setActiveTapeHandle('none');
-    }
+    stateRef.current.isDragging = false;
+    setIsDraggingProbe(false);
+    setActiveTapeHandle('none');
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
     } catch {
@@ -757,7 +714,7 @@ export function RealtimeOscillatorScene({
     }
   };
 
-  // Adjust canvas pixel buffer to element size
+  // Resize canvas to parent container width/height
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -776,73 +733,38 @@ export function RealtimeOscillatorScene({
   }, []);
 
   return (
-    <div className={`flex flex-col rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl ${className}`}>
-      {/* Simulation Workbench Header Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900 border-b border-zinc-800 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-mono font-bold text-zinc-100">Harmonic Oscillator Workbench</span>
-          <span className="text-zinc-500">|</span>
-          <span className="font-mono text-zinc-400">Interactive Canvas Simulation</span>
-        </div>
-
-        {/* Toolbar Toggles */}
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setShowProbe(!showProbe)}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-mono flex items-center gap-1 transition-all ${
-              showProbe
-                ? 'bg-sky-500/20 text-sky-400 border border-sky-500/40'
-                : 'text-zinc-400 hover:bg-zinc-800 border border-transparent'
-            }`}
-            title="Toggle Sensor Probe"
-          >
-            <Crosshair className="w-3.5 h-3.5" />
-            <span>Probe</span>
-          </button>
-
-          <button
-            onClick={() => setShowRuler(!showRuler)}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-mono flex items-center gap-1 transition-all ${
-              showRuler
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                : 'text-zinc-400 hover:bg-zinc-800 border border-transparent'
-            }`}
-            title="Toggle Measuring Tape"
-          >
-            <Ruler className="w-3.5 h-3.5" />
-            <span>Ruler</span>
-          </button>
-
-          <button
-            onClick={() => setShowVectors(!showVectors)}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-mono flex items-center gap-1 transition-all ${
-              showVectors
-                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                : 'text-zinc-400 hover:bg-zinc-800 border border-transparent'
-            }`}
-            title="Toggle Force & Velocity Vectors"
-          >
-            <Zap className="w-3.5 h-3.5" />
-            <span>Vectors</span>
-          </button>
-
-          <button
-            onClick={() => setShowGrid(!showGrid)}
-            className={`p-1 rounded-md text-zinc-400 hover:bg-zinc-800 transition-all ${
-              showGrid ? 'text-zinc-200' : 'text-zinc-600'
-            }`}
-            title="Toggle Coordinate Grid"
-          >
-            <Grid className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Main Interactive Canvas Area */}
+    <PhetWorkbench
+      title="Damped Harmonic Oscillator"
+      subtitle="Mass-Spring-Damper 60FPS Physics Engine"
+      disciplineColor="#F59E0B"
+      isPlaying={isPlaying}
+      onPlayPause={() => setIsPlaying(!isPlaying)}
+      onStep={handleStep}
+      onReset={handleReset}
+      simTime={simTime}
+      playbackSpeed={playbackSpeed}
+      onSpeedChange={setPlaybackSpeed}
+      showProbe={showProbe}
+      onToggleProbe={() => setShowProbe(!showProbe)}
+      showRuler={showRuler}
+      onToggleRuler={() => setShowRuler(!showRuler)}
+      showStopwatch={showStopwatch}
+      onToggleStopwatch={() => setShowStopwatch(!showStopwatch)}
+      showVectors={showVectors}
+      onToggleVectors={() => setShowVectors(!showVectors)}
+      showGrid={showGrid}
+      onToggleGrid={() => setShowGrid(!showGrid)}
+      onZoomIn={() => setUserZoom((z) => Math.min(2.5, z + 0.15))}
+      onZoomOut={() => setUserZoom((z) => Math.max(0.6, z - 0.15))}
+      onResetCamera={() => {
+        setUserZoom(1.0);
+        setPan({ x: 0, y: 0 });
+      }}
+      className={className}
+    >
       <div
         ref={containerRef}
-        className="relative w-full h-[320px] sm:h-[380px] bg-[#0B1120] cursor-crosshair select-none touch-none"
+        className="w-full h-full relative cursor-crosshair select-none touch-none"
       >
         <canvas
           ref={canvasRef}
@@ -852,70 +774,11 @@ export function RealtimeOscillatorScene({
           className="w-full h-full block"
         />
 
-        {/* Drag Hint Overlay */}
-        <div className="absolute bottom-3 left-4 pointer-events-none text-[11px] font-mono text-zinc-400/80 bg-zinc-900/70 backdrop-blur-xs px-2.5 py-1 rounded border border-zinc-800/80 flex items-center gap-2">
-          <span className="text-amber-400 font-bold">💡 Tip:</span>
-          <span>Click & drag the blue mass block to release it with initial displacement!</span>
+        <div className="absolute bottom-3 left-4 pointer-events-none text-[11px] font-mono text-zinc-400/80 bg-zinc-900/80 backdrop-blur-xs px-2.5 py-1 rounded border border-zinc-800 flex items-center gap-2">
+          <span className="text-amber-400 font-bold">💡 PhET Tip:</span>
+          <span>Click & drag the blue mass block to pull and release, or grab the sensor probe!</span>
         </div>
       </div>
-
-      {/* Transport Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-zinc-900/90 border-t border-zinc-800">
-        {/* Playback Buttons */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-mono text-xs font-bold transition-all shadow-md active:scale-95"
-          >
-            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            <span>{isPlaying ? 'Pause' : 'Play'}</span>
-          </button>
-
-          <button
-            onClick={handleStep}
-            disabled={isPlaying}
-            className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 disabled:opacity-40 font-mono text-xs transition-all"
-            title="Single Step Forward"
-          >
-            <SkipForward className="w-3.5 h-3.5" />
-          </button>
-
-          <button
-            onClick={handleReset}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-mono text-xs transition-all"
-            title="Reset Simulation"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset</span>
-          </button>
-        </div>
-
-        {/* Time display */}
-        <div className="flex items-center gap-2 font-mono text-xs">
-          <span className="text-zinc-400">Simulation Time:</span>
-          <span className="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800 text-sky-400 font-bold tabular-nums">
-            {simTime.toFixed(2)} s
-          </span>
-        </div>
-
-        {/* Playback Speed Multipliers */}
-        <div className="flex items-center gap-1 font-mono text-xs">
-          <span className="text-zinc-500 mr-1 text-[11px]">Speed:</span>
-          {[0.25, 0.5, 1.0, 2.0].map((spd) => (
-            <button
-              key={spd}
-              onClick={() => setPlaybackSpeed(spd)}
-              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all ${
-                playbackSpeed === spd
-                  ? 'bg-sky-500 text-white'
-                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-              }`}
-            >
-              {spd}x
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+    </PhetWorkbench>
   );
 }
