@@ -1,113 +1,143 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-test.describe('Digital Electronics & Micro-Logic Workbench', () => {
-  test('should load public simulation with gate explorer and verify initial logic', async ({ page }) => {
+test.describe('Digital Electronics Laboratory — 12 IIT Roorkee Virtual Labs Workbench', () => {
+  test('should load public simulation with 12-experiment selector and verify Exp 1 logic', async ({
+    page,
+  }) => {
     await page.goto('/experiments/digital-electronics');
 
-    // Title and workbench header
-    await expect(page.locator('h1')).toContainText('Digital Electronics & Micro-Logic Workbench');
-    await expect(page.getByText('Phase 1')).toBeVisible();
+    // Title and syllabus badge
+    await expect(page.locator('h1')).toContainText('Logic Gates');
+    await expect(page.getByText('IITR-DE-EXP01')).toBeVisible();
+    await expect(page.getByText('12 Experiments')).toBeVisible();
 
-    // Default gate is AND with Input A = 1, Input B = 0 -> Output = 0
-    await expect(page.getByText('Input A')).toBeVisible();
-    await expect(page.getByText('Input B')).toBeVisible();
-    await expect(page.getByText('Output Y')).toBeVisible();
+    // Default gate is AND with inputs
+    await expect(page.getByText('Select Logic Gate:')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'AND', exact: true })).toBeVisible();
 
-    // Verify truth table is present
-    await expect(page.getByText('Exhaustive Truth Table')).toBeVisible();
+    // Verify Schematic View is active by default
+    await expect(page.getByText('Interactive Logic Schematic')).toBeVisible();
   });
 
   test('should toggle logic inputs and evaluate gate outputs accurately', async ({ page }) => {
     await page.goto('/experiments/digital-electronics');
 
-    // Input A is 1, Input B is 0 -> AND output is 0
-    const outputElem = page.getByTestId('gate-output');
-    await expect(outputElem).toHaveText('0');
+    // Default: AND gate with A=1, B=0 -> Output Y = 0
+    await expect(page.getByText('Output Y (·):')).toBeVisible();
 
-    // Click Input B to toggle to 1
-    const inputBBtn = page.getByRole('button', { name: 'Toggle Input B' });
-    await inputBBtn.click();
+    // Toggle Input B: click switch to toggle from 0 to 1
+    const inputBContainer = page.locator('div:has-text("Input B:")').last();
+    const toggleB = inputBContainer.locator('button');
+    await toggleB.click();
 
     // Now A=1, B=1 -> Output should be 1
-    await expect(outputElem).toHaveText('1');
+    await expect(page.getByText('Output Y (·):').locator('..').locator('span').last()).toHaveText('1');
 
     // Switch gate to XOR
     await page.getByRole('button', { name: 'XOR', exact: true }).click();
     // In XOR with A=1, B=1 -> Output should be 0
-    await expect(outputElem).toHaveText('0');
-
-    // Toggle Input B back to 0 -> XOR with A=1, B=0 -> Output should be 1
-    await inputBBtn.click();
-    await expect(outputElem).toHaveText('1');
+    await expect(page.getByText('Output Y (⊕):').locator('..').locator('span').last()).toHaveText('0');
   });
 
-  test('should navigate to K-Map Minimizer and toggle minterms for SOP derivation', async ({ page }) => {
+  test('should toggle between Logic Schematic and Hardware DIP IC views', async ({ page }) => {
     await page.goto('/experiments/digital-electronics');
 
-    // Switch to K-Map tab
-    await page.getByRole('button', { name: '2. K-Map Minimizer' }).click();
-    await expect(page.getByText('Quine-McCluskey Minimal Expressions')).toBeVisible();
-    await expect(page.getByText('Minimal Sum of Products (SOP)')).toBeVisible();
+    // Switch to Hardware DIP IC View
+    await page.getByRole('button', { name: 'Hardware DIP IC' }).click();
+    await expect(page.getByText('DIP-14')).toBeVisible();
+    await expect(page.getByText('SN74LS08N', { exact: true })).toBeVisible();
+    await expect(page.getByText('VCC', { exact: true }).first()).toBeVisible();
 
-    // Switch variable count to 2 Variables (A, B)
-    await page.getByRole('button', { name: '2 Vars' }).click();
-
-    // Click on minterm cell to toggle state
-    const firstCell = page.locator('td[title*="Minterm"]').first();
-    await firstCell.click();
-
-    // Verify SOP expression is derived
-    await expect(page.getByText('Minimal Sum of Products (SOP)')).toBeVisible();
+    // Switch back to Logic Schematic View
+    await page.getByRole('button', { name: 'Logic Schematic' }).click();
+    await expect(page.getByText('Interactive Logic Schematic')).toBeVisible();
   });
 
-  test('should evaluate Combinational 4-bit ALU and flag calculations', async ({ page }) => {
+  test('should switch to Experiment 2 (Half & Full Adder) and verify addition', async ({ page }) => {
     await page.goto('/experiments/digital-electronics');
 
-    // Switch to Combinational & ALU tab
-    await page.getByRole('button', { name: '3. Combinational & ALU' }).click();
-    await expect(page.getByText('ALU Status Flags')).toBeVisible();
-
-    // Verify Zero, Sign, Carry, Overflow flags are visible
-    await expect(page.getByText('Zero Flag (Z)')).toBeVisible();
-    await expect(page.getByText('Sign Flag (S)')).toBeVisible();
-    await expect(page.getByText('Carry Out (C)')).toBeVisible();
-    await expect(page.getByText('Overflow Flag (V)')).toBeVisible();
-
-    // Switch ALU operation to SUB
-    await page.getByRole('button', { name: 'SUB', exact: true }).click();
-
-    // Switch module to Full Adder
-    await page.getByRole('button', { name: 'Full Adder' }).click();
-    await expect(page.getByText('1-Bit Full Adder with Carry Propagation')).toBeVisible();
+    // Click Exp 2 in the selector bar
+    await page.getByRole('button', { name: '2. Half & Full Adder' }).click();
+    await expect(page.getByText('IITR-DE-EXP02')).toBeVisible();
+    await expect(page.getByText('Operand A')).toBeVisible();
+    await expect(page.getByText('Full Adder Sum (S):')).toBeVisible();
   });
 
-  test('should step Flip-Flops and clock triggers in Sequential tab', async ({ page }) => {
+  test('should switch to Experiment 5 (RS Latches) and verify Indeterminate state', async ({ page }) => {
     await page.goto('/experiments/digital-electronics');
 
-    // Switch to Sequential tab
-    await page.getByRole('button', { name: '4. Flip-Flops & Counters' }).click();
-    await expect(page.getByText('Edge-Triggered Flip-Flop Laboratory')).toBeVisible();
+    // Click Exp 5 in the selector bar
+    await page.getByRole('button', { name: '5. RS NOR/NAND Latches' }).click();
+    await expect(page.getByText('IITR-DE-EXP05')).toBeVisible();
 
-    // Pulse Clock button
-    const pulseBtn = page.locator('button:has-text("Pulse Clock Edge")');
-    await expect(pulseBtn).toBeVisible();
-    await pulseBtn.click();
+    // Assert Set (S=1, R=0) -> state SET
+    await expect(page.getByText('SET', { exact: true })).toBeVisible();
 
-    // Verify clock pulses counter incremented
-    await expect(page.locator('button:has-text("Total: 1")')).toBeVisible();
+    // Assert Reset as well (S=1, R=1) -> state INDETERMINATE
+    const resetBtn = page.locator('div:has-text("Reset Input (R)")').last().locator('button');
+    await resetBtn.click();
 
-    // Switch to JK Flip-Flop
-    await page.getByRole('button', { name: 'JK Type' }).click();
-    await pulseBtn.click();
-    await expect(page.locator('button:has-text("Total: 2")')).toBeVisible();
+    await expect(page.getByText('INDETERMINATE', { exact: true })).toBeVisible();
   });
 
-  test('should display Timing & Hazards glitch waveforms', async ({ page }) => {
+  test('should switch to Experiment 7 (4-Bit SIPO Shift Register) and clock serial bits', async ({
+    page,
+  }) => {
     await page.goto('/experiments/digital-electronics');
 
-    // Switch to Timing & Hazards tab
-    await page.getByRole('button', { name: '5. Timing & Hazards' }).click();
-    await expect(page.getByText('Logic Analyzer & Static 1-Hazard Glitch Simulation')).toBeVisible();
-    await expect(page.getByText('Inverter Propagation Delay (τinv):')).toBeVisible();
+    // Click Exp 7 in the selector bar
+    await page.getByRole('button', { name: '7. 4-Bit SIPO Shift Register' }).click();
+    await expect(page.getByText('IITR-DE-EXP07')).toBeVisible();
+
+    // Pulse Shift Clock
+    const pulseClockBtn = page.getByRole('button', { name: 'Pulse Shift Clock' });
+    await expect(pulseClockBtn).toBeVisible();
+    await pulseClockBtn.click();
+
+    // Stream preset 1011
+    await page.getByRole('button', { name: 'Stream 1011' }).click();
+  });
+
+  test('should switch educational modes: Understand, Guided, Analyze, Challenge, Report', async ({
+    page,
+  }) => {
+    await page.goto('/experiments/digital-electronics');
+
+    // Mode 2: Understand
+    await page.getByRole('button', { name: '2. Understand (Theory)' }).click();
+    await expect(page.getByText('Scientific Theory & Circuit Principles')).toBeVisible();
+    await expect(page.getByText('Fundamental Mathematical & Boolean Equations:')).toBeVisible();
+
+    // Mode 3: Guided Experiment
+    await page.getByRole('button', { name: '3. Guided Experiment' }).click();
+    await expect(page.getByText('Step-by-Step Laboratory Procedure')).toBeVisible();
+    // Complete Step 1
+    const step1 = page.locator('text=Power Distribution').first();
+    await step1.click();
+    await expect(page.getByText('1 of 4 Steps Completed')).toBeVisible();
+
+    // Mode 4: Analyze (Truth Table)
+    await page.getByRole('button', { name: '4. Analyze (Truth Table)' }).click();
+    await expect(page.getByText('Analytical Truth Table & Dynamic State Highlighting')).toBeVisible();
+
+    // Mode 5: Challenge Quiz
+    await page.getByRole('button', { name: '5. Challenge Quiz' }).click();
+    await expect(page.getByText('Interactive Concept Verification Quiz')).toBeVisible();
+
+    // Mode 6: Lab Report
+    await page.getByRole('button', { name: '6. Lab Report' }).click();
+    await expect(page.getByText('Standard University Laboratory Report Generation')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Download Complete Lab Report (JSON)' })).toBeVisible();
+  });
+
+  test('should support deep linking to any experiment via URL parameter ?exp=code-converters', async ({
+    page,
+  }) => {
+    await page.goto('/experiments/digital-electronics?exp=code-converters');
+
+    // Automatically selects Exp 11
+    await expect(page.getByText('IITR-DE-EXP11')).toBeVisible();
+    await expect(page.getByText('Reflected Gray Code:')).toBeVisible();
+    await expect(page.getByText('4-Bit Binary Input Word:')).toBeVisible();
   });
 });

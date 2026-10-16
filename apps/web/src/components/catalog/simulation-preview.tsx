@@ -1176,6 +1176,251 @@ export function GenericEceTopicPreview({
 }
 
 /**
+ * 13. Shift Register Preview (SIPO)
+ */
+export function ShiftRegisterPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="34" fill="#06B6D4" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        4-BIT SIPO SHIFT REGISTER (74164)
+      </text>
+
+      {/* Serial Input */}
+      <rect x="24" y="70" width="30" height="18" rx="3" fill="#065F46" stroke="#10B981" strokeWidth="1" />
+      <text x="39" y="82" fill="#A7F3D0" fontSize="8" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">
+        SIN=1
+      </text>
+      <line x1="54" y1="79" x2="70" y2="79" stroke="#10B981" strokeWidth="2" />
+
+      {/* 4 D-FF Stages */}
+      {[0, 1, 2, 3].map((i) => {
+        const x = 70 + i * 55;
+        const bits = [1, 0, 1, 1];
+        const val = bits[i];
+        return (
+          <g key={i} transform={`translate(${x}, 52)`}>
+            <rect width="46" height="60" rx="4" fill="#0F172A" stroke="#334155" strokeWidth="1.5" />
+            <text x="23" y="14" fill="#64748B" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
+              FF{i}
+            </text>
+            <circle cx="23" cy="34" r="10" fill={val === 1 ? '#065F46' : '#1E293B'} stroke={val === 1 ? '#10B981' : '#475569'} strokeWidth="1.5" />
+            <text x="23" y="38" fill={val === 1 ? '#34D399' : '#64748B'} fontSize="11" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">
+              {val}
+            </text>
+            {i < 3 && <line x1="46" y1="34" x2="55" y2="34" stroke={val === 1 ? '#10B981' : '#475569'} strokeWidth="2" />}
+            {/* Parallel Out */}
+            <line x1="23" y1="44" x2="23" y2="70" stroke={val === 1 ? '#10B981' : '#475569'} strokeWidth="1.5" />
+          </g>
+        );
+      })}
+
+      {/* Bus Hex Word */}
+      <rect x="70" y="132" width="211" height="26" rx="4" fill="#1E293B" stroke="#06B6D4" strokeWidth="1" />
+      <text x="80" y="149" fill="#94A3B8" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        PARALLEL BUS [Q3..Q0]:
+      </text>
+      <text x="230" y="150" fill="#38BDF8" fontSize="11" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        1011 (0xB)
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 14. Counter Timing & Glitch Preview
+ */
+export function CounterTimingPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="34" fill="#F59E0B" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        RIPPLE SKEW &amp; TRANSIENT DECODING GLITCH
+      </text>
+
+      {/* Clock line */}
+      <text x="24" y="62" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">CLK</text>
+      <path d="M 50 64 L 70 64 L 70 52 L 90 52 L 90 64 L 110 64 L 110 52 L 130 52 L 130 64 L 290 64" stroke="#FBBF24" strokeWidth="1.5" fill="none" />
+
+      {/* Bit 0 Q0 */}
+      <text x="24" y="86" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">Q0 (10ns)</text>
+      <path d="M 50 88 L 76 88 L 76 76 L 120 76 L 120 88 L 290 88" stroke="#10B981" strokeWidth="1.5" fill="none" />
+
+      {/* Bit 1 Q1 with skew delay */}
+      <text x="24" y="110" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">Q1 (20ns)</text>
+      <path d="M 50 112 L 86 112 L 86 100 L 150 100 L 150 112 L 290 112" stroke="#06B6D4" strokeWidth="1.5" fill="none" />
+
+      {/* Bit 2 Q2 */}
+      <text x="24" y="134" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">Q2 (30ns)</text>
+      <path d="M 50 136 L 96 136 L 96 124 L 200 124 L 200 136 L 290 136" stroke="#8B5CF6" strokeWidth="1.5" fill="none" />
+
+      {/* Glitch Spike Marker */}
+      <rect x="76" y="146" width="20" height="26" rx="2" fill="#881337" fillOpacity="0.4" stroke="#F43F5E" strokeWidth="1" />
+      <path d="M 82 168 L 86 150 L 90 168" stroke="#F43F5E" strokeWidth="2" fill="none" />
+      <text x="104" y="163" fill="#FDA4AF" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        TRANSIENT GLITCH SPIKE
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 15. Gray Code Optical Encoder Preview
+ */
+export function GrayCodePreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="34" fill="#38BDF8" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        REFLECTED GRAY CODE SHAFT ENCODER
+      </text>
+
+      {/* Rotary Optical Disk Pattern */}
+      <g transform="translate(85, 110)">
+        <circle cx="0" cy="0" r="54" fill="#0F172A" stroke="#334155" strokeWidth="2" />
+        <circle cx="0" cy="0" r="42" fill="none" stroke="#06B6D4" strokeWidth="6" strokeDasharray="16 16" />
+        <circle cx="0" cy="0" r="30" fill="none" stroke="#F59E0B" strokeWidth="6" strokeDasharray="32 32" />
+        <circle cx="0" cy="0" r="18" fill="none" stroke="#10B981" strokeWidth="6" strokeDasharray="64 64" />
+        <circle cx="0" cy="0" r="6" fill="#1E293B" stroke="#475569" strokeWidth="1" />
+      </g>
+
+      {/* Ladder Equations Box */}
+      <g transform="translate(160, 48)">
+        <rect width="134" height="120" rx="4" fill="#0F172A" stroke="#334155" strokeWidth="1" />
+        <text x="14" y="20" fill="#A7F3D0" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+          XOR LADDER:
+        </text>
+        <text x="14" y="42" fill="#E2E8F0" fontSize="8" fontFamily="JetBrains Mono, monospace">G3 = B3 = 1</text>
+        <text x="14" y="60" fill="#38BDF8" fontSize="8" fontFamily="JetBrains Mono, monospace">G2 = B3 ⊕ B2 = 1</text>
+        <text x="14" y="78" fill="#FBBF24" fontSize="8" fontFamily="JetBrains Mono, monospace">G1 = B2 ⊕ B1 = 0</text>
+        <text x="14" y="96" fill="#F43F5E" fontSize="8" fontFamily="JetBrains Mono, monospace">G0 = B1 ⊕ B0 = 1</text>
+        <line x1="14" y1="104" x2="120" y2="104" stroke="#334155" strokeWidth="1" />
+        <text x="14" y="114" fill="#34D399" fontSize="7.5" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+          Hamming Distance H = 1
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * 16. Magnitude Comparator Preview
+ */
+export function MagnitudeComparatorPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="34" fill="#8B5CF6" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        4-BIT MAGNITUDE COMPARATOR (7485)
+      </text>
+
+      {/* Input Bus A */}
+      <rect x="24" y="62" width="60" height="26" rx="4" fill="#1E3A8A" stroke="#3B82F6" strokeWidth="1" />
+      <text x="54" y="78" fill="#93C5FD" fontSize="9" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">
+        A = 1100 (12)
+      </text>
+
+      {/* Input Bus B */}
+      <rect x="24" y="112" width="60" height="26" rx="4" fill="#312E81" stroke="#6366F1" strokeWidth="1" />
+      <text x="54" y="128" fill="#C7D2FE" fontSize="9" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">
+        B = 1001 (9)
+      </text>
+
+      {/* Central Chip Body */}
+      <rect x="110" y="52" width="90" height="100" rx="4" fill="#0F172A" stroke="#8B5CF6" strokeWidth="2" />
+      <text x="155" y="85" fill="#E2E8F0" fontSize="9" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">
+        74LS85
+      </text>
+      <text x="155" y="102" fill="#A78BFA" fontSize="8" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
+        4-BIT COMP
+      </text>
+      <text x="155" y="122" fill="#64748B" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
+        CASCADED
+      </text>
+
+      {/* 3 Output Flags */}
+      {/* A > B (ACTIVE GREEN) */}
+      <rect x="226" y="56" width="68" height="24" rx="4" fill="#065F46" stroke="#10B981" strokeWidth="1.5" />
+      <circle cx="238" cy="68" r="4" fill="#10B981" />
+      <text x="250" y="72" fill="#A7F3D0" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        A &gt; B: 1
+      </text>
+
+      {/* A = B (INACTIVE) */}
+      <rect x="226" y="90" width="68" height="24" rx="4" fill="#1E293B" stroke="#475569" strokeWidth="1" />
+      <circle cx="238" cy="102" r="4" fill="#475569" />
+      <text x="250" y="106" fill="#94A3B8" fontSize="9" fontFamily="JetBrains Mono, monospace">
+        A = B: 0
+      </text>
+
+      {/* A < B (INACTIVE) */}
+      <rect x="226" y="124" width="68" height="24" rx="4" fill="#1E293B" stroke="#475569" strokeWidth="1" />
+      <circle cx="238" cy="136" r="4" fill="#475569" />
+      <text x="250" y="140" fill="#94A3B8" fontSize="9" fontFamily="JetBrains Mono, monospace">
+        A &lt; B: 0
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * 17. RS Latch & Flip-Flop Preview
+ */
+export function LatchFlipFlopPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      <text x="24" y="34" fill="#F43F5E" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        BISTABLE LATCH &amp; FLIP-FLOP MEMORY
+      </text>
+
+      {/* Reset Input */}
+      <text x="24" y="65" fill="#FDA4AF" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">R=0</text>
+      <line x1="45" y1="62" x2="80" y2="62" stroke="#475569" strokeWidth="2" />
+
+      {/* Upper NOR */}
+      <rect x="80" y="48" width="55" height="32" rx="4" fill="#1E293B" stroke="#F43F5E" strokeWidth="1.5" />
+      <text x="107" y="68" fill="#FDA4AF" fontSize="9" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">
+        NOR 1
+      </text>
+
+      {/* Set Input */}
+      <text x="24" y="140" fill="#A7F3D0" fontSize="8" fontFamily="JetBrains Mono, monospace" fontWeight="bold">S=1</text>
+      <line x1="45" y1="137" x2="80" y2="137" stroke="#10B981" strokeWidth="2" />
+
+      {/* Lower NOR */}
+      <rect x="80" y="122" width="55" height="32" rx="4" fill="#1E293B" stroke="#10B981" strokeWidth="1.5" />
+      <text x="107" y="142" fill="#A7F3D0" fontSize="9" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">
+        NOR 2
+      </text>
+
+      {/* Cross-Coupled Feedback Wires */}
+      <path d="M 135 64 L 160 64 L 70 130 L 80 130" stroke="#475569" strokeWidth="1.5" strokeDasharray="3 3" fill="none" />
+      <path d="M 135 138 L 160 138 L 70 72 L 80 72" stroke="#10B981" strokeWidth="1.5" strokeDasharray="3 3" fill="none" />
+
+      {/* Q Output (HIGH) */}
+      <line x1="135" y1="138" x2="200" y2="138" stroke="#10B981" strokeWidth="2" />
+      <rect x="200" y="125" width="70" height="26" rx="4" fill="#065F46" stroke="#10B981" strokeWidth="1.5" />
+      <text x="235" y="142" fill="#A7F3D0" fontSize="9" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">
+        Q = 1 (SET)
+      </text>
+
+      {/* QBar Output (LOW) */}
+      <line x1="135" y1="64" x2="200" y2="64" stroke="#475569" strokeWidth="2" />
+      <rect x="200" y="51" width="70" height="26" rx="4" fill="#1E293B" stroke="#475569" strokeWidth="1" />
+      <text x="235" y="68" fill="#94A3B8" fontSize="9" fontFamily="JetBrains Mono, monospace" textAnchor="middle">
+        Q̄ = 0
+      </text>
+    </svg>
+  );
+}
+
+/**
  * Universal Simulation Preview Dispatcher
  * Automatically routes simulation ID to its dedicated scientific visualization
  */
@@ -1194,6 +1439,8 @@ export function SimulationPreview({
     case 'projectile-motion':
       return <ProjectileMotionPreview isHovered={isHovered} className={className} />;
     case 'digital-electronics':
+    case 'basic-logic-gates':
+    case 'universal-nand-nor-realization':
       return <DigitalLogicPreview isHovered={isHovered} className={className} />;
     case 'coa-riscv':
     case 'coa':
@@ -1214,7 +1461,23 @@ export function SimulationPreview({
     case 'adders':
     case 'half-adder-logic':
     case 'full-adder-logic':
+    case 'half-full-adder':
+    case 'half-full-subtractor':
       return <AdderCircuitPreview isHovered={isHovered} className={className} />;
+    case 'shift-registers':
+      return <ShiftRegisterPreview isHovered={isHovered} className={className} />;
+    case 'asynchronous-ripple-counters':
+    case 'synchronous-counters':
+      return <CounterTimingPreview isHovered={isHovered} className={className} />;
+    case 'gray-code-converter':
+      return <GrayCodePreview isHovered={isHovered} className={className} />;
+    case 'magnitude-comparators':
+      return <MagnitudeComparatorPreview isHovered={isHovered} className={className} />;
+    case 'sr-latch-flipflop':
+    case 'd-flipflop-register':
+    case 'jk-flipflop-toggle':
+    case 't-flipflop-frequency-divider':
+      return <LatchFlipFlopPreview isHovered={isHovered} className={className} />;
     case 'harmonic-oscillator':
       return <HarmonicOscillatorPreview isHovered={isHovered} className={className} />;
     case 'vector-field-studio':

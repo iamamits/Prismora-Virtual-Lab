@@ -115,3 +115,96 @@ export interface TimingSignal {
   color: string;
   points: TimingTracePoint[];
 }
+
+export type UniversalGateType = 'NAND' | 'NOR';
+export type SynthesizedTarget = 'NOT' | 'AND' | 'OR' | 'NAND' | 'NOR' | 'XOR' | 'XNOR';
+
+export interface UniversalGateNode {
+  id: string;
+  label: string;
+  inputs: (string | LogicLevel)[];
+  output: LogicLevel;
+  expression: string;
+}
+
+export interface UniversalSynthesisResult {
+  target: SynthesizedTarget;
+  universalType: UniversalGateType;
+  gateCount: number;
+  inputValues: Record<string, LogicLevel>;
+  nodes: UniversalGateNode[];
+  output: LogicLevel;
+  isEquivalent: boolean;
+  schematicDescription: string;
+}
+
+export type LatchType = 'NOR' | 'NAND' | 'GATED_SR';
+export type LatchStateName = 'HOLD' | 'SET' | 'RESET' | 'INDETERMINATE';
+
+export interface ExtendedLatchState extends FlipFlopState {
+  invalid: boolean;
+  stateName: LatchStateName;
+  raceHazard: boolean;
+  explanation: string;
+}
+
+export type ShiftRegisterMode = 'SIPO' | 'SISO' | 'PISO' | 'PIPO';
+
+export interface SIPORegisterState {
+  bits: [LogicLevel, LogicLevel, LogicLevel, LogicLevel];
+  decimal: number;
+  hex: string;
+  clockPulses: number;
+  history: Array<{
+    clock: number;
+    serialIn: LogicLevel;
+    q: [LogicLevel, LogicLevel, LogicLevel, LogicLevel];
+  }>;
+}
+
+export type CounterArchitecture = 'ASYNCHRONOUS' | 'SYNCHRONOUS';
+
+export interface CounterTimingAnalysis {
+  count: number;
+  binary: [LogicLevel, LogicLevel, LogicLevel, LogicLevel];
+  terminalCount: boolean;
+  stageDelaysNs: number[];
+  cumulativeDelayNs: number;
+  transientStates: number[];
+  hasGlitch: boolean;
+}
+
+export interface GrayCodeResult {
+  binary: [LogicLevel, LogicLevel, LogicLevel, LogicLevel];
+  gray: [LogicLevel, LogicLevel, LogicLevel, LogicLevel];
+  binaryInt: number;
+  grayInt: number;
+  binaryString: string;
+  grayString: string;
+  xorEquations: string[];
+}
+
+export interface Comparator1BitResult {
+  aGreaterThanB: LogicLevel;
+  aEqualToB: LogicLevel;
+  aLessThanB: LogicLevel;
+}
+
+export interface Comparator2BitResult {
+  aGreaterThanB: LogicLevel;
+  aEqualToB: LogicLevel;
+  aLessThanB: LogicLevel;
+  terms: {
+    msbCompare: string;
+    equality: string;
+    lsbCompare: string;
+  };
+}
+
+export interface Comparator4BitResult {
+  aGreaterThanB: LogicLevel;
+  aEqualToB: LogicLevel;
+  aLessThanB: LogicLevel;
+  a: number;
+  b: number;
+}

@@ -31,6 +31,16 @@ export class CombinationalEngine {
   }
 
   /**
+   * Half Subtractor: D = A ⊕ B, Bout = A' · B
+   */
+  static halfSubtractor(a: LogicLevel, b: LogicLevel): FullSubtractorResult {
+    const diff = (a !== b ? 1 : 0) as LogicLevel;
+    const notA = a === 0 ? 1 : 0;
+    const borrowOut = (notA === 1 && b === 1 ? 1 : 0) as LogicLevel;
+    return { difference: diff, borrowOut };
+  }
+
+  /**
    * Full Subtractor: D = A ⊕ B ⊕ Bin, Bout = (A' · B) + (Bin · (A ⊕ B)')
    */
   static fullSubtractor(a: LogicLevel, b: LogicLevel, bin: LogicLevel): FullSubtractorResult {
