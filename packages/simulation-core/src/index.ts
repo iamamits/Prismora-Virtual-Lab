@@ -84,4 +84,9 @@ export * from './chemical';
 export * as Biotech from './biotech';
 export * from './biotech';
 
+// Biological Sciences & Medical Physiology (Human Reproduction, Genetics, Mitosis)
+export * as Biology from './biology';
+export * from './biology';
+
+
 

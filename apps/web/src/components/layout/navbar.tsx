@@ -134,11 +134,19 @@ const ACADEMIC_DISCIPLINES: {
         description: 'Dynamic pH titration neutralization curves and Henderson-Hasselbalch',
       },
       {
+        name: 'Biological Sciences & Reproduction',
+        short: 'Biology & Reproduction',
+        href: '/experiments/biology',
+        icon: Dna,
+        color: '#EC4899',
+        description: 'Human reproduction, 28-day endocrine cycle, fertilization, and Mendelian genetics',
+      },
+      {
         name: 'Biotechnology & Bioengineering',
         short: 'Enzyme & Fermentation',
         href: '/experiments/biotech',
-        icon: Dna,
-        color: '#EC4899',
+        icon: TestTubes,
+        color: '#10B981',
         description: 'Michaelis-Menten enzyme kinetics and Monod bacterial fermentation',
       },
       {
