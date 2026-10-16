@@ -27,6 +27,8 @@ export interface TrussMember {
   readonly id: string;
   readonly jointA: string;
   readonly jointB: string;
+  readonly joint1Id?: string;
+  readonly joint2Id?: string;
   readonly crossSectionAreaMm2?: number; // default 2500 mm²
   readonly yieldStrengthMpa?: number; // default 250 MPa (mild steel)
 }
@@ -35,6 +37,8 @@ export interface MemberAnalysisResult {
   readonly memberId: string;
   readonly jointA: string;
   readonly jointB: string;
+  readonly joint1Id: string;
+  readonly joint2Id: string;
   readonly lengthMetres: number;
   readonly forceKn: number; // Positive = Tension, Negative = Compression
   readonly isTension: boolean;
@@ -55,7 +59,9 @@ export interface TrussAnalysisResult {
   readonly jointCount: number;
   readonly reactionCount: number;
   readonly members: readonly MemberAnalysisResult[];
-  readonly reactions: readonly ReactionForce[];
+  readonly memberForces: Record<string, number>;
+  readonly minFactorOfSafety: number;
+  readonly reactions: readonly ReactionForce[] & Record<string, number | undefined>;
   readonly maxTensionKn: number;
   readonly maxCompressionKn: number;
 }
@@ -161,10 +167,12 @@ export function solveTruss(joints: readonly TrussJoint[], members: readonly Trus
 
   // Fill member unit vectors in matrix A
   members.forEach((m, mIdx) => {
-    const jA = jointMap.get(m.jointA)!.joint;
-    const jB = jointMap.get(m.jointB)!.joint;
-    const idxA = jointMap.get(m.jointA)!.index;
-    const idxB = jointMap.get(m.jointB)!.index;
+    const jAId = m.joint1Id ?? m.jointA;
+    const jBId = m.joint2Id ?? m.jointB;
+    const jA = jointMap.get(jAId)!.joint;
+    const jB = jointMap.get(jBId)!.joint;
+    const idxA = jointMap.get(jAId)!.index;
+    const idxB = jointMap.get(jBId)!.index;
 
     const dx = jB.x - jA.x;
     const dy = jB.y - jA.y;
@@ -204,8 +212,10 @@ export function solveTruss(joints: readonly TrussJoint[], members: readonly Trus
 
   // Parse Member results
   const memberResults: MemberAnalysisResult[] = members.map((m, mIdx) => {
-    const jA = jointMap.get(m.jointA)!.joint;
-    const jB = jointMap.get(m.jointB)!.joint;
+    const jAId = m.joint1Id ?? m.jointA;
+    const jBId = m.joint2Id ?? m.jointB;
+    const jA = jointMap.get(jAId)!.joint;
+    const jB = jointMap.get(jBId)!.joint;
     const len = Math.hypot(jB.x - jA.x, jB.y - jA.y);
     const force = sol[mIdx] ?? 0;
     const isZero = Math.abs(force) < 1e-4;
@@ -219,8 +229,10 @@ export function solveTruss(joints: readonly TrussJoint[], members: readonly Trus
 
     return {
       memberId: m.id,
-      jointA: m.jointA,
-      jointB: m.jointB,
+      jointA: jAId,
+      jointB: jBId,
+      joint1Id: jAId,
+      joint2Id: jBId,
       lengthMetres: parseFloat(len.toFixed(3)),
       forceKn: parseFloat(force.toFixed(2)),
       isTension,
@@ -249,6 +261,18 @@ export function solveTruss(joints: readonly TrussJoint[], members: readonly Trus
   const forces = memberResults.map((m) => m.forceKn);
   const maxTensionKn = Math.max(0, ...forces);
   const maxCompressionKn = Math.abs(Math.min(0, ...forces));
+  const memberForces: Record<string, number> = {};
+  memberResults.forEach((m) => {
+    memberForces[m.memberId] = m.forceKn;
+  });
+  const minFactorOfSafety = memberResults.length > 0 ? Math.min(...memberResults.map((m) => m.safetyFactor)) : 10;
+
+  const reactionsDict: Record<string, number> = {};
+  reactions.forEach((r) => {
+    reactionsDict[`${r.jointId}_Rx`] = r.rxKn;
+    reactionsDict[`${r.jointId}_Ry`] = r.ryKn;
+  });
+  const reactionsCombined = Object.assign([...reactions], reactionsDict) as unknown as readonly ReactionForce[] & Record<string, number | undefined>;
 
   return {
     isDeterminate,
@@ -256,7 +280,9 @@ export function solveTruss(joints: readonly TrussJoint[], members: readonly Trus
     jointCount: jCount,
     reactionCount: rCount,
     members: memberResults,
-    reactions,
+    memberForces,
+    minFactorOfSafety: parseFloat(minFactorOfSafety.toFixed(2)),
+    reactions: reactionsCombined,
     maxTensionKn,
     maxCompressionKn,
   };

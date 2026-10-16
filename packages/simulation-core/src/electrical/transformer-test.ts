@@ -33,6 +33,7 @@ export interface TransformerTestParameters {
   readonly loadFraction: number;
   /** Load power factor cos(phi) (0.2 to 1.0) */
   readonly powerFactor: number;
+  readonly loadPowerFactor?: number;
   /** Power factor type: 'lagging' | 'leading' | 'unity' */
   readonly powerFactorType: 'lagging' | 'leading' | 'unity';
   /** O.C. Test applied voltage V0 (typically rated V1 = 230V) */
@@ -44,8 +45,11 @@ export interface TransformerTestParameters {
 export interface TransformerTestResult {
   // Equivalent Circuit Parameters (referred to primary)
   readonly coreResistanceRc: number;
+  readonly coreResistanceRcOhms: number;
   readonly magnetizingReactanceXm: number;
+  readonly magnetizingReactanceXmOhms: number;
   readonly equivalentResistanceReq: number;
+  readonly equivalentResistanceReqOhms: number;
   readonly equivalentReactanceXeq: number;
   readonly equivalentImpedanceZeq: number;
 
@@ -61,7 +65,9 @@ export interface TransformerTestResult {
   readonly copperLossWatts: number;
   readonly coreLossWatts: number;
   readonly efficiencyPercent: number;
+  readonly efficiencyPct: number;
   readonly voltageRegulationPercent: number;
+  readonly voltageRegulationPct: number;
   readonly secondaryTerminalVoltageVolts: number;
 
   // Efficiency vs Load Curve
@@ -114,7 +120,7 @@ export class TransformerTestEngine {
 
     // Operating conditions at loadFraction x
     const x = params.loadFraction;
-    const pf = params.powerFactor;
+    const pf = params.loadPowerFactor ?? params.powerFactor;
     const phi = Math.acos(Math.min(1.0, Math.max(0.1, pf)));
     const sinPhi = Math.sin(phi);
 
@@ -145,8 +151,11 @@ export class TransformerTestEngine {
 
     return {
       coreResistanceRc: Math.round(rc),
+      coreResistanceRcOhms: Math.round(rc),
       magnetizingReactanceXm: Math.round(xm),
+      magnetizingReactanceXmOhms: Math.round(xm),
       equivalentResistanceReq: Number(req.toFixed(3)),
+      equivalentResistanceReqOhms: Number(req.toFixed(3)),
       equivalentReactanceXeq: Number(xeq.toFixed(3)),
       equivalentImpedanceZeq: Number(zeq.toFixed(3)),
 
@@ -160,7 +169,9 @@ export class TransformerTestEngine {
       copperLossWatts: Math.round(currentCuLoss),
       coreLossWatts: Math.round(ocPower),
       efficiencyPercent: Number(efficiency.toFixed(2)),
+      efficiencyPct: Number(efficiency.toFixed(2)),
       voltageRegulationPercent: Number(regulation.toFixed(2)),
+      voltageRegulationPct: Number(regulation.toFixed(2)),
       secondaryTerminalVoltageVolts: Number(v2Terminal.toFixed(1)),
 
       efficiencyCurve: curve,

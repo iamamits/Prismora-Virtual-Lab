@@ -62,12 +62,15 @@ export interface BridgeNetworkParams {
 
 export interface SimpleNetworkParams {
   topology?: 'dual-source-t-network';
-  v1Volts: number;
-  v2Volts: number;
+  v1Volts?: number;
+  source1Volts?: number;
+  v2Volts?: number;
+  source2Volts?: number;
   r1Ohms: number;
   r2Ohms: number;
   r3Ohms: number;
-  rlOhms: number;
+  rlOhms?: number;
+  loadResistanceOhms?: number;
 }
 
 export const DEFAULT_NETWORK_CIRCUIT_PARAMS: SimpleNetworkParams = {
@@ -106,12 +109,14 @@ export interface NetworkTheoremsResult {
   // Norton Equivalents
   iN: number; // Short-circuit current (A)
   rN: number; // Norton resistance (Ω) = rTh
+  nortonCurrentAmps: number;
   // Load Operating Point
   rL: number; // Load resistance (Ω)
   vL: number; // Load voltage (V)
   iL: number; // Load current (A)
   pL: number; // Power in load (W)
   pLMax: number; // Maximum possible power delivered (W) at rL = rTh
+  maxPowerTransferWatts: number;
   efficiencyPct: number; // Power transfer efficiency (%)
   isAtMaximumPower: boolean; // |rL - rTh| < 1e-4
   // Convenience engineering aliases
@@ -139,15 +144,18 @@ export interface NetworkTheoremsResult {
  * Validate input parameters for network theorems evaluation.
  */
 export function validateNetworkParams(params: NetworkTheoremsParams): { valid: boolean; error?: string } {
-  if ('v1Volts' in params) {
-    if (!Number.isFinite(params.v1Volts) || !Number.isFinite(params.v2Volts)) {
+  if ('r1Ohms' in params) {
+    const v1 = params.source1Volts ?? params.v1Volts ?? 0;
+    const v2 = params.source2Volts ?? params.v2Volts ?? 0;
+    const rL = params.loadResistanceOhms ?? params.rlOhms ?? 0;
+    if (!Number.isFinite(v1) || !Number.isFinite(v2)) {
       return { valid: false, error: 'Voltage sources must be finite numbers' };
     }
-    if (params.r1Ohms <= 0 || params.r2Ohms <= 0 || params.r3Ohms <= 0 || params.rlOhms <= 0) {
+    if (params.r1Ohms <= 0 || params.r2Ohms <= 0 || params.r3Ohms <= 0 || rL <= 0) {
       return { valid: false, error: 'All resistor values must be strictly positive (> 0 Ω)' };
     }
     return { valid: true };
-  } else if (params.topology === 'dual-source-t-network') {
+  } else if ('v1' in params && params.topology === 'dual-source-t-network') {
     if (!Number.isFinite(params.v1) || !Number.isFinite(params.v2)) {
       return { valid: false, error: 'Voltage sources must be finite numbers' };
     }
@@ -155,7 +163,7 @@ export function validateNetworkParams(params: NetworkTheoremsParams): { valid: b
       return { valid: false, error: 'All resistor values must be strictly positive (> 0 Ω)' };
     }
     return { valid: true };
-  } else if (params.topology === 'bridge-network') {
+  } else if ('vs' in params && params.topology === 'bridge-network') {
     if (!Number.isFinite(params.vs)) {
       return { valid: false, error: 'Source voltage must be a finite number' };
     }
@@ -314,11 +322,13 @@ export function evaluateDualSourceTNetwork(params: DualSourceTNetworkParams): Ne
     rTh,
     iN,
     rN,
+    nortonCurrentAmps: iN,
     rL,
     vL: vL_thev,
     iL: iL_thev,
     pL: pL_thev,
     pLMax,
+    maxPowerTransferWatts: pLMax,
     efficiencyPct,
     isAtMaximumPower,
     theveninVoltageVolts: parseFloat(vTh.toFixed(2)),
@@ -417,11 +427,13 @@ export function evaluateBridgeNetwork(params: BridgeNetworkParams): NetworkTheor
     rTh,
     iN,
     rN,
+    nortonCurrentAmps: iN,
     rL,
     vL: vL_thev,
     iL: iL_thev,
     pL: pL_thev,
     pLMax,
+    maxPowerTransferWatts: pLMax,
     efficiencyPct,
     isAtMaximumPower,
     theveninVoltageVolts: parseFloat(vTh.toFixed(2)),
@@ -440,17 +452,19 @@ export function evaluateBridgeNetwork(params: BridgeNetworkParams): NetworkTheor
  * Universal evaluator dispatching to the configured topology.
  */
 export function evaluateNetworkTheorems(params: NetworkTheoremsParams): NetworkTheoremsResult {
-  if ('v1Volts' in params) {
-    const val = validateNetworkParams(params);
-    if (!val.valid) throw new Error(val.error ?? 'Invalid network parameters');
+  if ('v1Volts' in params || 'source1Volts' in params) {
+    const p = params as SimpleNetworkParams;
+    const v1 = p.source1Volts ?? p.v1Volts ?? 12;
+    const v2 = p.source2Volts ?? p.v2Volts ?? 6;
+    const rL = p.loadResistanceOhms ?? p.rlOhms ?? 100;
     return evaluateDualSourceTNetwork({
       topology: 'dual-source-t-network',
-      v1: params.v1Volts,
-      v2: params.v2Volts,
-      r1: params.r1Ohms,
-      r2: params.r2Ohms,
-      r3: params.r3Ohms,
-      rL: params.rlOhms,
+      v1,
+      v2,
+      r1: p.r1Ohms,
+      r2: p.r2Ohms,
+      r3: p.r3Ohms,
+      rL,
     });
   }
 
@@ -460,8 +474,8 @@ export function evaluateNetworkTheorems(params: NetworkTheoremsParams): NetworkT
   }
 
   if (params.topology === 'dual-source-t-network') {
-    return evaluateDualSourceTNetwork(params);
+    return evaluateDualSourceTNetwork(params as DualSourceTNetworkParams);
   } else {
-    return evaluateBridgeNetwork(params);
+    return evaluateBridgeNetwork(params as BridgeNetworkParams);
   }
 }

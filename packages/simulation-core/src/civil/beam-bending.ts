@@ -19,12 +19,15 @@ export interface BeamBendingParameters {
   readonly supportType: BeamSupportType;
   /** Beam span length L in metres (e.g. 2 - 10 m) */
   readonly spanLengthM: number;
+  readonly lengthM: number;
   /** Concentrated point load P in kN */
   readonly pointLoadKn: number;
   /** Point load location a in metres from left support */
   readonly pointLoadPositionM: number;
+  readonly pointLoads: Array<{ positionM: number; magnitudeKn: number }>;
   /** Uniformly distributed load (UDL) w in kN/m */
   readonly udlKnPerM: number;
+  readonly distributedLoads: Array<{ startM: number; endM: number; intensityKnPerM: number }>;
   /** Beam cross-section: width b in mm, height h in mm */
   readonly widthMm: number;
   readonly heightMm: number;
@@ -34,6 +37,7 @@ export interface BeamBendingParameters {
 
 export interface BeamAnalysisPoint {
   readonly positionM: number;
+  readonly x: number;
   readonly shearForceKn: number;
   readonly bendingMomentKnm: number;
   readonly deflectionMm: number;
@@ -47,17 +51,23 @@ export interface BeamAnalysisResult {
   readonly maxBendingMomentKnm: number;
   readonly maxDeflectionMm: number;
   readonly maxNormalStressMpa: number;
+  readonly maxBendingStressMpa: number;
   readonly momentOfInertiaMm4: number;
   readonly sectionModulusMm3: number;
   readonly points: readonly BeamAnalysisPoint[];
+  readonly shearForceDiagram: readonly { positionM: number; x: number; shearForceKn: number }[];
+  readonly bendingMomentDiagram: readonly { positionM: number; x: number; bendingMomentKnm: number }[];
 }
 
 export const DEFAULT_BEAM_PARAMS: BeamBendingParameters = {
   supportType: 'simply_supported',
   spanLengthM: 6.0,
+  lengthM: 6.0,
   pointLoadKn: 25.0,
   pointLoadPositionM: 2.5,
+  pointLoads: [{ positionM: 2.5, magnitudeKn: 25.0 }],
   udlKnPerM: 8.0,
+  distributedLoads: [{ startM: 0, endM: 6.0, intensityKnPerM: 8.0 }],
   widthMm: 150,
   heightMm: 300,
   youngsModulusGpa: 200,
@@ -65,11 +75,13 @@ export const DEFAULT_BEAM_PARAMS: BeamBendingParameters = {
 
 export class BeamBendingEngine {
   static compute(params: BeamBendingParameters): BeamAnalysisResult {
-    const L = params.spanLengthM;
-    const P = params.pointLoadKn;
-    const a = Math.min(L, Math.max(0, params.pointLoadPositionM));
+    const L = params.lengthM ?? params.spanLengthM;
+    const pointLoad = params.pointLoads && params.pointLoads.length > 0 ? params.pointLoads[0]! : undefined;
+    const P = pointLoad !== undefined ? pointLoad.magnitudeKn : params.pointLoadKn;
+    const a = pointLoad !== undefined ? Math.min(L, Math.max(0, pointLoad.positionM)) : Math.min(L, Math.max(0, params.pointLoadPositionM));
     const b = L - a;
-    const w = params.udlKnPerM;
+    const distLoad = params.distributedLoads && params.distributedLoads.length > 0 ? params.distributedLoads[0]! : undefined;
+    const w = distLoad !== undefined ? distLoad.intensityKnPerM : params.udlKnPerM;
 
     // Cross-section geometry
     const width = params.widthMm;
@@ -155,6 +167,7 @@ export class BeamBendingEngine {
 
       points.push({
         positionM: Number(x.toFixed(2)),
+        x: Number(x.toFixed(2)),
         shearForceKn: Number(V.toFixed(2)),
         bendingMomentKnm: Number(M.toFixed(2)),
         deflectionMm: Number(delta.toFixed(3)),
@@ -164,6 +177,17 @@ export class BeamBendingEngine {
 
     const maxStress = (maxMoment * 1e6) / Z_mm3;
 
+    const shearForceDiagram = points.map((p) => ({
+      positionM: p.positionM,
+      x: p.positionM,
+      shearForceKn: p.shearForceKn,
+    }));
+    const bendingMomentDiagram = points.map((p) => ({
+      positionM: p.positionM,
+      x: p.positionM,
+      bendingMomentKnm: p.bendingMomentKnm,
+    }));
+
     return {
       leftReactionKn: Number(R1.toFixed(2)),
       rightReactionKn: Number(R2.toFixed(2)),
@@ -171,9 +195,12 @@ export class BeamBendingEngine {
       maxBendingMomentKnm: Number(maxMoment.toFixed(2)),
       maxDeflectionMm: Number(maxDeflection.toFixed(2)),
       maxNormalStressMpa: Number(maxStress.toFixed(1)),
+      maxBendingStressMpa: Number(maxStress.toFixed(1)),
       momentOfInertiaMm4: Math.round(I_mm4),
       sectionModulusMm3: Math.round(Z_mm3),
       points,
+      shearForceDiagram,
+      bendingMomentDiagram,
     };
   }
 }

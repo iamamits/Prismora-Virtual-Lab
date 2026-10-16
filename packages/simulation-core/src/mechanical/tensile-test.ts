@@ -78,12 +78,14 @@ export interface TensileTestResult {
   readonly crossSectionAreaMm2: number;
   readonly currentDiameterMm: number;
   readonly testStage: 'elastic' | 'yield' | 'strain_hardening' | 'necking' | 'fractured';
+  readonly regime: 'elastic' | 'yield' | 'strain_hardening' | 'necking' | 'fractured';
   readonly yieldLoadKn: number;
   readonly maxLoadKn: number;
   readonly fractureLoadKn: number;
   readonly percentageElongation: number;
   readonly percentageReductionInArea: number;
   readonly stressStrainCurve: readonly StressStrainPoint[];
+  readonly curvePoints: readonly StressStrainPoint[];
 }
 
 export class TensileTestEngine {
@@ -157,12 +159,14 @@ export class TensileTestEngine {
       crossSectionAreaMm2: Number(a0.toFixed(2)),
       currentDiameterMm: Number(currentDiameter.toFixed(2)),
       testStage: currentState.region,
+      regime: currentState.region,
       yieldLoadKn: Number(((mat.yieldStressMpa * a0) / 1000).toFixed(2)),
       maxLoadKn: Number(((mat.utsMpa * a0) / 1000).toFixed(2)),
       fractureLoadKn: Number(((mat.utsMpa * 0.78 * a0) / 1000).toFixed(2)),
       percentageElongation: Number((mat.fractureStrain * 100).toFixed(1)),
       percentageReductionInArea: Number(((1 - 0.75) * 100).toFixed(1)),
       stressStrainCurve: curvePoints,
+      curvePoints,
     };
   }
 }

@@ -21,6 +21,7 @@ export interface RlcParameters {
   readonly inductanceMh: number;
   /** Capacitance C in microfarads uF (0.1 - 50 uF) */
   readonly capacitanceUf: number;
+  readonly capacitanceMicroF?: number;
   /** AC Source RMS Voltage V_rms (1 - 50 V) */
   readonly sourceVoltageVrms: number;
   /** Current operating frequency in Hz */
@@ -39,9 +40,11 @@ export interface RlcResonanceResult {
   readonly resonantFrequencyHz: number;
   readonly angularResonantFrequencyRadS: number;
   readonly qualityFactor: number;
+  readonly qualityFactorQ: number;
   readonly bandwidthHz: number;
   readonly lowerCutoffHz: number;
   readonly upperCutoffHz: number;
+  readonly resonantCurrentAmps: number;
 
   // At current frequency:
   readonly currentImpedanceOhms: number;
@@ -54,6 +57,7 @@ export interface RlcResonanceResult {
 
   // Frequency response sweep (from 0.2*f0 to 2.5*f0)
   readonly frequencyCurve: readonly RlcFrequencyPoint[];
+  readonly frequencyResponse: readonly { frequencyHz: number; currentAmps: number }[];
 }
 
 export const DEFAULT_RLC_PARAMS: RlcParameters = {
@@ -68,7 +72,7 @@ export class RlcResonanceEngine {
   static compute(params: RlcParameters): RlcResonanceResult {
     const R = params.resistanceOhms;
     const L = params.inductanceMh * 1e-3; // H
-    const C = params.capacitanceUf * 1e-6; // F
+    const C = (params.capacitanceMicroF ?? params.capacitanceUf) * 1e-6; // F
     const V = params.sourceVoltageVrms;
 
     const omega0 = 1 / Math.sqrt(L * C);
@@ -126,13 +130,20 @@ export class RlcResonanceEngine {
       });
     }
 
+    const frequencyResponse = frequencyCurve.map((p) => ({
+      frequencyHz: p.frequencyHz,
+      currentAmps: p.currentMa / 1000,
+    }));
+
     return {
       resonantFrequencyHz: Number(f0.toFixed(1)),
       angularResonantFrequencyRadS: Number(omega0.toFixed(1)),
       qualityFactor: Number(Q.toFixed(2)),
+      qualityFactorQ: Number(Q.toFixed(2)),
       bandwidthHz: Number(BW.toFixed(1)),
       lowerCutoffHz: Number(f1.toFixed(1)),
       upperCutoffHz: Number(f2.toFixed(1)),
+      resonantCurrentAmps: Number((V / R).toFixed(3)),
 
       currentImpedanceOhms: Number(Z.toFixed(2)),
       currentCurrentMa: Number((I * 1000).toFixed(1)),
@@ -143,6 +154,7 @@ export class RlcResonanceEngine {
       nature,
 
       frequencyCurve,
+      frequencyResponse,
     };
   }
 }

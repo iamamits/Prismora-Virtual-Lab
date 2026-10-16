@@ -18,12 +18,15 @@
 export interface ReactorParameters {
   /** Reaction rate constant k in min^-1 (0.01 - 1.0 min^-1) */
   readonly rateConstantK: number;
+  readonly reactionRateConstantK?: number;
   /** Volumetric flow rate v0 in L/min (1 - 50 L/min) */
   readonly flowRateLPerMin: number;
+  readonly volumetricFlowRateLps?: number;
   /** Initial reactant concentration CA0 in mol/L (0.1 - 5.0 mol/L) */
   readonly initialConcentrationMolL: number;
   /** Reactor volume V in Litres (10 - 500 L) */
   readonly reactorVolumeL: number;
+  readonly reactorVolumeLiters?: number;
   /** Activation energy Ea in kJ/mol (for Arrhenius temperature sweep) */
   readonly activationEnergyKjMol: number;
   /** Operating temperature in Kelvin */
@@ -40,6 +43,7 @@ export interface ReactorProfilePoint {
 
 export interface ReactorAnalysisResult {
   readonly spaceTimeMinutes: number;
+  readonly spaceTimeSeconds: number;
   readonly damkohlerNumber: number;
 
   // CSTR metrics:
@@ -63,19 +67,22 @@ export interface ReactorAnalysisResult {
 
 export const DEFAULT_REACTOR_PARAMS: ReactorParameters = {
   rateConstantK: 0.15,
+  reactionRateConstantK: 0.15,
   flowRateLPerMin: 12.0,
+  volumetricFlowRateLps: 0.2,
   initialConcentrationMolL: 1.5,
   reactorVolumeL: 100.0,
+  reactorVolumeLiters: 100.0,
   activationEnergyKjMol: 45.0,
   temperatureK: 310.0,
 };
 
 export class ReactorKineticsEngine {
   static compute(params: ReactorParameters): ReactorAnalysisResult {
-    const k = params.rateConstantK;
-    const v0 = params.flowRateLPerMin;
+    const k = params.reactionRateConstantK ?? params.rateConstantK;
+    const v0 = params.volumetricFlowRateLps !== undefined ? params.volumetricFlowRateLps * 60 : params.flowRateLPerMin;
     const Ca0 = params.initialConcentrationMolL;
-    const V = params.reactorVolumeL;
+    const V = params.reactorVolumeLiters !== undefined ? params.reactorVolumeLiters : params.reactorVolumeL;
 
     const tau = V / v0; // minutes
     const Da = k * tau;
@@ -118,6 +125,7 @@ export class ReactorKineticsEngine {
 
     return {
       spaceTimeMinutes: Number(tau.toFixed(2)),
+      spaceTimeSeconds: Number((tau * 60).toFixed(1)),
       damkohlerNumber: Number(Da.toFixed(3)),
 
       cstrConversion: Number(xCstr.toFixed(4)),

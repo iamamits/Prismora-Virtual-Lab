@@ -20,6 +20,8 @@ export interface VenturiParameters {
   readonly fluidType: 'water' | 'kerosene';
   /** Coefficient of discharge Cd (typically 0.96 - 0.98 for venturi) */
   readonly dischargeCoefficient: number;
+  readonly dischargeCoeffCd?: number;
+  readonly inletVelocityMps?: number;
 }
 
 export interface VenturiMeasurementPoint {
@@ -37,12 +39,17 @@ export interface VenturiResult {
   readonly throatAreaM2: number;
   readonly areaRatio: number;
   readonly deltaHCm: number;
+  readonly differentialHeadM: number;
+  readonly inletPressureHeadM: number;
+  readonly throatPressureHeadM: number;
   readonly theoreticalDischargeM3s: number;
   readonly actualDischargeM3s: number;
   readonly actualDischargeLps: number;
   readonly inletVelocityMs: number;
   readonly throatVelocityMs: number;
+  readonly throatVelocityMps: number;
   readonly reynoldsNumber: number;
+  readonly reynoldsNumberThroat: number;
   readonly profilePoints: readonly VenturiMeasurementPoint[];
 }
 
@@ -125,12 +132,17 @@ export class VenturiFlowEngine {
       throatAreaM2: a2,
       areaRatio: Number((a1 / a2).toFixed(2)),
       deltaHCm: Number(deltaHCm.toFixed(2)),
+      differentialHeadM: Number((deltaHCm / 100).toFixed(3)),
+      inletPressureHeadM: Number((inletTotalHeadCm / 100).toFixed(3)),
+      throatPressureHeadM: Number(((inletTotalHeadCm - deltaHCm) / 100).toFixed(3)),
       theoreticalDischargeM3s: qTheo,
       actualDischargeM3s: qAct,
       actualDischargeLps: Number(qLps.toFixed(3)),
       inletVelocityMs: Number(v1.toFixed(3)),
       throatVelocityMs: Number(v2.toFixed(3)),
+      throatVelocityMps: Number(v2.toFixed(3)),
       reynoldsNumber: Math.round(reynolds),
+      reynoldsNumberThroat: Math.round(reynolds),
       profilePoints,
     };
   }

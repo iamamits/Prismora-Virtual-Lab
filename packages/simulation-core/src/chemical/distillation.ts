@@ -19,10 +19,13 @@ export interface DistillationParameters {
   readonly relativeVolatility: number; // \alpha (e.g. 2.45 for Benzene-Toluene)
   readonly feedComposition: number;    // x_F (0.10 - 0.90, e.g. 0.40)
   readonly feedCompositionXf?: number; // alias
+  readonly feedMoleFraction?: number;  // alias
   readonly distillatePurity: number;    // x_D (0.80 - 0.99, e.g. 0.95)
   readonly distillatePurityXd?: number; // alias
+  readonly distillateMoleFraction?: number; // alias
   readonly bottomsPurity: number;       // x_B (0.01 - 0.20, e.g. 0.05)
   readonly bottomsPurityXb?: number;    // alias
+  readonly bottomsMoleFraction?: number; // alias
   readonly refluxRatio: number;        // R = L/D (e.g. 2.0)
   readonly feedQuality: number;        // q (1.0 = saturated liquid, 0 = saturated vapor)
   readonly feedThermalConditionQ?: number; // alias
@@ -39,12 +42,16 @@ export interface DistillationStage {
   readonly y1: number;
   readonly x2: number;
   readonly y2: number;
+  readonly x: number;
+  readonly y: number;
 }
 
 export interface DistillationAnalysisResult {
   readonly numberOfStages: number;
   readonly theoreticalStages: number;
+  readonly theoreticalTrays: number;
   readonly optimalFeedStage: number;
+  readonly feedTrayLocation: number;
   readonly minimumRefluxRatio: number;
   readonly minimumStagesFenske: number;
   readonly minimumStages: number;
@@ -52,7 +59,9 @@ export interface DistillationAnalysisResult {
   readonly distillateRateMolH: number;
   readonly intersectionQ: { x: number; y: number };
   readonly stages: readonly DistillationStage[];
+  readonly steppedTrays: readonly { x: number; y: number; nextX: number; nextY: number }[];
   readonly vlePoints: readonly { x: number; y: number }[];
+  readonly equilibriumCurve: readonly { x: number; y: number }[];
   readonly rolPoints: readonly { x: number; y: number }[];
   readonly solPoints: readonly { x: number; y: number }[];
   readonly qLinePoints: readonly { x: number; y: number }[];
@@ -62,10 +71,13 @@ export const DEFAULT_DISTILLATION_PARAMS: DistillationParameters = {
   relativeVolatility: 2.5,
   feedComposition: 0.45,
   feedCompositionXf: 0.45,
+  feedMoleFraction: 0.45,
   distillatePurity: 0.95,
   distillatePurityXd: 0.95,
+  distillateMoleFraction: 0.95,
   bottomsPurity: 0.05,
   bottomsPurityXb: 0.05,
+  bottomsMoleFraction: 0.05,
   refluxRatio: 2.2,
   feedQuality: 1.0, // Saturated liquid feed
   feedThermalConditionQ: 1.0,
@@ -90,9 +102,9 @@ export function vleX(y: number, alpha: number): number {
  */
 export function solveMcCabeThiele(params: DistillationParameters): DistillationAnalysisResult {
   const alpha = params.relativeVolatility;
-  const xF = params.feedCompositionXf ?? params.feedComposition;
-  const xD = params.distillatePurityXd ?? params.distillatePurity;
-  const xB = params.bottomsPurityXb ?? params.bottomsPurity;
+  const xF = params.feedMoleFraction ?? params.feedCompositionXf ?? params.feedComposition;
+  const xD = params.distillateMoleFraction ?? params.distillatePurityXd ?? params.distillatePurity;
+  const xB = params.bottomsMoleFraction ?? params.bottomsPurityXb ?? params.bottomsPurity;
   const R = params.refluxRatio;
   const q = params.feedThermalConditionQ ?? params.feedQuality;
 
@@ -198,6 +210,8 @@ export function solveMcCabeThiele(params: DistillationParameters): DistillationA
       y1: parseFloat(currentY.toFixed(4)),
       x2: parseFloat(xEquil.toFixed(4)),
       y2: parseFloat(Math.max(xB, nextY).toFixed(4)),
+      x: parseFloat(currentX.toFixed(4)),
+      y: parseFloat(currentY.toFixed(4)),
     });
 
     currentX = xEquil;
@@ -232,10 +246,19 @@ export function solveMcCabeThiele(params: DistillationParameters): DistillationA
   const feedFlowF = 100;
   const distillateRateMolH = Math.max(0, (feedFlowF * (xF - xB)) / Math.max(1e-4, xD - xB));
 
+  const steppedTrays = stages.map((s) => ({
+    x: s.x1,
+    y: s.y1,
+    nextX: s.x2,
+    nextY: s.y2,
+  }));
+
   return {
     numberOfStages: stageCount,
     theoreticalStages: stageCount,
+    theoreticalTrays: stageCount,
     optimalFeedStage,
+    feedTrayLocation: optimalFeedStage,
     minimumRefluxRatio: parseFloat(Rmin.toFixed(2)),
     minimumStagesFenske: parseFloat(Nmin.toFixed(2)),
     minimumStages: parseFloat(Nmin.toFixed(2)),
@@ -243,7 +266,9 @@ export function solveMcCabeThiele(params: DistillationParameters): DistillationA
     distillateRateMolH: parseFloat(distillateRateMolH.toFixed(1)),
     intersectionQ: { x: parseFloat(xQ.toFixed(4)), y: parseFloat(yQ.toFixed(4)) },
     stages,
+    steppedTrays,
     vlePoints,
+    equilibriumCurve: vlePoints,
     rolPoints,
     solPoints,
     qLinePoints,

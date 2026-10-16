@@ -48,6 +48,10 @@ export interface PidPerformanceResult {
   readonly steadyStateError: number;
   readonly isStable: boolean;
   readonly trajectory: readonly PidStepPoint[];
+  readonly peakOvershootPct: number;
+  readonly settlingTimeSec: number;
+  readonly riseTimeSec: number;
+  readonly stepResponsePoints: readonly { timeSec: number; outputY: number }[];
 }
 
 export const DEFAULT_PID_PARAMS: PidParameters = {
@@ -150,6 +154,11 @@ export class PidControllerEngine {
     const riseTime = riseTimeStart !== null && riseTimeEnd !== null ? riseTimeEnd - riseTimeStart : null;
     const isStable = Math.abs(finalOutput) < 50 * Math.max(1, Math.abs(r)) && !isNaN(finalOutput);
 
+    const stepResponsePoints = trajectory.map((p) => ({
+      timeSec: p.timeS,
+      outputY: p.output,
+    }));
+
     return {
       riseTimeS: riseTime !== null ? Number(riseTime.toFixed(2)) : null,
       peakTimeS: peakTime !== null ? Number(peakTime.toFixed(2)) : null,
@@ -159,6 +168,10 @@ export class PidControllerEngine {
       steadyStateError: Number(ssError.toFixed(4)),
       isStable,
       trajectory,
+      peakOvershootPct: Number(overshootPct.toFixed(1)),
+      settlingTimeSec: settlingTime !== null ? Number(settlingTime.toFixed(2)) : 0,
+      riseTimeSec: riseTime !== null ? Number(riseTime.toFixed(2)) : 0,
+      stepResponsePoints,
     };
   }
 }

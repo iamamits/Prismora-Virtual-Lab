@@ -245,8 +245,10 @@ export function computeInverseKinematics(
 export interface RoboticArmParameters {
   readonly link1LengthM: number;
   readonly link2LengthM: number;
-  readonly joint1AngleRad: number;
-  readonly joint2AngleRad: number;
+  readonly joint1AngleRad?: number;
+  readonly joint2AngleRad?: number;
+  readonly theta1Deg?: number;
+  readonly theta2Deg?: number;
 }
 
 export const DEFAULT_ROBOTIC_ARM_PARAMS: RoboticArmParameters = {
@@ -254,16 +256,20 @@ export const DEFAULT_ROBOTIC_ARM_PARAMS: RoboticArmParameters = {
   link2LengthM: 2.0,
   joint1AngleRad: (35 * Math.PI) / 180,
   joint2AngleRad: (45 * Math.PI) / 180,
+  theta1Deg: 35,
+  theta2Deg: 45,
 };
 
 export class RoboticArmEngine {
   static computeForwardKinematics(params: RoboticArmParameters) {
-    const t1Deg = (params.joint1AngleRad * 180) / Math.PI;
-    const t2Deg = (params.joint2AngleRad * 180) / Math.PI;
+    const t1Rad = params.joint1AngleRad ?? (params.theta1Deg !== undefined ? (params.theta1Deg * Math.PI) / 180 : 0);
+    const t2Rad = params.joint2AngleRad ?? (params.theta2Deg !== undefined ? (params.theta2Deg * Math.PI) / 180 : 0);
+    const t1Deg = (t1Rad * 180) / Math.PI;
+    const t2Deg = (t2Rad * 180) / Math.PI;
     const res = computeForwardKinematics([params.link1LengthM, params.link2LengthM], [t1Deg, t2Deg]);
     const j1 = res.joints[1] ?? { x: 0, y: 0 };
     const j2 = res.endEffector;
-    const detJ = params.link1LengthM * params.link2LengthM * Math.sin(params.joint2AngleRad);
+    const detJ = params.link1LengthM * params.link2LengthM * Math.sin(t2Rad);
     return {
       joint1X: 0,
       joint1Y: 0,
@@ -271,9 +277,14 @@ export class RoboticArmEngine {
       joint2Y: j1.y,
       endEffectorX: j2.x,
       endEffectorY: j2.y,
+      elbowPosition: { x: j1.x, y: j1.y },
+      endEffectorPosition: { x: j2.x, y: j2.y },
+      reachDistanceM: parseFloat(Math.hypot(j2.x, j2.y).toFixed(3)),
       jacobianDeterminant: parseFloat(detJ.toFixed(3)),
+      isNearSingularity: res.isSingular,
       isSingular: res.isSingular,
       manipulability: res.manipulability,
+      manipulabilityIndex: res.manipulability,
       raw: res,
     };
   }
