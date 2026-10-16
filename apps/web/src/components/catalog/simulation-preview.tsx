@@ -1421,6 +1421,66 @@ export function LatchFlipFlopPreview({ isHovered = false, className = '' }: Prev
 }
 
 /**
+ * 18. Network Theorems (Thévenin, Norton & Maximum Power) Preview
+ */
+export function NetworkTheoremsPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+      
+      {/* Title */}
+      <text x="24" y="32" fill="#38BDF8" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        THÉVENIN REDUCTION &amp; MAX POWER
+      </text>
+
+      {/* Left: Circuit Schematic */}
+      {/* Vth Source */}
+      <circle cx="50" cy="90" r="14" stroke="#38BDF8" strokeWidth="1.5" fill="#0B1120" />
+      <text x="50" y="93" fill="#38BDF8" fontSize="8" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">Vth</text>
+      
+      {/* Rth Resistor */}
+      <path d="M 50 76 L 50 65 L 75 65 L 80 58 L 88 72 L 96 58 L 104 72 L 112 58 L 117 65 L 135 65" stroke="#F59E0B" strokeWidth="1.5" fill="none" />
+      <text x="96" y="52" fill="#FBBF24" fontSize="8" fontFamily="JetBrains Mono, monospace" textAnchor="middle">Rth</text>
+
+      {/* Load Terminals */}
+      <circle cx="135" cy="65" r="2.5" fill="#F43F5E" />
+      <circle cx="135" cy="115" r="2.5" fill="#94A3B8" />
+      <path d="M 50 104 L 50 115 L 135 115" stroke="#475569" strokeWidth="1.5" fill="none" />
+
+      {/* RL Box */}
+      <rect x="125" y="75" width="20" height="30" rx="3" fill="#065F46" stroke="#10B981" strokeWidth="1.5" />
+      <text x="135" y="93" fill="#A7F3D0" fontSize="8" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">RL</text>
+      <line x1="135" y1="65" x2="135" y2="75" stroke="#10B981" strokeWidth="1.5" />
+      <line x1="135" y1="105" x2="135" y2="115" stroke="#10B981" strokeWidth="1.5" />
+
+      {/* Right: Power Curve PL vs RL */}
+      <g transform="translate(170, 45)">
+        {/* Axes */}
+        <line x1="15" y1="95" x2="120" y2="95" stroke="#475569" strokeWidth="1" />
+        <line x1="15" y1="20" x2="15" y2="95" stroke="#475569" strokeWidth="1" />
+        <text x="115" y="105" fill="#64748B" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="end">RL</text>
+        <text x="8" y="25" fill="#64748B" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">PL</text>
+
+        {/* Parabolic Power Curve */}
+        <path d="M 15 95 Q 60 15 115 70" stroke="#10B981" strokeWidth="2" fill="none" />
+
+        {/* Peak indicator */}
+        <line x1="60" y1="28" x2="60" y2="95" stroke="#38BDF8" strokeWidth="1" strokeDasharray="2 2" />
+        <circle cx="60" cy="28" r="3" fill="#38BDF8" />
+        <text x="60" y="20" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle" fontWeight="bold">RL = Rth</text>
+        <text x="60" y="105" fill="#10B981" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">η = 50%</text>
+      </g>
+
+      {/* Footer banner */}
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        Voc = Vth • In = Vth/Rth • P_max = Vth²/(4Rth)
+      </text>
+    </svg>
+  );
+}
+
+/**
  * Universal Simulation Preview Dispatcher
  * Automatically routes simulation ID to its dedicated scientific visualization
  */
@@ -1438,6 +1498,9 @@ export function SimulationPreview({
   switch (simId) {
     case 'projectile-motion':
       return <ProjectileMotionPreview isHovered={isHovered} className={className} />;
+    case 'network-theorems':
+      return <NetworkTheoremsPreview isHovered={isHovered} className={className} />;
+
     case 'digital-electronics':
     case 'basic-logic-gates':
     case 'universal-nand-nor-realization':

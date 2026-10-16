@@ -314,7 +314,42 @@ export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
     ],
   },
 
-  // Comprehensive ECE Virtual Lab Curriculum Specifications (200 Topics)
+  // Flagship Electrical Engineering Lab
+  {
+    id: 'network-theorems',
+    title: "Network Theorems Lab: Thévenin, Norton & Maximum Power",
+    shortTitle: 'Network Theorems',
+    description:
+      'Scientifically verified circuit reduction workbench. Compute open-circuit voltage Voc = Vth, internal de-energized resistance Rin = Rth, Norton current In = Vth/Rth, and swept load resistance dynamic power transfer curve (PL vs RL peak at RL = Rth).',
+    laboratoryId: 'ece',
+    category: 'Circuit Analysis and Network Theorems',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/electrical/network-theorems',
+    disciplineColor: '#2563EB',
+    featured: true,
+    tags: ["Thévenin's Theorem", "Norton's Theorem", 'Maximum Power Transfer', 'Network Reduction', 'Vth', 'Rth', 'Circuits'],
+    learningObjectives: [
+      'Experimentally measure open-circuit terminal voltage Voc to determine Thévenin voltage Vth',
+      'De-energize independent sources to find equivalent internal resistance Rth',
+      'Construct and verify dual equivalent circuits (Original 5-element vs 2-element Thévenin)',
+      'Demonstrate Jacobi Maximum Power Transfer Theorem: maximum load power occurs when RL = Rth',
+      'Compute Norton equivalent current In = Vth / Rth and verify source transformation duality',
+    ],
+    capabilities: [
+      'Dual Independent DC Bench Voltage Supplies (0 - 30V)',
+      'Precision Resistor Decade Box (10Ω - 10kΩ)',
+      'Digital Multimeter (DC Voltmeter & Precision DC Ammeter)',
+      'Swept Variable Potentiometer Load with Real-time Power Curve',
+    ],
+    equations: [
+      'V_{th} = V_{oc} = \\frac{\\frac{V_1}{R_1} + \\frac{V_2}{R_2}}{\\frac{1}{R_1} + \\frac{1}{R_2} + \\frac{1}{R_3}}',
+      'R_{th} = \\frac{1}{\\frac{1}{R_1} + \\frac{1}{R_2} + \\frac{1}{R_3}}',
+      'I_N = \\frac{V_{th}}{R_{th}}',
+      'P_L(R_L) = \\frac{V_{th}^2 R_L}{(R_{th} + R_L)^2} \\implies P_{L,\\max} = \\frac{V_{th}^2}{4 R_{th}}',
+    ],
+  },
+
   ...ECE_CURRICULUM_SPECIFICATIONS,
 
   // 5. Harmonic Oscillator (Planned / In Development)

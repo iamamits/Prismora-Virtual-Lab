@@ -52,3 +52,8 @@ export * from './toc';
 export * as ECE from './ece';
 export * from './ece';
 
+// Electrical Engineering (Network Theorems: Thévenin, Norton, Max Power)
+export * as Electrical from './electrical';
+export * from './electrical';
+
+
