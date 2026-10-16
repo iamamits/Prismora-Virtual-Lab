@@ -23,6 +23,7 @@ import {
   ChevronRight,
   ExternalLink,
   GraduationCap,
+  Heart,
   Layers,
   Library,
   RotateCcw,
@@ -61,6 +62,7 @@ const DOMAIN_ICONS: Record<AcademicDomainId, React.ComponentType<{ className?: s
 
 export default function LibraryPage() {
   const [viewMode, setViewMode] = useState<'hubs' | 'grid'>('hubs');
+  const [streamFilter, setStreamFilter] = useState<'all' | 'class-11' | 'class-12' | 'btech'>('all');
   const [selectedDomain, setSelectedDomain] = useState<AcademicDomainId | 'all'>('all');
   const [selectedDegree, setSelectedDegree] = useState<AcademicDegree | 'all'>('all');
   const [selectedSemester, setSelectedSemester] = useState<AcademicSemester | 'all'>('all');
@@ -70,6 +72,11 @@ export default function LibraryPage() {
   // Filtered experiments for grid view
   const filteredExperiments = useMemo(() => {
     return MASTER_EXPERIMENT_INVENTORY.filter((exp) => {
+      // Stream level filter
+      if (streamFilter === 'class-11' && exp.educationLevel !== 'class-11' && exp.degree !== 'Class 11') return false;
+      if (streamFilter === 'class-12' && exp.educationLevel !== 'class-12' && exp.degree !== 'Class 12') return false;
+      if (streamFilter === 'btech' && exp.educationLevel !== 'btech' && exp.degree !== 'B.Tech' && exp.degree !== 'B.E.' && exp.degree !== 'B.Sc' && exp.degree !== 'M.Tech') return false;
+
       // Domain filter
       if (selectedDomain !== 'all' && exp.domain !== selectedDomain) return false;
       // Degree filter
@@ -87,7 +94,7 @@ export default function LibraryPage() {
       }
       return true;
     });
-  }, [selectedDomain, selectedDegree, selectedSemester, searchQuery]);
+  }, [streamFilter, selectedDomain, selectedDegree, selectedSemester, searchQuery]);
 
   // Grouped experiments by domain for Hubs view
   const experimentsByDomain = useMemo(() => {
@@ -115,6 +122,11 @@ export default function LibraryPage() {
         if (!matchesTitle && !matchesCourse && !matchesTags) return;
       }
 
+      // Stream level filter
+      if (streamFilter === 'class-11' && exp.educationLevel !== 'class-11' && exp.degree !== 'Class 11') return;
+      if (streamFilter === 'class-12' && exp.educationLevel !== 'class-12' && exp.degree !== 'Class 12') return;
+      if (streamFilter === 'btech' && exp.educationLevel !== 'btech' && exp.degree !== 'B.Tech' && exp.degree !== 'B.E.' && exp.degree !== 'B.Sc' && exp.degree !== 'M.Tech') return;
+
       if (selectedDegree !== 'all' && exp.degree !== selectedDegree) return;
       if (selectedSemester !== 'all' && exp.semester !== selectedSemester) return;
 
@@ -124,7 +136,7 @@ export default function LibraryPage() {
     });
 
     return grouped;
-  }, [searchQuery, selectedDegree, selectedSemester]);
+  }, [streamFilter, searchQuery, selectedDegree, selectedSemester]);
 
   const functionalCount = MASTER_EXPERIMENT_INVENTORY.filter((e) => e.status === 'functional').length;
 
@@ -193,13 +205,73 @@ export default function LibraryPage() {
       <section className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Search & Filters Bar */}
         <div className="bg-white rounded-2xl border border-zinc-200 p-4 shadow-xs space-y-3">
+          {/* Stream / Education Level Segmented Tabs */}
+          <div className="flex items-center gap-1.5 p-1 bg-zinc-100 rounded-xl overflow-x-auto">
+            <button
+              onClick={() => {
+                setStreamFilter('all');
+                setSelectedDegree('all');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                streamFilter === 'all'
+                  ? 'bg-white text-zinc-900 shadow-xs'
+                  : 'text-zinc-600 hover:text-zinc-900'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5 text-zinc-500" />
+              <span>All Streams (50+ Labs)</span>
+            </button>
+            <button
+              onClick={() => {
+                setStreamFilter('class-11');
+                setSelectedDegree('Class 11');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                streamFilter === 'class-11'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-zinc-600 hover:text-zinc-900'
+              }`}
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              <span>Class 11 (NCERT)</span>
+            </button>
+            <button
+              onClick={() => {
+                setStreamFilter('class-12');
+                setSelectedDegree('Class 12');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                streamFilter === 'class-12'
+                  ? 'bg-pink-600 text-white shadow-xs'
+                  : 'text-zinc-600 hover:text-zinc-900'
+              }`}
+            >
+              <Heart className="w-3.5 h-3.5" />
+              <span>Class 12 (NCERT / NEET)</span>
+            </button>
+            <button
+              onClick={() => {
+                setStreamFilter('btech');
+                setSelectedDegree('B.Tech');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                streamFilter === 'btech'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-zinc-600 hover:text-zinc-900'
+              }`}
+            >
+              <Cpu className="w-3.5 h-3.5" />
+              <span>B.Tech Engineering (AICTE)</span>
+            </button>
+          </div>
+
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input
                 type="text"
-                placeholder="Search by course code (e.g. CE-202, EE-201, CS-202), topic, or institution..."
+                placeholder="Search by course code (e.g. CE-202, EE-201, BIO-1201), topic, or institution..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 border border-zinc-200 rounded-lg text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50/50"
@@ -221,7 +293,9 @@ export default function LibraryPage() {
                 onChange={(e) => setSelectedDegree(e.target.value as AcademicDegree | 'all')}
                 className="text-xs font-semibold border border-zinc-200 rounded-lg px-2.5 py-2 bg-white text-zinc-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="all">All Degrees</option>
+                <option value="all">All Levels</option>
+                <option value="Class 11">Class 11 (NCERT)</option>
+                <option value="Class 12">Class 12 (NCERT / NEET)</option>
                 <option value="B.Tech">B.Tech / B.E.</option>
                 <option value="B.Sc">B.Sc / BS</option>
                 <option value="M.Tech">M.Tech / MS</option>

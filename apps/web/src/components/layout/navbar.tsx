@@ -25,32 +25,180 @@ import {
   Calculator,
   ArrowRight,
   Sparkles,
+  GraduationCap,
+  BookOpen,
+  Search,
+  Activity,
+  Heart,
+  ChevronRight,
 } from 'lucide-react';
 
-interface DisciplineItem {
-  name: string;
-  short: string;
+interface NavExperimentItem {
+  title: string;
+  subject: string;
   href: string;
   icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   color: string;
+  badge?: string;
   description: string;
 }
 
-const ACADEMIC_DISCIPLINES: {
-  category: string;
-  items: DisciplineItem[];
-}[] = [
+// =========================================================================
+// 1. CLASS 11 & 12 NCERT / NEET / JEE CURRICULUM
+// =========================================================================
+const SCHOOL_CURRICULUM = {
+  class11: [
+    {
+      title: 'Projectile Motion & Gravities',
+      subject: 'Physics',
+      href: '/experiments/projectile-motion',
+      icon: Atom,
+      color: '#2563EB',
+      badge: '60 FPS Flagship',
+      description: '2D parabolic trajectories, planetary gravity presets, measuring tape, and apex kinematics',
+    },
+    {
+      title: 'Harmonic Oscillators & SHM',
+      subject: 'Physics',
+      href: '/experiments/mechanical?exp=harmonic-oscillator',
+      icon: Activity,
+      color: '#F59E0B',
+      description: 'Spring-mass systems, phase portraits, damping factors, and resonant frequency',
+    },
+    {
+      title: 'Venturimeter Bernoulli Flow',
+      subject: 'Physics',
+      href: '/experiments/mechanical?exp=venturi-flow',
+      icon: Cog,
+      color: '#0284C7',
+      description: 'Manometer pressure differentials, discharge coefficient, and Bernoulli continuity',
+    },
+    {
+      title: 'Acid-Base Dynamic Titration',
+      subject: 'Chemistry',
+      href: '/experiments/chemistry/titration',
+      icon: FlaskConical,
+      color: '#F59E0B',
+      badge: 'Dynamic pH',
+      description: 'Volumetric burette, neutralization curves, Henderson-Hasselbalch, and indicators',
+    },
+    {
+      title: 'Mitosis Cytology under Microscope',
+      subject: 'Biology',
+      href: '/experiments/biology?exp=cell-mitosis',
+      icon: Dna,
+      color: '#8B5CF6',
+      description: 'Virtual microscopy 100x: Prophase, Metaphase plate, Anaphase, and Cytokinesis',
+    },
+    {
+      title: 'Stomatal Transpiration Pull',
+      subject: 'Biology',
+      href: '/experiments/biology?exp=plant-transpiration',
+      icon: Dna,
+      color: '#059669',
+      description: 'Guard cell turgor pressure, active K+ ion influx pump, and transpiration rate',
+    },
+  ] as NavExperimentItem[],
+
+  class12: [
+    {
+      title: 'Human Reproduction & Embryogenesis',
+      subject: 'Biology',
+      href: '/experiments/biology?exp=human-reproduction',
+      icon: Heart,
+      color: '#EC4899',
+      badge: 'No Taboo • Flagship',
+      description: '28-day endocrine cycle, LH surge, fertilization kinetics, polyspermy block, and family planning',
+    },
+    {
+      title: '3D Human Anatomy Systems',
+      subject: 'Biology',
+      href: '/experiments/biology?exp=anatomy-3d',
+      icon: Activity,
+      color: '#06B6D4',
+      badge: '3D WebGL',
+      description: 'Interactive male/female 3D models with X-ray transparency and clinical landmark probes',
+    },
+    {
+      title: 'Mendelian Genetics & Punnett Matrix',
+      subject: 'Biology',
+      href: '/experiments/biology?exp=genetics-mendel',
+      icon: Dna,
+      color: '#10B981',
+      description: 'Monohybrid (3:1, 1:2:1) & Dihybrid (9:3:3:1) crosses with Chi-square analysis',
+    },
+    {
+      title: "Young's Double Slit Wave Optics",
+      subject: 'Physics',
+      href: '/experiments/physics?exp=wave-optics',
+      icon: Atom,
+      color: '#2563EB',
+      description: 'Interference fringe patterns, laser wavelength tuning, slit separation, and diffraction envelope',
+    },
+    {
+      title: 'Photoelectric Effect & Quantum Photons',
+      subject: 'Physics',
+      href: '/experiments/physics?exp=photoelectric',
+      icon: Zap,
+      color: '#E11D48',
+      description: 'Phototube stopping potential V0, cathode work functions, and Planck constant determination',
+    },
+    {
+      title: 'Computational Calculus & Matrices',
+      subject: 'Mathematics',
+      href: '/studio',
+      icon: Calculator,
+      color: '#8B5CF6',
+      badge: 'Math Studio',
+      description: 'Real-time tangents, Riemann partitions, matrix warping, and Runge-Kutta phase portraits',
+    },
+  ] as NavExperimentItem[],
+};
+
+// =========================================================================
+// 2. HIGHER EDUCATION / B.TECH ENGINEERING DISCIPLINES
+// =========================================================================
+const BTECH_ENGINEERING = [
   {
-    category: 'Engineering Disciplines',
-    items: [
+    category: 'Computing & Electronics',
+    disciplines: [
       {
-        name: 'Civil & Structural Engineering',
-        short: 'Civil Truss Lab',
-        href: '/experiments/civil',
-        icon: Building2,
-        color: '#78716C',
-        description: 'Bridge truss statics, method of joints, and beam bending SFD/BMD',
+        name: 'Computer Architecture (RV32I)',
+        short: 'COA RISC-V',
+        href: '/experiments/coa',
+        icon: Layers,
+        color: '#06B6D4',
+        description: 'Single-cycle datapath, 5-stage pipeline, RAW hazard stalls, and L1 cache',
       },
+      {
+        name: 'Theory of Computation',
+        short: 'TOC Automata',
+        href: '/experiments/toc',
+        icon: Binary,
+        color: '#8B5CF6',
+        description: '5-tuple DFA/NFA, Hopcroft state minimizer, CYK parser, and Turing tape',
+      },
+      {
+        name: 'Electronics & Communication',
+        short: 'ECE Workbench',
+        href: '/experiments/ece',
+        icon: Cpu,
+        color: '#06B6D4',
+        description: "Ohm's law, diode bridge rectifiers, 4-bit ALUs, and semiconductor devices",
+      },
+      {
+        name: 'Digital Logic Design',
+        short: 'Digital Electronics',
+        href: '/experiments/digital-electronics',
+        icon: Zap,
+        color: '#F43F5E',
+        description: 'Quine-McCluskey K-maps, JK/D flip-flops, hazard-free digital logic synthesis',
+      },
+    ],
+  },
+  {
+    category: 'Core Engineering Branches',
+    disciplines: [
       {
         name: 'Electrical Engineering',
         short: 'Network Theorems',
@@ -61,109 +209,43 @@ const ACADEMIC_DISCIPLINES: {
       },
       {
         name: 'Mechanical Engineering',
-        short: 'Harmonic Oscillator',
+        short: 'Vibrations & Mechanics',
         href: '/experiments/mechanical',
         icon: Cog,
         color: '#F59E0B',
-        description: 'Vibrations, venturimeter Bernoulli flow, and UTM tensile stress-strain',
+        description: 'Harmonic vibration resonance, venturi Bernoulli flow, and tensile stress-strain',
       },
       {
-        name: 'Chemical Process Engineering',
-        short: 'Distillation Column',
+        name: 'Civil & Structural',
+        short: 'Civil Truss Lab',
+        href: '/experiments/civil',
+        icon: Building2,
+        color: '#78716C',
+        description: 'Bridge truss statics, method of joints, and beam bending SFD/BMD',
+      },
+      {
+        name: 'Chemical Engineering',
+        short: 'Distillation & Kinetics',
         href: '/experiments/chemical',
         icon: TestTubes,
         color: '#10B981',
-        description: 'McCabe-Thiele distillation, VLE curve, and CSTR vs PFR reactor kinetics',
-      },
-    ],
-  },
-  {
-    category: 'Computing & Logic Systems',
-    items: [
-      {
-        name: 'Electronics & Communication',
-        short: 'ECE Workbench',
-        href: '/experiments/ece',
-        icon: Cpu,
-        color: '#06B6D4',
-        description: "Ohm's law, diode rectifiers, 4-bit ALUs, and semiconductor devices",
+        description: 'McCabe-Thiele fractional distillation, VLE equilibrium, and CSTR/PFR reactors',
       },
       {
-        name: 'Digital Logic Design',
-        short: 'Digital Electronics',
-        href: '/experiments/digital-electronics',
-        icon: Zap,
-        color: '#F43F5E',
-        description: 'Logic gates, Quine-McCluskey K-map, flip-flops, and sub-ns hazards',
-      },
-      {
-        name: 'Computer Architecture (RV32I)',
-        short: 'COA RISC-V',
-        href: '/experiments/coa',
-        icon: Layers,
-        color: '#06B6D4',
-        description: 'Single-cycle datapath, 5-stage pipeline, RAW stalls, and L1 cache',
-      },
-      {
-        name: 'Theory of Computation',
-        short: 'TOC Automata',
-        href: '/experiments/toc',
-        icon: Binary,
-        color: '#8B5CF6',
-        description: '5-tuple DFA/NFA, Hopcroft state minimizer, CYK parser, Turing tape',
-      },
-    ],
-  },
-  {
-    category: 'Natural Sciences & Interdisciplinary',
-    items: [
-      {
-        name: 'Physical Sciences',
-        short: 'Physics & Optics',
-        href: '/experiments/physics',
-        icon: Atom,
-        color: '#2563EB',
-        description: 'Photoelectric effect, wave optics, celestial gravity kinematics',
-      },
-      {
-        name: 'Chemical Sciences',
-        short: 'Acid-Base Titration',
-        href: '/experiments/chemistry/titration',
-        icon: FlaskConical,
-        color: '#F59E0B',
-        description: 'Dynamic pH titration neutralization curves and Henderson-Hasselbalch',
-      },
-      {
-        name: 'Biological Sciences & Reproduction',
-        short: 'Biology & Reproduction',
-        href: '/experiments/biology',
-        icon: Dna,
-        color: '#EC4899',
-        description: 'Human reproduction, 28-day endocrine cycle, fertilization, and Mendelian genetics',
-      },
-      {
-        name: 'Biotechnology & Bioengineering',
+        name: 'Biotechnology & Bioengg',
         short: 'Enzyme & Fermentation',
         href: '/experiments/biotech',
-        icon: TestTubes,
+        icon: Dna,
         color: '#10B981',
-        description: 'Michaelis-Menten enzyme kinetics and Monod bacterial fermentation',
+        description: 'Michaelis-Menten enzyme kinetics, Lineweaver-Burk, and bacterial growth models',
       },
       {
-        name: 'Robotics & Mechanisms',
-        short: 'Robotics & Control',
+        name: 'Robotics & Control',
+        short: 'Robotics Kinematics',
         href: '/experiments/robotics',
         icon: Bot,
         color: '#06B6D4',
         description: 'Denavit-Hartenberg frames, analytical IK, and PID controller tuning',
-      },
-      {
-        name: 'Mathematics & Analysis',
-        short: 'Math Studio',
-        href: '/studio',
-        icon: Calculator,
-        color: '#8B5CF6',
-        description: 'Function tangents, 2D matrix warping, and RK4 numerical vector fields',
       },
     ],
   },
@@ -172,38 +254,54 @@ const ACADEMIC_DISCIPLINES: {
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [disciplinesOpen, setDisciplinesOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [schoolOpen, setSchoolOpen] = useState(false);
+  const [btechOpen, setBtechOpen] = useState(false);
 
-  // Close dropdown when clicking outside
+  const schoolRef = useRef<HTMLDivElement>(null);
+  const btechRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDisciplinesOpen(false);
+      if (schoolRef.current && !schoolRef.current.contains(event.target as Node)) {
+        setSchoolOpen(false);
+      }
+      if (btechRef.current && !btechRef.current.contains(event.target as Node)) {
+        setBtechOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Close mobile menu on route change
+  // Close menus on route change
   useEffect(() => {
     setMobileMenuOpen(false);
-    setDisciplinesOpen(false);
+    setSchoolOpen(false);
+    setBtechOpen(false);
   }, [pathname]);
 
-  const mainLinks = [
-    { label: 'Explore', href: '/explore', icon: Compass },
-    { label: 'Curriculum Library', href: '/library', icon: Library },
-    { label: 'Labs Catalog', href: '/labs', icon: FlaskConical },
-    { label: 'Math Studio', href: '/studio', icon: Calculator },
-  ];
+  const isSchoolActive =
+    pathname.startsWith('/experiments/biology') ||
+    pathname.startsWith('/experiments/projectile-motion') ||
+    pathname.startsWith('/experiments/physics') ||
+    pathname.startsWith('/experiments/chemistry');
 
-  const isDisciplineActive = pathname.startsWith('/experiments');
+  const isBtechActive =
+    pathname.startsWith('/experiments/coa') ||
+    pathname.startsWith('/experiments/toc') ||
+    pathname.startsWith('/experiments/ece') ||
+    pathname.startsWith('/experiments/electrical') ||
+    pathname.startsWith('/experiments/mechanical') ||
+    pathname.startsWith('/experiments/civil') ||
+    pathname.startsWith('/experiments/chemical') ||
+    pathname.startsWith('/experiments/biotech') ||
+    pathname.startsWith('/experiments/robotics') ||
+    pathname.startsWith('/experiments/digital-electronics');
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/95 backdrop-blur-md select-none shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         {/* Brand / Official Prismora Logo Lockup */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2.5 group">
@@ -215,12 +313,12 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            {/* Explore Link */}
+            {/* 1. Explore Home */}
             <Link
               href="/explore"
               className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 pathname === '/explore' || pathname === '/'
-                  ? 'text-[#172033] font-bold'
+                  ? 'text-zinc-900 font-bold'
                   : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
               }`}
             >
@@ -235,115 +333,275 @@ export const Navbar: React.FC = () => {
               )}
             </Link>
 
-            {/* Curriculum Library Link */}
-            <Link
-              href="/library"
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                pathname === '/library'
-                  ? 'text-[#172033] font-bold'
-                  : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
-              }`}
-            >
-              <Library className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Curriculum Library</span>
-              {pathname === '/library' && (
-                <motion.div
-                  layoutId="navbar-active-pill"
-                  className="absolute bottom-0 left-2 right-2 h-0.5 bg-indigo-600 rounded-full"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
-              )}
-            </Link>
-
-            {/* Disciplines Mega-Menu Trigger */}
-            <div className="relative" ref={dropdownRef}>
+            {/* 2. School Curriculum (Class 11 & 12 Dropdown) */}
+            <div className="relative" ref={schoolRef}>
               <button
-                onClick={() => setDisciplinesOpen(!disciplinesOpen)}
+                onClick={() => {
+                  setSchoolOpen(!schoolOpen);
+                  setBtechOpen(false);
+                }}
                 className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  disciplinesOpen || isDisciplineActive
-                    ? 'text-zinc-900 bg-zinc-100'
+                  schoolOpen || isSchoolActive
+                    ? 'text-pink-900 bg-pink-50/80 font-bold'
                     : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
                 }`}
-                aria-expanded={disciplinesOpen}
+                aria-expanded={schoolOpen}
               >
-                <Layers className="w-3.5 h-3.5 text-[#2563EB]" />
-                <span>Disciplines & Labs</span>
+                <GraduationCap className="w-3.5 h-3.5 text-pink-600" />
+                <span>Class 11 & 12 (NCERT)</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${
-                    disciplinesOpen ? 'rotate-180 text-zinc-700' : ''
+                    schoolOpen ? 'rotate-180 text-pink-700' : ''
                   }`}
                 />
-                {isDisciplineActive && !disciplinesOpen && (
+                {isSchoolActive && !schoolOpen && (
                   <motion.div
                     layoutId="navbar-active-pill"
-                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#2563EB] rounded-full"
+                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-pink-600 rounded-full"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
               </button>
 
-              {/* Mega-Menu Dropdown Panel */}
+              {/* School Dropdown Mega-Menu */}
               <AnimatePresence>
-                {disciplinesOpen && (
+                {schoolOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: 8, scale: 0.99 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.99 }}
                     transition={{ duration: 0.18, ease: 'easeOut' }}
-                    className="absolute top-full left-0 mt-2 w-[780px] bg-white rounded-2xl border border-zinc-200 shadow-2xl p-5 z-50 overflow-hidden"
+                    className="absolute top-full left-0 mt-2 w-[760px] bg-white rounded-2xl border border-zinc-200 shadow-2xl p-5 z-50 overflow-hidden"
                   >
                     <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-100">
                       <div>
                         <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
-                          <Layers className="w-4 h-4 text-indigo-600" />
-                          <span>11 Multi-Disciplinary Scientific Laboratories</span>
+                          <GraduationCap className="w-4 h-4 text-pink-600" />
+                          <span>Class 11 & 12 Senior Secondary Science Syllabus</span>
                         </h4>
                         <p className="text-xs text-zinc-500 mt-0.5">
-                          Curriculum-mapped virtual experiments with analytical physics, 3D testbenches, and KaTeX mathematical models.
+                          Standard NCERT, NEET & JEE practical experiments with zero taboos and living 60 FPS simulations.
                         </p>
                       </div>
                       <Link
                         href="/library"
-                        onClick={() => setDisciplinesOpen(false)}
-                        className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+                        onClick={() => setSchoolOpen(false)}
+                        className="text-xs font-bold text-pink-600 hover:text-pink-700 flex items-center gap-1 bg-pink-50 hover:bg-pink-100 px-3 py-1.5 rounded-lg transition-colors"
                       >
-                        <span>Full Syllabus</span>
+                        <span>Filter School Labs</span>
                         <ArrowRight className="w-3 h-3" />
                       </Link>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-6">
-                      {ACADEMIC_DISCIPLINES.map((group) => (
-                        <div key={group.category} className="space-y-2">
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Column 1: Class 11 */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between px-2">
+                          <h5 className="text-[11px] font-mono font-bold uppercase tracking-wider text-blue-700">
+                            Class 11 (Senior Secondary I)
+                          </h5>
+                          <span className="text-[10px] font-mono text-zinc-500 bg-zinc-100 px-1.5 py-0.5 rounded">
+                            NCERT Standard
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          {SCHOOL_CURRICULUM.class11.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setSchoolOpen(false)}
+                                className="group/item flex items-start gap-2.5 p-2 rounded-xl transition-all hover:bg-blue-50/60 border border-transparent hover:border-blue-200"
+                              >
+                                <div
+                                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-2xs group-hover/item:scale-105 transition-transform"
+                                  style={{
+                                    backgroundColor: `${item.color}15`,
+                                    color: item.color,
+                                  }}
+                                >
+                                  <Icon className="w-3.5 h-3.5" />
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-bold text-zinc-900 group-hover/item:text-blue-700 transition-colors truncate">
+                                      {item.title}
+                                    </span>
+                                    {item.badge && (
+                                      <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-bold shrink-0">
+                                        {item.badge}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-[10px] text-zinc-500 line-clamp-1 leading-tight mt-0.5">
+                                    {item.description}
+                                  </div>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Column 2: Class 12 */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between px-2">
+                          <h5 className="text-[11px] font-mono font-bold uppercase tracking-wider text-pink-700">
+                            Class 12 (Senior Secondary II)
+                          </h5>
+                          <span className="text-[10px] font-mono text-zinc-500 bg-zinc-100 px-1.5 py-0.5 rounded">
+                            NEET / AIIMS Focus
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          {SCHOOL_CURRICULUM.class12.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setSchoolOpen(false)}
+                                className="group/item flex items-start gap-2.5 p-2 rounded-xl transition-all hover:bg-pink-50/60 border border-transparent hover:border-pink-200"
+                              >
+                                <div
+                                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-2xs group-hover/item:scale-105 transition-transform"
+                                  style={{
+                                    backgroundColor: `${item.color}15`,
+                                    color: item.color,
+                                  }}
+                                >
+                                  <Icon className="w-3.5 h-3.5" />
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-bold text-zinc-900 group-hover/item:text-pink-700 transition-colors truncate">
+                                      {item.title}
+                                    </span>
+                                    {item.badge && (
+                                      <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-pink-100 text-pink-800 font-bold shrink-0">
+                                        {item.badge}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-[10px] text-zinc-500 line-clamp-1 leading-tight mt-0.5">
+                                    {item.description}
+                                  </div>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Quick Strip */}
+                    <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs bg-slate-50 -mx-5 -mb-5 px-5 py-3">
+                      <div className="flex items-center gap-2 text-zinc-600">
+                        <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                        <span>Interactive 3D Anatomy & 60 FPS reproduction science without taboos.</span>
+                      </div>
+                      <Link
+                        href="/experiments/biology"
+                        onClick={() => setSchoolOpen(false)}
+                        className="font-semibold text-pink-600 hover:text-pink-700 flex items-center gap-1"
+                      >
+                        <span>Launch Biology Lab</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* 3. Higher Education & B.Tech Disciplines */}
+            <div className="relative" ref={btechRef}>
+              <button
+                onClick={() => {
+                  setBtechOpen(!btechOpen);
+                  setSchoolOpen(false);
+                }}
+                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  btechOpen || isBtechActive
+                    ? 'text-indigo-900 bg-indigo-50/80 font-bold'
+                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
+                }`}
+                aria-expanded={btechOpen}
+              >
+                <Layers className="w-3.5 h-3.5 text-indigo-600" />
+                <span>B.Tech Engineering</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${
+                    btechOpen ? 'rotate-180 text-indigo-700' : ''
+                  }`}
+                />
+                {isBtechActive && !btechOpen && (
+                  <motion.div
+                    layoutId="navbar-active-pill"
+                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-indigo-600 rounded-full"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+              </button>
+
+              {/* B.Tech Dropdown Panel */}
+              <AnimatePresence>
+                {btechOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.99 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.99 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    className="absolute top-full left-0 mt-2 w-[760px] bg-white rounded-2xl border border-zinc-200 shadow-2xl p-5 z-50 overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-100">
+                      <div>
+                        <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                          <Cpu className="w-4 h-4 text-indigo-600" />
+                          <span>AICTE Model Engineering Curricula (IIT / NIT Benchmarks)</span>
+                        </h4>
+                        <p className="text-xs text-zinc-500 mt-0.5">
+                          Rigorous engineering laboratories across 11 technical streams with quantitative analytical solvers.
+                        </p>
+                      </div>
+                      <Link
+                        href="/library"
+                        onClick={() => setBtechOpen(false)}
+                        className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        <span>Full AICTE Syllabus</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {BTECH_ENGINEERING.map((section) => (
+                        <div key={section.category} className="space-y-2">
                           <h5 className="text-[11px] font-mono font-bold uppercase tracking-wider text-zinc-600 px-2">
-                            {group.category}
+                            {section.category}
                           </h5>
                           <div className="space-y-1">
-                            {group.items.map((item) => {
+                            {section.disciplines.map((item) => {
                               const Icon = item.icon;
-                              const isActive = pathname === item.href;
                               return (
                                 <Link
                                   key={item.href}
                                   href={item.href}
-                                  onClick={() => setDisciplinesOpen(false)}
-                                  className={`group/item flex items-start gap-2.5 p-2 rounded-xl transition-all ${
-                                    isActive
-                                      ? 'bg-blue-50 border border-blue-200'
-                                      : 'hover:bg-zinc-50 border border-transparent hover:border-zinc-200'
-                                  }`}
+                                  onClick={() => setBtechOpen(false)}
+                                  className="group/item flex items-start gap-2.5 p-2 rounded-xl transition-all hover:bg-zinc-50 border border-transparent hover:border-zinc-200"
                                 >
                                   <div
                                     className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-2xs group-hover/item:scale-105 transition-transform"
                                     style={{
-                                      backgroundColor: `${item.color}18`,
+                                      backgroundColor: `${item.color}15`,
                                       color: item.color,
                                     }}
                                   >
                                     <Icon className="w-3.5 h-3.5" />
                                   </div>
                                   <div className="min-w-0">
-                                    <div className="text-xs font-bold text-zinc-800 group-hover/item:text-[#2563EB] transition-colors truncate">
+                                    <div className="text-xs font-bold text-zinc-900 group-hover/item:text-[#2563EB] transition-colors truncate">
                                       {item.short}
                                     </div>
                                     <div className="text-[10px] text-zinc-500 line-clamp-1 leading-tight mt-0.5">
@@ -358,18 +616,18 @@ export const Navbar: React.FC = () => {
                       ))}
                     </div>
 
-                    {/* Bottom Quick Launch Strip */}
+                    {/* Bottom Strip */}
                     <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs bg-slate-50 -mx-5 -mb-5 px-5 py-3">
                       <div className="flex items-center gap-2 text-zinc-600">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                        <span>All 16 Flagship Virtual Laboratories are 100% functional and interactive.</span>
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                        <span>All 28+ engineering experiments include theoretical derivations & KaTeX equations.</span>
                       </div>
                       <Link
-                        href="/labs"
-                        onClick={() => setDisciplinesOpen(false)}
-                        className="font-semibold text-zinc-700 hover:text-zinc-900 flex items-center gap-1"
+                        href="/library"
+                        onClick={() => setBtechOpen(false)}
+                        className="font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
                       >
-                        <span>Browse Lab Catalog</span>
+                        <span>Open National Catalog</span>
                         <ArrowRight className="w-3 h-3" />
                       </Link>
                     </div>
@@ -378,41 +636,41 @@ export const Navbar: React.FC = () => {
               </AnimatePresence>
             </div>
 
-            {/* Labs Catalog Link */}
+            {/* 4. Curriculum Library Link */}
             <Link
-              href="/labs"
+              href="/library"
               className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                pathname === '/labs'
-                  ? 'text-[#172033] font-bold'
+                pathname === '/library'
+                  ? 'text-zinc-900 font-bold'
                   : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
               }`}
             >
-              <FlaskConical className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Labs Catalog</span>
-              {pathname === '/labs' && (
+              <Library className="w-3.5 h-3.5 text-blue-600" />
+              <span>Full Library</span>
+              {pathname === '/library' && (
                 <motion.div
                   layoutId="navbar-active-pill"
-                  className="absolute bottom-0 left-2 right-2 h-0.5 bg-emerald-600 rounded-full"
+                  className="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-600 rounded-full"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
             </Link>
 
-            {/* Math Studio Link */}
+            {/* 5. Math Studio */}
             <Link
               href="/studio"
               className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 pathname === '/studio'
-                  ? 'text-[#172033] font-bold'
+                  ? 'text-zinc-900 font-bold'
                   : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
               }`}
             >
-              <Calculator className="w-3.5 h-3.5 text-violet-600" />
+              <Calculator className="w-3.5 h-3.5 text-purple-600" />
               <span>Math Studio</span>
               {pathname === '/studio' && (
                 <motion.div
                   layoutId="navbar-active-pill"
-                  className="absolute bottom-0 left-2 right-2 h-0.5 bg-violet-600 rounded-full"
+                  className="absolute bottom-0 left-2 right-2 h-0.5 bg-purple-600 rounded-full"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
@@ -420,29 +678,42 @@ export const Navbar: React.FC = () => {
           </nav>
         </div>
 
-        {/* Right Actions */}
+        {/* Right Action Buttons */}
         <div className="flex items-center gap-2">
-          {/* Quick Direct Launch Shortcut */}
+          {/* Search Pill / Quick Filter */}
           <Link
-            href="/experiments/projectile-motion"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#2563EB] hover:bg-[#1D4ED8] shadow-xs transition-all hover:shadow-sm"
+            href="/library"
+            className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-xs font-mono text-zinc-500 hover:text-zinc-800 transition-colors"
           >
-            <Atom className="w-3.5 h-3.5" />
-            <span>Launch Physics</span>
+            <Search className="w-3.5 h-3.5 text-zinc-400" />
+            <span>Search 50+ labs...</span>
+            <kbd className="text-[10px] font-sans px-1.5 py-0.5 rounded bg-white border border-zinc-200 text-zinc-400">
+              Ctrl+K
+            </kbd>
           </Link>
 
-          {/* Mobile menu button */}
+          {/* Direct Launch Flagship Workbench */}
+          <Link
+            href="/experiments/projectile-motion"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Launch Flagship</span>
+            <span className="sm:hidden">Launch</span>
+          </Link>
+
+          {/* Mobile Menu Hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
-            aria-label="Toggle mobile menu"
+            className="lg:hidden p-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+            aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu dropdown */}
+      {/* Mobile Navigation Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -450,62 +721,128 @@ export const Navbar: React.FC = () => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden border-b border-zinc-200 bg-white px-4 py-4 space-y-4 shadow-xl overflow-hidden max-h-[85vh] overflow-y-auto"
+            className="lg:hidden border-t border-zinc-200 bg-white px-4 py-4 space-y-4 max-h-[85vh] overflow-y-auto"
           >
-            {/* Top Primary Links */}
-            <div className="space-y-1">
-              {mainLinks.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                      isActive
-                        ? 'bg-[#172033] text-white shadow-xs'
-                        : 'text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+            {/* Class 11 & 12 Section */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-pink-600 px-1">
+                Class 11 & 12 (NCERT / NEET)
+              </span>
+              <div className="grid grid-cols-1 gap-1">
+                <Link
+                  href="/experiments/biology"
+                  className="flex items-center justify-between p-2 rounded-lg bg-pink-50/50 text-xs font-bold text-pink-900"
+                >
+                  <span className="flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-pink-600" />
+                    Human Reproduction & 3D Anatomy Lab
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-pink-400" />
+                </Link>
+                <Link
+                  href="/experiments/projectile-motion"
+                  className="flex items-center justify-between p-2 rounded-lg bg-blue-50/50 text-xs font-bold text-blue-900"
+                >
+                  <span className="flex items-center gap-2">
+                    <Atom className="w-4 h-4 text-blue-600" />
+                    Class 11 Projectile Motion Workbench
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-blue-400" />
+                </Link>
+                <Link
+                  href="/experiments/chemistry/titration"
+                  className="flex items-center justify-between p-2 rounded-lg bg-amber-50/50 text-xs font-bold text-amber-900"
+                >
+                  <span className="flex items-center gap-2">
+                    <FlaskConical className="w-4 h-4 text-amber-600" />
+                    Class 11 Chemistry Titration Lab
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-amber-400" />
+                </Link>
+                <Link
+                  href="/experiments/physics"
+                  className="flex items-center justify-between p-2 rounded-lg bg-indigo-50/50 text-xs font-bold text-indigo-900"
+                >
+                  <span className="flex items-center gap-2">
+                    <Atom className="w-4 h-4 text-indigo-600" />
+                    Class 12 Wave Optics & Photoelectric
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-indigo-400" />
+                </Link>
+              </div>
             </div>
 
-            {/* Disciplines Section in Mobile Menu */}
-            <div className="pt-2 border-t border-zinc-100 space-y-3">
-              <span className="text-xs font-bold font-mono text-zinc-600 uppercase tracking-wider block px-1">
-                Academic Disciplines & Workbenches
+            {/* B.Tech Engineering Section */}
+            <div className="space-y-2 pt-2 border-t border-zinc-100">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-indigo-600 px-1">
+                B.Tech Higher Education (AICTE)
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {ACADEMIC_DISCIPLINES.flatMap((g) => g.items).map((item) => {
-                  const Icon = item.icon;
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
-                        isActive
-                          ? 'bg-blue-50 border-blue-300 text-blue-900 font-bold'
-                          : 'bg-zinc-50/50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
-                      }`}
-                    >
-                      <div
-                        className="w-5 h-5 rounded flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: `${item.color}20`, color: item.color }}
-                      >
-                        <Icon className="w-3 h-3" />
-                      </div>
-                      <span className="truncate">{item.short}</span>
-                    </Link>
-                  );
-                })}
+              <div className="grid grid-cols-2 gap-1.5">
+                <Link
+                  href="/experiments/coa"
+                  className="p-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-xs font-semibold text-zinc-800"
+                >
+                  COA RISC-V Pipeline
+                </Link>
+                <Link
+                  href="/experiments/toc"
+                  className="p-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-xs font-semibold text-zinc-800"
+                >
+                  TOC Automata
+                </Link>
+                <Link
+                  href="/experiments/ece"
+                  className="p-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-xs font-semibold text-zinc-800"
+                >
+                  ECE & Rectifiers
+                </Link>
+                <Link
+                  href="/experiments/electrical"
+                  className="p-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-xs font-semibold text-zinc-800"
+                >
+                  Electrical Networks
+                </Link>
+                <Link
+                  href="/experiments/mechanical"
+                  className="p-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-xs font-semibold text-zinc-800"
+                >
+                  Mechanical Vibrations
+                </Link>
+                <Link
+                  href="/experiments/chemical"
+                  className="p-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-xs font-semibold text-zinc-800"
+                >
+                  Chemical Distillation
+                </Link>
+                <Link
+                  href="/experiments/civil"
+                  className="p-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-xs font-semibold text-zinc-800"
+                >
+                  Civil Bridge Trusses
+                </Link>
+                <Link
+                  href="/experiments/biotech"
+                  className="p-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-xs font-semibold text-zinc-800"
+                >
+                  Biotech Kinetics
+                </Link>
               </div>
+            </div>
+
+            {/* Core Pages */}
+            <div className="pt-2 border-t border-zinc-100 flex items-center justify-between gap-2">
+              <Link
+                href="/library"
+                className="flex-1 text-center py-2 bg-blue-50 text-blue-700 font-bold text-xs rounded-lg"
+              >
+                Curriculum Library
+              </Link>
+              <Link
+                href="/studio"
+                className="flex-1 text-center py-2 bg-purple-50 text-purple-700 font-bold text-xs rounded-lg"
+              >
+                Math Studio
+              </Link>
             </div>
           </motion.div>
         )}

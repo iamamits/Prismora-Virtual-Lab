@@ -19,7 +19,8 @@ export type AcademicDomainId =
   | 'math'
   | 'interdisciplinary';
 
-export type AcademicDegree = 'B.Tech' | 'B.E.' | 'B.Sc' | 'M.Tech';
+export type AcademicDegree = 'Class 11' | 'Class 12' | 'B.Tech' | 'B.E.' | 'B.Sc' | 'M.Tech';
+export type EducationLevel = 'class-11' | 'class-12' | 'btech' | 'all';
 export type AcademicSemester = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export type ExperimentLifecycleStatus =
@@ -47,6 +48,7 @@ export interface CurricularExperimentDef {
   readonly domain: AcademicDomainId;
   readonly branch: string;
   readonly degree: AcademicDegree;
+  readonly educationLevel?: EducationLevel;
   readonly semester: AcademicSemester;
   readonly courseCode: string;
   readonly courseName: string;

@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
 import { RealtimeReproductionScene } from '@/components/simulation/realtime-reproduction-scene';
 import { RealtimeGeneticsScene } from '@/components/simulation/realtime-genetics-scene';
+import { Anatomy3DScene } from '@/components/simulation/anatomy-3d-scene';
 import {
   calculateMenstrualCycleState,
   solveMonohybridCross,
@@ -45,6 +46,7 @@ import {
 
 type BiologyExpId =
   | 'human-reproduction'
+  | 'anatomy-3d'
   | 'genetics-mendel'
   | 'cell-mitosis'
   | 'plant-transpiration';
@@ -74,6 +76,20 @@ const BIOLOGY_EXPERIMENTS: readonly BiologyExperimentDef[] = [
       '\\text{Acrosome: } \\text{Hyaluronidase} + \\text{Acrosin} \\implies \\text{Zona Pellucida Lysis}',
       '\\text{Cortical Granule Exocytosis} \\implies \\text{ZP2 Cleavage (Slow Block to Polyspermy)}',
       '\\text{Cleavage: } 2n = 46 \\xrightarrow{\\text{Mitosis}} 2 \\to 4 \\to 8 \\text{ Morula} \\to 128 \\text{ Blastocyst}',
+    ],
+  },
+  {
+    id: 'anatomy-3d',
+    title: '3D Human Anatomy & Reproductive Spatial Systems',
+    shortTitle: '3D Human Anatomy',
+    courseCode: 'NCERT Class 11 & 12 (Anatomy & Physiology)',
+    benchmark: 'AIIMS New Delhi & WebGL 3D Studio',
+    description: 'Interactive 3D WebGL anatomical model with male/female organ layers, X-ray internal transparency, 360° orbit rotation, and interactive landmark sensor probes.',
+    color: '#06B6D4',
+    equations: [
+      '\\text{Scrotal Temp} = T_{\\text{core}} - (2 \\text{ to } 2.5^\\circ\\text{C}) \\quad (\\text{Spermatogenesis Requirement})',
+      '\\text{Ovarian Folliculogenesis: } \\text{Primordial} \\to \\text{Primary} \\to \\text{Secondary} \\to \\text{Graafian Follicle}',
+      '\\text{Ampullary-Isthmic Junction} = \\text{Physiological Site of Fertilization}',
     ],
   },
   {
@@ -285,7 +301,100 @@ function BiologyLabContent() {
             </motion.div>
           )}
 
-          {/* TAB 2: MENDELIAN GENETICS & PUNNETT SQUARES */}
+          {/* TAB 2: 3D HUMAN ANATOMY & SPATIAL SYSTEMS */}
+          {activeExpId === 'anatomy-3d' && (
+            <motion.div
+              key="anatomy-3d"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-6"
+            >
+              {/* Header Card */}
+              <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-2xs flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-100 text-cyan-800">
+                      NCERT Class 11 & 12 Anatomy
+                    </span>
+                    <span className="text-zinc-400 text-xs">|</span>
+                    <span className="text-xs font-mono text-zinc-500">Benchmark: AIIMS New Delhi</span>
+                  </div>
+                  <h1 className="text-xl font-bold text-zinc-900 mt-1">
+                    3D Human Anatomy & Reproductive Spatial Systems
+                  </h1>
+                  <p className="text-xs text-zinc-500 mt-0.5 max-w-3xl">
+                    WebGL photorealistic 3D spatial workbench. Rotate 360°, inspect male and female reproductive systems, activate X-ray transparency to inspect internal organs, and click landmark probes for clinical physiological insights.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1.5 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-700 font-mono text-xs font-bold">
+                    3D WebGL Studio
+                  </span>
+                </div>
+              </div>
+
+              {/* 3D WebGL Anatomy Studio */}
+              <Anatomy3DScene />
+
+              {/* High-Yield Medical & NCERT Exam Core Notes */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 rounded-xl bg-white border border-zinc-200 shadow-2xs space-y-1">
+                  <span className="text-[10px] font-mono uppercase font-bold text-blue-600 block">
+                    1. Scrotal Thermoregulation
+                  </span>
+                  <p className="text-xs text-zinc-700 leading-relaxed">
+                    Testes hang outside abdominal cavity in the scrotum. Cremaster and dartos muscles contract/relax to preserve testicular temperature at <strong>2.0–2.5°C lower</strong> than core body temperature (37°C), critical for spermatogenesis viability.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-zinc-200 shadow-2xs space-y-1">
+                  <span className="text-[10px] font-mono uppercase font-bold text-pink-600 block">
+                    2. Uterine Wall Microarchitecture
+                  </span>
+                  <p className="text-xs text-zinc-700 leading-relaxed">
+                    Three functional layers: <strong>Perimetrium</strong> (outer protective serosa), <strong>Myometrium</strong> (interlaced smooth muscle generating expulsion forces during labor), and <strong>Endometrium</strong> (functional layer shed during menstruation).
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-zinc-200 shadow-2xs space-y-1">
+                  <span className="text-[10px] font-mono uppercase font-bold text-cyan-600 block">
+                    3. Ampullary Fertilization Site
+                  </span>
+                  <p className="text-xs text-zinc-700 leading-relaxed">
+                    The <strong>ampullary region</strong> of the fallopian tube is the anatomical site where sperm meets secondary oocyte. Ciliated cells and peristaltic fluid currents propel the fertilized zygote toward the uterus for implantation over 5–7 days.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-zinc-200 shadow-2xs space-y-1">
+                  <span className="text-[10px] font-mono uppercase font-bold text-amber-600 block">
+                    4. Permanent Surgical Contraception
+                  </span>
+                  <p className="text-xs text-zinc-700 leading-relaxed">
+                    <strong>Vasectomy:</strong> Excision of vas deferens stops sperm transport without affecting seminal fluid volume or testosterone. <strong>Tubectomy:</strong> Ligation of fallopian tubes prevents ovum-sperm meeting.
+                  </p>
+                </div>
+              </div>
+
+              {/* KaTeX Equations Card */}
+              <div className="p-4 rounded-xl bg-cyan-50/60 border border-cyan-200 space-y-2">
+                <span className="text-xs font-mono font-bold text-cyan-900 uppercase">
+                  NCERT Anatomical & Physiological Relationships
+                </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-zinc-800">
+                  {activeExp.equations.map((eq, i) => (
+                    <div key={i} className="p-2 bg-white rounded-lg border border-cyan-100 overflow-x-auto">
+                      <MathView math={eq} display={false} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB 3: MENDELIAN GENETICS & PUNNETT SQUARES */}
           {activeExpId === 'genetics-mendel' && (
             <motion.div
               key="genetics-mendel"
