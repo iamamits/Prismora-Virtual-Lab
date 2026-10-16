@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { RealtimeRlcScene } from '@/components/simulation/realtime-rlc-scene';
 import {
   evaluateNetworkTheorems,
   DEFAULT_NETWORK_CIRCUIT_PARAMS,
@@ -577,33 +578,14 @@ function ElectricalWorkbenchContent() {
                     </span>
                   </div>
 
-                  {/* Frequency Response Graph */}
-                  <div className="h-64 sm:h-72 w-full bg-zinc-900 rounded-xl overflow-hidden relative p-4 flex flex-col justify-between">
-                    <svg className="w-full h-full" viewBox="0 0 500 200">
-                      <rect x="0" y="0" width="500" height="200" fill="#09090B" />
-                      <line x1="40" y1="170" x2="480" y2="170" stroke="#334155" strokeWidth="1.5" />
-                      <line x1="40" y1="170" x2="40" y2="20" stroke="#334155" strokeWidth="1.5" />
-
-                      {(() => {
-                        const pts = rlcResult.frequencyResponse;
-                        if (!pts || pts.length === 0) return null;
-                        const maxI = Math.max(1e-4, ...pts.map((p) => p.currentAmps));
-                        const minF = pts[0]?.frequencyHz ?? 10;
-                        const maxF = pts[pts.length - 1]?.frequencyHz ?? 2000;
-                        const toX = (f: number) => 40 + ((f - minF) / (maxF - minF)) * 440;
-                        const toY = (i: number) => 170 - (i / maxI) * 140;
-
-                        const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(p.frequencyHz).toFixed(1)} ${toY(p.currentAmps).toFixed(1)}`).join(' ');
-                        return <path d={path} fill="none" stroke="#A855F7" strokeWidth="2.5" />;
-                      })()}
-                    </svg>
-
-                    <div className="flex justify-between text-[9px] font-mono text-zinc-500">
-                      <span>Frequency f (Hz)</span>
-                      <span className="text-purple-400">Resonant Current Peak I(f0)</span>
-                      <span>Bandwidth BW = {rlcResult.bandwidthHz.toFixed(1)} Hz</span>
-                    </div>
-                  </div>
+                  {/* Real-time Interactive RLC Tank & Oscilloscope Workbench */}
+                  <RealtimeRlcScene
+                    resistanceOhms={rlcParams.resistanceOhms}
+                    inductanceMh={rlcParams.inductanceMh}
+                    capacitanceUf={rlcParams.capacitanceUf}
+                    sourceVoltageV={rlcParams.sourceVoltageVrms}
+                    frequencyHz={rlcParams.frequencyHz}
+                  />
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">

@@ -19,6 +19,9 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { RealtimeOscillatorScene } from '@/components/simulation/realtime-oscillator-scene';
+import { RealtimeVenturiScene } from '@/components/simulation/realtime-venturi-scene';
+import { RealtimeTensileScene } from '@/components/simulation/realtime-tensile-scene';
 import {
   VenturiFlowEngine,
   DEFAULT_VENTURI_PARAMS,
@@ -318,42 +321,14 @@ function MechanicalWorkbenchContent() {
                     </span>
                   </div>
 
-                  {/* Visualizer Canvas */}
-                  <div className="h-64 sm:h-72 w-full bg-zinc-900 rounded-xl overflow-hidden relative flex items-center justify-center p-4">
-                    <svg className="w-full h-full" viewBox="0 0 600 240">
-                      <rect x="0" y="0" width="600" height="240" fill="#09090B" />
-                      <line x1="40" y1="20" x2="40" y2="220" stroke="#52525B" strokeWidth="4" />
-                      <line x1="40" y1="200" x2="560" y2="200" stroke="#27272A" strokeWidth="2" />
-
-                      {/* Spring Coils */}
-                      <path
-                        d="M 40 120 L 70 120 L 85 90 L 115 150 L 145 90 L 175 150 L 205 90 L 235 150 L 250 120 L 280 120"
-                        fill="none"
-                        stroke="#F59E0B"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-
-                      {/* Mass Block */}
-                      <rect x="280" y="80" width="100" height="80" rx="8" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="2" />
-                      <text x="330" y="125" textAnchor="middle" fill="#09090B" fontSize="13" fontWeight="bold" fontFamily="monospace">
-                        m = {mass} kg
-                      </text>
-
-                      {/* Damper Dashpot */}
-                      <rect x="280" y="170" width="70" height="20" rx="3" fill="#3F3F46" />
-                      <line x1="40" y1="180" x2="280" y2="180" stroke="#71717A" strokeWidth="3" />
-                      <text x="140" y="175" fill="#A1A1AA" fontSize="10" fontFamily="monospace">c = {damping} N·s/m</text>
-
-                      {/* Excitation Force Vector Arrow */}
-                      <line x1="380" y1="120" x2="470" y2="120" stroke="#EF4444" strokeWidth="3" />
-                      <polygon points="475,120 465,115 465,125" fill="#EF4444" />
-                      <text x="425" y="110" fill="#EF4444" fontSize="11" fontWeight="bold" fontFamily="monospace">
-                        F(t) = {drivingForce} N
-                      </text>
-                    </svg>
-                  </div>
+                  {/* Real-time Interactive Simulation Workbench */}
+                  <RealtimeOscillatorScene
+                    mass={mass}
+                    stiffness={stiffness}
+                    damping={damping}
+                    drivingForce={drivingForce}
+                    drivingFreq={drivingFreq}
+                  />
 
                   {/* Readouts Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
@@ -487,19 +462,15 @@ function MechanicalWorkbenchContent() {
                     </span>
                   </div>
 
-                  {/* Venturi Visualizer */}
-                  <div className="h-64 sm:h-72 w-full bg-zinc-900 rounded-xl overflow-hidden relative p-4 flex items-center justify-center">
-                    <svg className="w-full h-full" viewBox="0 0 600 240">
-                      <rect x="0" y="0" width="600" height="240" fill="#09090B" />
-                      <polygon points="40,60 180,60 270,95 330,95 440,60 560,60 560,180 440,180 330,145 270,145 180,180 40,180" fill="#0284C7" fillOpacity="0.25" stroke="#38BDF8" strokeWidth="2.5" />
-                      <line x1="120" y1="60" x2="120" y2="20" stroke="#38BDF8" strokeWidth="3" />
-                      <line x1="300" y1="95" x2="300" y2="20" stroke="#38BDF8" strokeWidth="3" />
-                      <rect x="110" y="20" width="20" height="40" fill="#38BDF8" fillOpacity="0.8" />
-                      <rect x="290" y="35" width="20" height="60" fill="#38BDF8" fillOpacity="0.8" />
-                      <text x="120" y="15" textAnchor="middle" fill="#E0F2FE" fontSize="10" fontFamily="monospace">h1 = {venturiResult.inletPressureHeadM.toFixed(2)}m</text>
-                      <text x="300" y="15" textAnchor="middle" fill="#E0F2FE" fontSize="10" fontFamily="monospace">h2 = {venturiResult.throatPressureHeadM.toFixed(2)}m</text>
-                    </svg>
-                  </div>
+                  {/* Real-time 2D Fluid Dynamic Particle Simulation */}
+                  <RealtimeVenturiScene
+                    inletDiameterMm={venturiParams.inletDiameterMm}
+                    throatDiameterMm={venturiParams.throatDiameterMm}
+                    flowRateLps={venturiResult.actualDischargeLps ?? 4.5}
+                    dischargeCoeff={venturiParams.dischargeCoefficient ?? 0.98}
+                    fluidDensity={1000}
+                    onThroatChange={(d2) => setVenturiParams((prev) => ({ ...prev, throatDiameterMm: d2 }))}
+                  />
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
@@ -615,44 +586,16 @@ function MechanicalWorkbenchContent() {
                     </span>
                   </div>
 
-                  {/* Stress-Strain Curve Graph */}
-                  <div className="h-64 sm:h-72 w-full bg-zinc-900 rounded-xl overflow-hidden relative p-4 flex flex-col justify-between">
-                    <svg className="w-full h-full" viewBox="0 0 500 200">
-                      <rect x="0" y="0" width="500" height="200" fill="#09090B" />
-                      <line x1="40" y1="170" x2="480" y2="170" stroke="#3F3F46" strokeWidth="1.5" />
-                      <line x1="40" y1="170" x2="40" y2="20" stroke="#3F3F46" strokeWidth="1.5" />
-
-                      {(() => {
-                        const pts = tensileResult.curvePoints;
-                        if (!pts || pts.length === 0) return null;
-                        const maxStrain = 0.35;
-                        const maxStress = 700;
-                        const toX = (e: number) => 40 + (e / maxStrain) * 440;
-                        const toY = (s: number) => 170 - (s / maxStress) * 150;
-
-                        const pathData = pts
-                          .map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${toX(p.strain).toFixed(1)} ${toY(p.stressMpa).toFixed(1)}`)
-                          .join(' ');
-
-                        const currX = toX(tensileResult.currentStrain);
-                        const currY = toY(tensileResult.currentStressMpa);
-
-                        return (
-                          <>
-                            <path d={pathData} fill="none" stroke="#EF4444" strokeWidth="2.5" />
-                            <circle cx={currX} cy={currY} r="5" fill="#EF4444" stroke="#FFFFFF" strokeWidth="2" />
-                          </>
-                        );
-                      })()}
-                    </svg>
-
-                    <div className="flex justify-between text-[9px] font-mono text-zinc-500">
-                      <span>ε = 0.0</span>
-                      <span>Yield Proof</span>
-                      <span>Ultimate Tensile Strength</span>
-                      <span>Fracture εf = {(MATERIAL_PROPERTIES[selectedMaterial].fractureStrain * 100).toFixed(0)}%</span>
-                    </div>
-                  </div>
+                  {/* Real-time Interactive UTM Machine Frame & Stress-Strain Streamer */}
+                  <RealtimeTensileScene
+                    materialName={MATERIAL_PROPERTIES[selectedMaterial].name}
+                    gaugeLengthMm={50}
+                    gaugeDiameterMm={12.5}
+                    yieldStrengthMpa={MATERIAL_PROPERTIES[selectedMaterial].yieldStressMpa}
+                    ultimateStrengthMpa={MATERIAL_PROPERTIES[selectedMaterial].utsMpa}
+                    elasticModulusGpa={MATERIAL_PROPERTIES[selectedMaterial].youngsModulusGpa}
+                    fractureStrainPct={MATERIAL_PROPERTIES[selectedMaterial].fractureStrain * 100}
+                  />
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">

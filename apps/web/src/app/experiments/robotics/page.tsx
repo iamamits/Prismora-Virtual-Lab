@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { RealtimeRoboticsScene } from '@/components/simulation/realtime-robotics-scene';
 import {
   RoboticArmEngine,
   DEFAULT_ROBOTIC_ARM_PARAMS,
@@ -285,44 +286,13 @@ function RoboticsWorkbenchContent() {
                     </span>
                   </div>
 
-                  {/* SVG 2-DOF Arm Visualizer */}
-                  <div className="h-64 sm:h-72 w-full bg-zinc-900 rounded-xl overflow-hidden relative p-4 flex items-center justify-center">
-                    <svg className="w-full h-full" viewBox="0 0 500 220">
-                      <rect x="0" y="0" width="500" height="220" fill="#09090B" />
-                      {(() => {
-                        const originX = 120;
-                        const originY = 170;
-                        const scale = 75; // px per metre
-
-                        const { elbowPosition, endEffectorPosition } = armResult;
-                        const Ex = originX + elbowPosition.x * scale;
-                        const Ey = originY - elbowPosition.y * scale;
-                        const EEx = originX + endEffectorPosition.x * scale;
-                        const EEy = originY - endEffectorPosition.y * scale;
-
-                        return (
-                          <>
-                            {/* Base pedestal */}
-                            <rect x={originX - 20} y={originY} width="40" height="20" fill="#475569" rx="3" />
-                            {/* Link 1 */}
-                            <line x1={originX} y1={originY} x2={Ex} y2={Ey} stroke="#06B6D4" strokeWidth="6" strokeLinecap="round" />
-                            {/* Link 2 */}
-                            <line x1={Ex} y1={Ey} x2={EEx} y2={EEy} stroke="#38BDF8" strokeWidth="5" strokeLinecap="round" />
-
-                            {/* Base joint */}
-                            <circle cx={originX} cy={originY} r="7" fill="#F8FAFC" stroke="#09090B" strokeWidth="2" />
-                            {/* Elbow joint */}
-                            <circle cx={Ex} cy={Ey} r="6" fill="#06B6D4" stroke="#FFFFFF" strokeWidth="1.5" />
-                            {/* End-effector gripper */}
-                            <circle cx={EEx} cy={EEy} r="6" fill="#EF4444" stroke="#FFFFFF" strokeWidth="2" />
-                            <text x={EEx + 10} y={EEy - 5} fill="#EF4444" fontSize="11" fontWeight="bold" fontFamily="monospace">
-                              P({endEffectorPosition.x.toFixed(2)}, {endEffectorPosition.y.toFixed(2)})m
-                            </text>
-                          </>
-                        );
-                      })()}
-                    </svg>
-                  </div>
+                  {/* Real-time Interactive Robotic Arm & Inverse Kinematics Workbench */}
+                  <RealtimeRoboticsScene
+                    link1LengthMm={link1M * 1000}
+                    link2LengthMm={link2M * 1000}
+                    initialTheta1Deg={theta1Deg}
+                    initialTheta2Deg={theta2Deg}
+                  />
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">

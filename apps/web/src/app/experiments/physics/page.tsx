@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { RealtimePhotoelectricScene } from '@/components/simulation/realtime-photoelectric-scene';
 import {
   PhotoelectricEngine,
   CATHODE_METALS,
@@ -261,35 +262,14 @@ function PhysicsWorkbenchContent() {
                     </span>
                   </div>
 
-                  {/* Phototube Visualizer */}
-                  <div className="h-64 sm:h-72 w-full bg-zinc-900 rounded-xl overflow-hidden relative p-4 flex items-center justify-center">
-                    <svg className="w-full h-full" viewBox="0 0 500 220">
-                      <rect x="0" y="0" width="500" height="220" fill="#09090B" />
-                      {/* Glass Tube Envelope */}
-                      <rect x="120" y="40" width="260" height="140" rx="40" fill="none" stroke="#64748B" strokeWidth="2.5" />
-                      {/* Cathode Plate */}
-                      <rect x="160" y="60" width="12" height="100" rx="3" fill="#94A3B8" />
-                      {/* Anode Plate */}
-                      <rect x="328" y="60" width="12" height="100" rx="3" fill="#94A3B8" />
-
-                      {/* Incident Light Photons */}
-                      <line x1="80" y1="90" x2="160" y2="100" stroke="#F59E0B" strokeWidth="3" strokeDasharray="6,4" />
-                      <line x1="80" y1="110" x2="160" y2="110" stroke="#F59E0B" strokeWidth="3" strokeDasharray="6,4" />
-                      <line x1="80" y1="130" x2="160" y2="120" stroke="#F59E0B" strokeWidth="3" strokeDasharray="6,4" />
-
-                      {/* Emitted Photoelectrons (dots) */}
-                      {peResult.isEmissionPossible && (
-                        <>
-                          <circle cx="210" cy="100" r="3" fill="#38BDF8" />
-                          <circle cx="250" cy="115" r="3" fill="#38BDF8" />
-                          <circle cx="280" cy="95" r="3" fill="#38BDF8" />
-                        </>
-                      )}
-                      <text x="250" y="200" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontFamily="monospace">
-                        Photocurrent I = {peResult.currentPhotocurrentUa.toFixed(2)} µA
-                      </text>
-                    </svg>
-                  </div>
+                  {/* Real-time Interactive Photocell Vacuum Tube Simulation */}
+                  <RealtimePhotoelectricScene
+                    wavelengthNm={wavelengthNm}
+                    lightIntensityPct={intensityPercent}
+                    retardingVoltageV={-appliedVoltageV}
+                    workFunctionEv={CATHODE_METALS[selectedMetal].workFunctionEv}
+                    cathodeMaterialName={CATHODE_METALS[selectedMetal].name}
+                  />
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">

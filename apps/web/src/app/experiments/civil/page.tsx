@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { RealtimeBeamScene } from '@/components/simulation/realtime-beam-scene';
 import {
   solveTruss,
   createWarrenTruss,
@@ -453,42 +454,14 @@ function CivilWorkbenchContent() {
                     </span>
                   </div>
 
-                  {/* SFD & BMD Dual Curve */}
-                  <div className="h-64 sm:h-72 w-full bg-zinc-900 rounded-xl overflow-hidden relative p-4 flex flex-col justify-between">
-                    <svg className="w-full h-full" viewBox="0 0 500 200">
-                      <rect x="0" y="0" width="500" height="200" fill="#09090B" />
-                      {/* Midline */}
-                      <line x1="40" y1="100" x2="480" y2="100" stroke="#334155" strokeWidth="1" strokeDasharray="4,4" />
-
-                      {/* Shear Force Diagram (Blue) */}
-                      {(() => {
-                        const pts = beamResult.shearForceDiagram;
-                        const maxV = Math.max(1, Math.abs(beamResult.maxShearForceKn));
-                        const toX = (x: number) => 40 + (x / (beamParams.lengthM ?? 6)) * 440;
-                        const toY = (v: number) => 100 - (v / maxV) * 80;
-
-                        const path = pts.map((p: { x: number; shearForceKn: number }, i: number) => `${i === 0 ? 'M' : 'L'} ${toX(p.x).toFixed(1)} ${toY(p.shearForceKn).toFixed(1)}`).join(' ');
-                        return <path d={path} fill="none" stroke="#38BDF8" strokeWidth="2.5" />;
-                      })()}
-
-                      {/* Bending Moment Diagram (Amber) */}
-                      {(() => {
-                        const pts = beamResult.bendingMomentDiagram;
-                        const maxM = Math.max(1, Math.abs(beamResult.maxBendingMomentKnm));
-                        const toX = (x: number) => 40 + (x / (beamParams.lengthM ?? 6)) * 440;
-                        const toY = (m: number) => 100 - (m / maxM) * 80;
-
-                        const path = pts.map((p: { x: number; bendingMomentKnm: number }, i: number) => `${i === 0 ? 'M' : 'L'} ${toX(p.x).toFixed(1)} ${toY(p.bendingMomentKnm).toFixed(1)}`).join(' ');
-                        return <path d={path} fill="none" stroke="#F59E0B" strokeWidth="2" strokeDasharray="5,2" />;
-                      })()}
-                    </svg>
-
-                    <div className="flex justify-between text-[9px] font-mono text-zinc-500">
-                      <span className="text-sky-400">― Shear Force V(x)</span>
-                      <span className="text-amber-400">--- Bending Moment M(x)</span>
-                      <span>Span = {beamParams.lengthM}m</span>
-                    </div>
-                  </div>
+                  {/* Real-time Interactive Elastic Beam Deflection & SFD/BMD Simulation */}
+                  <RealtimeBeamScene
+                    spanLengthM={beamParams.lengthM}
+                    elasticModulusGpa={beamParams.youngsModulusGpa}
+                    momentOfInertiaCm4={(beamParams.widthMm * Math.pow(beamParams.heightMm, 3)) / 120000}
+                    initialPointLoadKn={beamParams.pointLoads?.[0]?.magnitudeKn ?? 25}
+                    initialLoadPositionM={beamParams.pointLoads?.[0]?.positionM ?? beamParams.lengthM * 0.5}
+                  />
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
