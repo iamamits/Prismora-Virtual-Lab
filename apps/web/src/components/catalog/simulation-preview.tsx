@@ -1481,6 +1481,55 @@ export function NetworkTheoremsPreview({ isHovered = false, className = '' }: Pr
 }
 
 /**
+ * 19. Wave Optics (Double Slit & Diffraction) Preview
+ */
+export function WaveOpticsPreview({ isHovered = false, className = '' }: PreviewProps) {
+  return (
+    <svg viewBox="0 0 320 200" className={`w-full h-full select-none ${className}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="200" fill="#0B1120" />
+      <rect x="14" y="14" width="292" height="172" rx="6" fill="#070D1A" stroke="#1E293B" strokeWidth="1" />
+
+      {/* Title */}
+      <text x="24" y="32" fill="#F43F5E" fontSize="9" fontFamily="JetBrains Mono, monospace" fontWeight="bold">
+        WAVE OPTICS: DOUBLE SLIT INTERFERENCE
+      </text>
+
+      {/* Laser source */}
+      <rect x="25" y="85" width="45" height="30" rx="3" fill="#1E293B" stroke="#475569" strokeWidth="1" />
+      <text x="47" y="103" fill="#94A3B8" fontSize="8" fontFamily="JetBrains Mono, monospace" textAnchor="middle">LASER</text>
+      <line x1="70" y1="100" x2="135" y2="100" stroke="#E11D48" strokeWidth="2.5" />
+
+      {/* Slits */}
+      <rect x="135" y="50" width="8" height="100" fill="#0F172A" stroke="#64748B" strokeWidth="1.5" rx="1" />
+      <line x1="135" y1="96" x2="143" y2="96" stroke="#000" strokeWidth="2" />
+      <line x1="135" y1="104" x2="143" y2="104" stroke="#000" strokeWidth="2" />
+      <text x="139" y="44" fill="#64748B" fontSize="7" fontFamily="JetBrains Mono, monospace" textAnchor="middle">d = 0.25mm</text>
+
+      {/* Rays */}
+      <polygon points="143,100 240,40 240,160" fill="#E11D48" opacity="0.08" />
+
+      {/* Screen Fringes */}
+      <rect x="240" y="40" width="22" height="120" fill="#020617" stroke="#334155" strokeWidth="1.5" rx="2" />
+      {Array.from({ length: 24 }).map((_, i) => {
+        const y = 42 + i * 5;
+        const dist = Math.abs(i - 12);
+        const op = Math.max(0.05, 1.0 - dist * 0.08) * (i % 2 === 0 ? 1 : 0.15);
+        return <rect key={i} x="242" y={y} width="18" height="3" fill="#E11D48" opacity={op} />;
+      })}
+
+      {/* Fringe width annotation */}
+      <line x1="268" y1="95" x2="268" y2="105" stroke="#38BDF8" strokeWidth="1" />
+      <text x="272" y="103" fill="#38BDF8" fontSize="7" fontFamily="JetBrains Mono, monospace">w = λD/d</text>
+
+      {/* Footer */}
+      <text x="24" y="168" fill="#64748B" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        λ = 632.8nm • I(θ) = I₀ · (sinα/α)² · cos²β
+      </text>
+    </svg>
+  );
+}
+
+/**
  * Universal Simulation Preview Dispatcher
  * Automatically routes simulation ID to its dedicated scientific visualization
  */
@@ -1542,13 +1591,18 @@ export function SimulationPreview({
     case 't-flipflop-frequency-divider':
       return <LatchFlipFlopPreview isHovered={isHovered} className={className} />;
     case 'harmonic-oscillator':
+    case 'harmonic-oscillator-me':
       return <HarmonicOscillatorPreview isHovered={isHovered} className={className} />;
     case 'vector-field-studio':
       return <VectorFieldPreview isHovered={isHovered} className={className} />;
     case 'orbital-mechanics':
       return <KeplerOrbitPreview isHovered={isHovered} className={className} />;
     case 'acid-base-titration':
+    case 'acid-base-titration-curve':
       return <TitrationPreview isHovered={isHovered} className={className} />;
+    case 'wave-optics':
+    case 'wave-optics-physics':
+      return <WaveOpticsPreview isHovered={isHovered} className={className} />;
     default:
       return <GenericEceTopicPreview category={category} className={className} />;
   }

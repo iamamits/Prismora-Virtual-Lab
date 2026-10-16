@@ -56,4 +56,16 @@ export * from './ece';
 export * as Electrical from './electrical';
 export * from './electrical';
 
+// Mechanical Engineering (Harmonic Oscillator, Dynamics, Resonant Vibrations)
+export * as Mechanical from './mechanical';
+export * from './mechanical';
+
+// Chemical Sciences (Acid-Base Titrations, Ionic Equilibria, Buffer Solutions)
+export * as Chemistry from './chemistry';
+export * from './chemistry';
+
+// Physical Sciences (Wave Optics, Double-Slit Interference, Diffraction)
+export * as Physics from './physics';
+export * from './physics';
+
 

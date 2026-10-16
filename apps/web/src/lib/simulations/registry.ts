@@ -352,51 +352,120 @@ export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
 
   ...ECE_CURRICULUM_SPECIFICATIONS,
 
-  // 5. Harmonic Oscillator (Planned / In Development)
+  // 5. Harmonic Oscillator (Mechanical Vibrations)
   {
     id: 'harmonic-oscillator',
-    title: 'Simple Harmonic Oscillator & Resonance',
+    title: 'Damped Harmonic Oscillator & Mechanical Resonance',
     shortTitle: 'Harmonic Oscillator',
     description:
-      'Mass-spring and pendulum dynamics with viscous damping, periodic driving frequency, phase space portraits, and resonance amplitude analysis.',
-    laboratoryId: 'physics',
+      'Mass-spring-damper oscillator with viscous dashpot, harmonic forcing excitation, phase-space state portrait (x vs v), and resonant frequency magnification factor sweep.',
+    laboratoryId: 'engineering',
     category: 'Waves and Oscillations',
     difficulty: 'Intermediate',
-    status: 'in_development',
-    route: '/experiments/projectile-motion',
-    disciplineColor: '#2563EB',
-    tags: ['Oscillations', 'Springs', 'Resonance', 'Phase Space'],
+    status: 'available',
+    route: '/experiments/mechanical/harmonic-oscillator',
+    disciplineColor: '#F59E0B',
+    featured: true,
+    tags: ['Vibrations', 'Oscillations', 'Springs', 'Resonance', 'Phase Space', 'Dashpot'],
     learningObjectives: [
-      'Investigate natural frequency omega_0 and damping ratio zeta',
+      'Investigate natural frequency omega_n and damping ratio zeta',
       'Observe underdamped, critically damped, and overdamped motion',
       'Explore phase portraits (position vs velocity) and limit cycles',
+      'Observe 90-degree phase lag at resonance frequency in forced systems',
     ],
-    capabilities: ['Damped Motion Stepper', 'Phase Portrait Plot', 'Driving Force Tuning'],
+    capabilities: ['Damped Motion Stepper', 'Phase Portrait Plot', 'Driving Force Tuning', 'Bode Frequency Response'],
+    equations: [
+      'm \\ddot{x} + c \\dot{x} + k x = F_0 \\cos(\\omega t)',
+      '\\omega_n = \\sqrt{\\frac{k}{m}}, \\quad \\zeta = \\frac{c}{2 \\sqrt{k m}}',
+      'M(\\omega) = \\frac{1}{\\sqrt{(1 - (\\omega/\\omega_n)^2)^2 + (2\\zeta \\omega/\\omega_n)^2}}',
+    ],
   },
 
-  // 6. Vector Field Studio (Planned / In Development)
+  // 6. Vector Field Studio (Mathematics Studio)
   {
     id: 'vector-field-studio',
-    title: '2D/3D Vector Field Studio',
-    shortTitle: 'Vector Fields',
+    title: 'Prismora Studio: Calculus, Linear Maps & Vector Fields',
+    shortTitle: 'Math Studio',
     description:
-      'Interactive vector calculus studio for visualizing curl, divergence, field flux lines, and line integrals on 2D coordinate manifolds.',
+      'Interactive mathematical computing environment featuring function derivative tangents, Riemann sums, 2D matrix transformations with basis vector warping, and autonomous vector fields with RK4 integration.',
     laboratoryId: 'mathematics',
     category: 'Geometry and Vectors',
     difficulty: 'Advanced',
-    status: 'in_development',
-    route: '/experiments/projectile-motion',
+    status: 'available',
+    route: '/studio',
     disciplineColor: '#8B5CF6',
-    tags: ['Vector Fields', 'Calculus', 'Curl', 'Divergence'],
+    featured: true,
+    tags: ['Calculus', 'Linear Algebra', 'Vector Fields', 'Matrices', 'Eigenvalues', 'RK4'],
     learningObjectives: [
       'Understand spatial divergence as source or sink strength',
       'Visualize local rotational circulation through curl vectors',
       'Calculate line integrals along interactive user-drawn paths',
+      'Analyze 2x2 matrix transformations and real eigenvalue span axes',
     ],
-    capabilities: ['Vector Arrow Grid', 'Streamline Tracers', 'Divergence Heatmap'],
+    capabilities: ['Vector Arrow Grid', 'RK4 Numerical Trajectory', 'Riemann Integral Slicer', '2x2 Matrix Warp'],
+    equations: [
+      '\\vec{v}(x, y) = P(x, y)\\hat{i} + Q(x, y)\\hat{j}',
+      '\\text{div } \\vec{F} = \\nabla \\cdot \\vec{F} = \\frac{\\partial P}{\\partial x} + \\frac{\\partial Q}{\\partial y}',
+      '\\text{curl } \\vec{F} = \\nabla \\times \\vec{F} = \\left( \\frac{\\partial Q}{\\partial x} - \\frac{\\partial P}{\\partial y} \\right) \\hat{k}',
+    ],
   },
 
-  // 7. Two-Body & Keplerian Orbits (Planned)
+  // 7. Wave Optics: Young's Double Slit & Diffraction
+  {
+    id: 'wave-optics',
+    title: "Wave Optics: Young's Double-Slit Interference & Diffraction",
+    shortTitle: 'Wave Optics',
+    description:
+      'Virtual optical bench with multi-wavelength laser sources (Red 633nm, Green 532nm, Blue 450nm, Violet 405nm), double-slit aperture slide, real-time spatial irradiance profile I(x), photodetector probe, and missing orders analysis.',
+    laboratoryId: 'physics',
+    category: 'Optics',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/physics/wave-optics',
+    disciplineColor: '#E11D48',
+    featured: true,
+    tags: ['Wave Optics', 'Double Slit', 'Interference', 'Diffraction', 'Laser', 'Fringe Width'],
+    learningObjectives: [
+      'Validate linear fringe width relation w = (lambda * D) / d experimentally',
+      'Determine laser light wavelength from measured fringe separation',
+      'Identify missing spectral orders where diffraction minima cancel interference maxima',
+    ],
+    capabilities: ['Multi-Wavelength Lasers', 'Double-Slit Aperture Holder', 'Sliding Photodetector Probe', 'Irradiance Profile Plot'],
+    equations: [
+      'I(\\theta) = I_0 \\left( \\frac{\\sin\\alpha}{\\alpha} \\right)^2 \\cos^2(\\beta)',
+      'w_{fringe} = \\frac{\\lambda D}{d}',
+      'm = n \\left( \\frac{d}{a} \\right)',
+    ],
+  },
+
+  // 8. Acid-Base Titration (Physical Chemistry)
+  {
+    id: 'acid-base-titration',
+    title: 'Acid-Base Neutralization & Buffer Titration Curves',
+    shortTitle: 'Titration Lab',
+    description:
+      'Digital automatic burette titration apparatus. Titrate strong/weak acids (HCl, CH3COOH) with standard base (NaOH), record continuous dynamic pH sigmoidal curves, observe first derivative inflection peaks (dpH/dV), and simulate indicator color transitions.',
+    laboratoryId: 'chemistry',
+    category: 'Acid-Base Equilibrium',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/chemistry/titration',
+    disciplineColor: '#10B981',
+    featured: true,
+    tags: ['pH', 'Titration', 'Equilibrium', 'Buffers', 'Henderson-Hasselbalch', 'Indicator'],
+    learningObjectives: [
+      'Derive Henderson-Hasselbalch buffer equations from experimental titration curves',
+      'Identify equivalence points and inflection points in strong and weak acid titrations',
+      'Analyze indicator color transitions and suitability for different acid-base pairs',
+    ],
+    capabilities: ['Burette Drop Dispenser', 'Digital pH Sensor Probe', 'Titration Curve Plotter', 'First Derivative dpH/dV Peak'],
+    equations: [
+      '\\text{pH} = -\\log_{10}[\\text{H}^+]',
+      '\\text{pH} = \\text{p}K_a + \\log_{10}\\left(\\frac{[\\text{A}^-]}{[\\text{HA}]}\\right)',
+    ],
+  },
+
+  // 9. Two-Body & Keplerian Orbits (Planned)
   {
     id: 'orbital-mechanics',
     title: 'Two-Body & Keplerian Celestial Orbits',
@@ -415,27 +484,6 @@ export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
       'Simulate Hohmann transfer orbits between celestial bodies',
     ],
     capabilities: ['Orbital Trajectory Plot', 'Eccentricity Slider', 'Transfer Velocity Calculator'],
-  },
-
-  // 8. Acid-Base Titration (Planned)
-  {
-    id: 'acid-base-titration',
-    title: 'Acid-Base Titration & pH Curves',
-    shortTitle: 'Titration Lab',
-    description:
-      'Dynamic pH electrode measurements, buffer solution capacity, indicator color shifts, and stoichiometric equivalence calculations.',
-    laboratoryId: 'chemistry',
-    category: 'Acid-Base Equilibrium',
-    difficulty: 'Intermediate',
-    status: 'planned',
-    route: '/experiments/projectile-motion',
-    disciplineColor: '#FBBF24',
-    tags: ['pH', 'Titration', 'Equilibrium', 'Buffers'],
-    learningObjectives: [
-      'Derive Henderson-Hasselbalch buffer equations from experimental titration curves',
-      'Identify equivalence points and inflection points in strong and weak acid titrations',
-    ],
-    capabilities: ['Burette Drop Dispenser', 'pH Sensor Probe', 'Titration Curve Plotter'],
   },
 
   // 9. Predator-Prey Dynamics (Planned)
