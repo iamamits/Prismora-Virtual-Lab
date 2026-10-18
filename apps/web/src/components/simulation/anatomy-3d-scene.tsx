@@ -37,10 +37,22 @@ import {
 export type AnatomySystemMode = 'full-body' | 'eye' | 'brain' | 'skeleton';
 export type AnatomyGender = 'male' | 'female';
 
+export type AnatomyLandmarkSystem =
+  | 'Reproductive'
+  | 'Endocrine'
+  | 'Nervous'
+  | 'Sensory/Optical'
+  | 'Skeletal'
+  | 'Circulatory'
+  | 'Respiratory'
+  | 'Digestive'
+  | 'Urinary'
+  | 'Muscular';
+
 export interface AnatomicalLandmark {
   id: string;
   name: string;
-  system: 'Reproductive' | 'Endocrine' | 'Nervous' | 'Sensory/Optical' | 'Skeletal' | 'Circulatory';
+  system: AnatomyLandmarkSystem;
   mode: AnatomySystemMode;
   gender?: AnatomyGender;
   position: [number, number, number]; // 3D coordinates in normalized space
@@ -54,7 +66,139 @@ export interface AnatomicalLandmark {
 
 export const COMPREHENSIVE_LANDMARKS: AnatomicalLandmark[] = [
   // ==========================================
-  // FULL BODY - REPRODUCTIVE & PELVIC
+  // HEAD, NECK & CRANIAL SYSTEMS
+  // ==========================================
+  {
+    id: 'head-brain-cortex',
+    name: 'Cerebrum, Cortex & Meninges',
+    system: 'Nervous',
+    mode: 'full-body',
+    position: [0, 0.72, 0.02],
+    cameraFocus: [0, 0.72, 0.95],
+    lookAt: [0, 0.72, 0],
+    ncertReference: 'NCERT Class 11, Chapter 21, Section 21.4: Human Brain Anatomy',
+    physiologicalRole:
+      'The central commander of the human nervous system. Cerebral cortex contains ~16 billion neurons organized in 6 neocortical layers. Protected by three meningeal layers: Dura mater (fibrous outer), Arachnoid mater with subarachnoid space containing cerebrospinal fluid (CSF producing 500 mL/day from choroid plexuses), and Pia mater. Integrates sensory perception, voluntary motor planning, speech, consciousness, and associative memory.',
+    clinicalSignificance:
+      'Ischemic Stroke (MCA occlusion causing contralateral hemiplegia and aphasia), Meningitis (bacterial/viral inflammation of subarachnoid CSF space with positive Kernig and Brudzinski signs), and Hydrocephalus.',
+    keyBiomolecules: ['Glutamate (Excitatory neurotransmission)', 'GABA', 'Myelin Basic Protein', 'Cerebrospinal Fluid (CSF)'],
+  },
+  {
+    id: 'neck-thyroid',
+    name: 'Thyroid & Parathyroid Glands',
+    system: 'Endocrine',
+    mode: 'full-body',
+    position: [0, 0.52, 0.08],
+    cameraFocus: [0, 0.52, 0.75],
+    lookAt: [0, 0.52, 0],
+    ncertReference: 'NCERT Class 11, Chapter 22, Section 22.2.4: Thyroid Gland',
+    physiologicalRole:
+      'Butterfly-shaped bi-lobed endocrine gland wrapping the anterior trachea. Composed of spherical follicles lined by cuboidal thyrocytes surrounding central proteinaceous colloid. Synthesizes Tetraiodothyronine (Thyroxine, T4) and Triiodothyronine (T3) via iodination of tyrosyl residues on thyroglobulin under TSH stimulation. Regulates basal metabolic rate (BMR), thermogenesis, and cellular ATP turnover. Parafollicular C-cells secrete calcitonin lowering serum Ca2+; posterior parathyroids secrete PTH raising serum Ca2+.',
+    clinicalSignificance:
+      'Graves Disease (autoimmune TSH-receptor stimulating antibodies causing thyrotoxicosis, goiter, and exophthalmos) and Hashimoto Thyroiditis (anti-TPO antibodies producing hypothyroidism, myxedema, and cold intolerance).',
+    keyBiomolecules: ['Thyroxine (T4)', 'Triiodothyronine (T3)', 'Thyroglobulin & Thyroid Peroxidase', 'Parathyroid Hormone (PTH)', 'Calcitonin'],
+  },
+
+  // ==========================================
+  // THORAX — CARDIOVASCULAR & RESPIRATORY
+  // ==========================================
+  {
+    id: 'thorax-heart',
+    name: 'Heart & Coronary Vasculature',
+    system: 'Circulatory',
+    mode: 'full-body',
+    position: [0.03, 0.38, 0.1],
+    cameraFocus: [0.03, 0.38, 0.8],
+    lookAt: [0.03, 0.38, 0],
+    ncertReference: 'NCERT Class 11, Chapter 18, Section 18.3: Human Circulatory System',
+    physiologicalRole:
+      'A four-chambered double pump beating ~100,000 times daily. Right atrium and ventricle circulate deoxygenated venous blood through pulmonary trunk to lungs; left atrium and muscular left ventricle pump oxygenated arterial blood via aorta to systemic circulation (resting cardiac output Q = 5.0 L/min, stroke volume SV = 70 mL). Pacemaker Sinoatrial (SA) Node in right atrial wall generates rhythmic action potentials (72 bpm) conducting through AV node, Bundle of His, and Purkinje fibers.',
+    clinicalSignificance:
+      'Myocardial Infarction (coronary artery atherothrombotic occlusion causing ischemic cardiomyocyte necrosis, elevated cardiac troponin I/T and ST-segment elevation on ECG) and Heart Failure with reduced ejection fraction (HFrEF).',
+    keyBiomolecules: ['Cardiac Troponin I & T', 'Creatine Kinase-MB', 'Brain Natriuretic Peptide (BNP)', 'Myoglobin'],
+  },
+  {
+    id: 'thorax-lungs',
+    name: 'Lungs, Bronchial Tree & Alveoli',
+    system: 'Respiratory',
+    mode: 'full-body',
+    position: [-0.09, 0.36, 0.08],
+    cameraFocus: [-0.09, 0.36, 0.85],
+    lookAt: [-0.09, 0.36, 0],
+    ncertReference: 'NCERT Class 11, Chapter 17, Section 17.1: Human Respiratory System',
+    physiologicalRole:
+      'Paired asymmetric spongy pulmonary organs (Right lung: 3 lobes; Left lung: 2 lobes with cardiac notch). Branching tracheobronchial tree terminates in ~300 million micro-alveoli providing ~100 m² of capillary diffusion surface area. Type I pneumocytes form ultra-thin (0.5 µm) air-blood barrier for rapid O2-CO2 passive Fick diffusion; Type II pneumocytes secrete pulmonary surfactant (dipalmitoylphosphatidylcholine, DPPC) reducing surface tension and preventing end-expiratory alveolar collapse.',
+    clinicalSignificance:
+      'Infant Respiratory Distress Syndrome (IRDS caused by neonatal surfactant deficiency), Pneumonia (alveolar consolidation), and Chronic Obstructive Pulmonary Disease (COPD / Emphysema with alveolar septal destruction).',
+    keyBiomolecules: ['Dipalmitoylphosphatidylcholine (DPPC Surfactant)', 'Surfactant Proteins SP-A/B/C/D', 'Hemoglobin (HbO2)'],
+  },
+
+  // ==========================================
+  // ABDOMEN — DIGESTIVE, METABOLIC & URINARY
+  // ==========================================
+  {
+    id: 'abdomen-liver',
+    name: 'Liver (Hepatic Metabolic Engine)',
+    system: 'Digestive',
+    mode: 'full-body',
+    position: [0.08, 0.22, 0.09],
+    cameraFocus: [0.08, 0.22, 0.8],
+    lookAt: [0.08, 0.22, 0],
+    ncertReference: 'NCERT Class 11, Chapter 16, Section 16.1.4: Liver & Digestive Glands',
+    physiologicalRole:
+      'The largest internal organ (~1.5 kg). Hexagonal hepatic lobules with central vein, portal triads, and fenestrated sinusoids lined by phagocytic Kupffer macrophages. Major metabolic duties: gluconeogenesis, glycogenolysis, glycogenesis, plasma protein synthesis (Albumin, Prothrombin, Fibrinogen), urea cycle detoxifying toxic NH3, and daily production of 500–1000 mL bile containing conjugated bile acids (cholic and chenodeoxycholic acids) for lipid emulsification.',
+    clinicalSignificance:
+      'Cirrhosis (diffuse hepatic fibrosis and regenerative nodules resulting from chronic hepatitis B/C or alcohol abuse, causing portal hypertension, esophageal varices, and ascites) and Jaundice (hyperbilirubinemia).',
+    keyBiomolecules: ['Serum Albumin', 'Alanine Aminotransferase (ALT)', 'Aspartate Aminotransferase (AST)', 'Bilirubin', 'Cytochrome P450'],
+  },
+  {
+    id: 'abdomen-stomach',
+    name: 'Stomach & Gastric Acid Secretion',
+    system: 'Digestive',
+    mode: 'full-body',
+    position: [-0.06, 0.24, 0.09],
+    cameraFocus: [-0.06, 0.24, 0.75],
+    lookAt: [-0.06, 0.24, 0],
+    ncertReference: 'NCERT Class 11, Chapter 16, Section 16.1.1: Alimentary Canal & Stomach',
+    physiologicalRole:
+      'J-shaped muscular reservoir divided into Cardia, Fundus, Corpus, and Pylorus with thick mucosal rugae folds. Gastric mucosal pits host: Parietal (Oxyntic) cells secreting 2–3 liters daily of gastric HCl (pH 1.5–2.0 via apical H+/K+ ATPase proton pumps) and Intrinsic Factor (vital for ileal Vitamin B12 absorption); Chief (Peptic) cells secreting inactive Pepsinogen cleaved by HCl into active endopeptidase Pepsin; and G-cells producing Gastrin.',
+    clinicalSignificance:
+      'Peptic Ulcer Disease (gastric/duodenal mucosal erosions primarily caused by Helicobacter pylori colonization or NSAID inhibition of protective COX-1 prostaglandins) and Pernicious Anemia (autoimmune destruction of parietal cells causing B12 deficiency).',
+    keyBiomolecules: ['Hydrochloric Acid (HCl)', 'Pepsinogen & Pepsin', 'Intrinsic Factor (Castle)', 'Gastrin & Histamine'],
+  },
+  {
+    id: 'abdomen-pancreas',
+    name: 'Pancreas & Islets of Langerhans',
+    system: 'Endocrine',
+    mode: 'full-body',
+    position: [0, 0.18, 0.05],
+    cameraFocus: [0, 0.18, 0.75],
+    lookAt: [0, 0.18, 0],
+    ncertReference: 'NCERT Class 11, Chapter 22, Section 22.2.6: Pancreas Endocrine Function',
+    physiologicalRole:
+      'Dual exocrine and endocrine retroperitoneal organ. Exocrine acini secrete alkaline pancreatic juice (pH 8.0 containing HCO3-, trypsinogen, chymotrypsinogen, pancreatic amylase, and lipase). Endocrine Islets of Langerhans (~1 million islets) contain: Beta-cells (65–80%) secreting Insulin promoting cellular glucose uptake via GLUT4 translocation and glycogenesis; Alpha-cells (15–20%) secreting Glucagon stimulating glycogenolysis during hypoglycemia; and Delta-cells secreting Somatostatin.',
+    clinicalSignificance:
+      'Type 1 Diabetes Mellitus (autoimmune T-cell mediated destruction of beta cells causing absolute insulin deficiency and life-threatening diabetic ketoacidosis DKA) and Acute Pancreatitis (premature intra-acinar zymogen activation auto-digesting pancreatic parenchyma).',
+    keyBiomolecules: ['Insulin (A and B chains with 2 disulfide bonds)', 'Glucagon', 'Somatostatin', 'C-Peptide', 'Trypsinogen'],
+  },
+  {
+    id: 'abdomen-kidneys',
+    name: 'Kidneys, Nephrons & Glomerular Filtration',
+    system: 'Urinary',
+    mode: 'full-body',
+    position: [0.08, 0.15, -0.06],
+    cameraFocus: [0.08, 0.15, -0.85],
+    lookAt: [0.08, 0.15, 0],
+    ncertReference: 'NCERT Class 11, Chapter 19, Section 19.1: Human Excretory System',
+    physiologicalRole:
+      'Bean-shaped retroperitoneal organs receiving 20–25% of resting cardiac output (Renal Blood Flow = 1200 mL/min). Each kidney packs ~1 million Nephrons: Glomerular capillary tuft filters 180 L/day of plasma ultrafiltrate (Glomerular Filtration Rate GFR = 125 mL/min); Proximal Convoluted Tubule (PCT) obligatorily reabsorbs 65–70% of Na+, water, and 100% of filtered glucose and amino acids; Loop of Henle hairpin countercurrent multiplier establishes hyperosmotic medullary gradient (1200 mOsm/kg); Distal Tubule & Collecting Duct reabsorb water regulated by Pituitary ADH (Vasopressin) and Aldosterone.',
+    clinicalSignificance:
+      'Chronic Kidney Disease (CKD leading to uremia, fluid overload, normocytic anemia from erythropoietin deficiency, requiring hemodialysis or renal allograft transplantation) and Glomerulonephritis.',
+    keyBiomolecules: ['Erythropoietin (EPO)', 'Renin (Juxtaglomerular cells)', 'Calcitriol (1,25-(OH)2 Vitamin D3)', 'Aquaporin-2'],
+  },
+
+  // ==========================================
+  // PELVIC & REPRODUCTIVE SYSTEMS (MALE)
   // ==========================================
   {
     id: 'male-testes',
@@ -73,21 +217,41 @@ export const COMPREHENSIVE_LANDMARKS: AnatomicalLandmark[] = [
     keyBiomolecules: ['Testosterone (Leydig cells)', 'Inhibin B (Sertoli cells)', 'Androgen-Binding Protein (ABP)', 'FSH & LH'],
   },
   {
-    id: 'male-vas-deferens',
-    name: 'Vas Deferens & Inguinal Canal',
+    id: 'male-prostate-seminal',
+    name: 'Prostate Gland & Seminal Vesicles',
     system: 'Reproductive',
     mode: 'full-body',
     gender: 'male',
-    position: [0.05, 0.08, 0.04],
-    cameraFocus: [0.05, 0.08, 0.7],
-    lookAt: [0.05, 0.08, 0],
-    ncertReference: 'NCERT Class 12, Chapter 3, Section 3.1: Accessory Ducts',
+    position: [0, 0.02, 0.06],
+    cameraFocus: [0, 0.02, 0.75],
+    lookAt: [0, 0.02, 0],
+    ncertReference: 'NCERT Class 12, Chapter 3, Section 3.1: Male Accessory Sex Glands',
     physiologicalRole:
-      'A ~45 cm muscular tube ascending from the tail of the epididymis through the inguinal canal into the pelvis. Its thick three-layered smooth muscle wall generates rapid peristaltic contractions during ejaculation, propelling spermatozoa into the ejaculatory duct.',
+      'Essential exocrine accessory sex glands contributing ~95% of total ejaculate volume (2.0–5.0 mL). Seminal vesicles secrete viscous alkaline fluid (60–70% of ejaculate) packed with fructose for sperm flagellar motility, prostaglandins stimulating uterine reverse peristalsis, and semenogelin coagulating semen. Prostate gland secretes thin milky fluid (25–30% of ejaculate) containing Prostate-Specific Antigen (PSA, a serine protease that liquefies the seminal clot within 15–30 minutes) and zinc maintaining sperm membrane stability.',
     clinicalSignificance:
-      'Vasectomy involves bilateral surgical transection and ligation of a small section of the vas deferens, serving as a permanent, 99.85% effective sterilization procedure without altering testosterone or seminal volume.',
-    keyBiomolecules: ['Smooth Muscle Actomyosin', 'Sympathetic Norepinephrine Receptors'],
+      'Benign Prostatic Hyperplasia (BPH; transitional zone enlargement causing urinary hesitancy and nocturia in aging men) and Prostatic Adenocarcinoma (peripheral zone malignancy monitored via serum PSA assays).',
+    keyBiomolecules: ['Prostate-Specific Antigen (PSA)', 'Seminal Fructose', 'Prostaglandins', 'Acid Phosphatase'],
   },
+  {
+    id: 'male-penis-urethra',
+    name: 'Penis, Erectile Tissue & Urethra',
+    system: 'Reproductive',
+    mode: 'full-body',
+    gender: 'male',
+    position: [0, -0.08, 0.12],
+    cameraFocus: [0, -0.08, 0.75],
+    lookAt: [0, -0.08, 0],
+    ncertReference: 'NCERT Class 12, Chapter 3, Section 3.1: External Genitalia',
+    physiologicalRole:
+      'Copulatory organ and dual urinary/reproductive conduit. Cylindrical body comprises three erectile tissue columns: paired dorsal Corpora Cavernosa and ventral Corpus Spongiosum encasing the penile urethra and expanding distally into the sensitive glans penis. Erection is mediated by parasympathetic non-adrenergic non-cholinergic (NANC) nerve fibers releasing Nitric Oxide (NO), stimulating vascular smooth muscle guanylyl cyclase to produce cyclic GMP, relaxing helicine arterioles and engorging cavernous sinusoids at arterial pressure.',
+    clinicalSignificance:
+      'Erectile Dysfunction (ED; vascular endothelial insufficiency treated with phosphodiesterase-5 inhibitors such as sildenafil that prolong cGMP action) and Hypospadias.',
+    keyBiomolecules: ['Nitric Oxide (NO)', 'Cyclic GMP (cGMP)', 'Phosphodiesterase-5 (PDE5)'],
+  },
+
+  // ==========================================
+  // PELVIC & REPRODUCTIVE SYSTEMS (FEMALE)
+  // ==========================================
   {
     id: 'female-ovary',
     name: 'Ovaries & Folliculogenesis',
@@ -105,6 +269,22 @@ export const COMPREHENSIVE_LANDMARKS: AnatomicalLandmark[] = [
     keyBiomolecules: ['17β-Estradiol (Granulosa cells)', 'Progesterone (Corpus Luteum)', 'Inhibin B', 'Anti-Müllerian Hormone (AMH)'],
   },
   {
+    id: 'female-fallopian',
+    name: 'Fallopian Tubes (Oviducts & Ampulla)',
+    system: 'Reproductive',
+    mode: 'full-body',
+    gender: 'female',
+    position: [0.12, 0.17, 0.02],
+    cameraFocus: [0.12, 0.17, 0.7],
+    lookAt: [0.12, 0.17, 0],
+    ncertReference: 'NCERT Class 12, Chapter 3, Section 3.2: Fallopian Tubes',
+    physiologicalRole:
+      '10–12 cm muscular conduits connecting ovaries to the uterus. Divided into Infundibulum (funnel-shaped with motile finger-like fimbriae sweeping ovulated oocyte from peritoneal cavity), Ampulla (longest dilated segment and the canonical physiological site of human fertilization / syngamy), and Isthmus. Ciliated columnar mucosal epithelial cells beat synchronously towards the uterus while non-ciliated secretory peg cells produce nourishing tubal fluid supporting sperm capacitation and early cleavage blastomere transit.',
+    clinicalSignificance:
+      'Ectopic Tubal Pregnancy (implantation of blastocyst within ampullary mucosal folds; obstetric emergency risking fatal tubal rupture and hemoperitoneum) and Pelvic Inflammatory Disease (PID) scarring causing tubal factor infertility.',
+    keyBiomolecules: ['Ciliary Dynein ATPases', 'Tubal Secretory Glycoproteins', 'Estrogen & Progesterone Receptors'],
+  },
+  {
     id: 'female-uterus',
     name: 'Uterus, Myometrium & Endometrium',
     system: 'Reproductive',
@@ -119,6 +299,71 @@ export const COMPREHENSIVE_LANDMARKS: AnatomicalLandmark[] = [
     clinicalSignificance:
       'Endometriosis (aberrant growth of endometrial glands and stroma outside uterine cavity) and Uterine Leiomyomas (fibroids) causing menorrhagia and subfertility.',
     keyBiomolecules: ['Estrogen (Proliferative Phase)', 'Progesterone (Secretory Phase)', 'Oxytocin Receptors', 'Prostaglandins (PGF2α)'],
+  },
+  {
+    id: 'female-mammary',
+    name: 'Mammary Glands (Lactation System)',
+    system: 'Reproductive',
+    mode: 'full-body',
+    gender: 'female',
+    position: [0.1, 0.38, 0.16],
+    cameraFocus: [0.1, 0.38, 0.85],
+    lookAt: [0.1, 0.38, 0],
+    ncertReference: 'NCERT Class 12, Chapter 3, Section 3.2: Mammary Glands & Lactation',
+    physiologicalRole:
+      'Modified tubuloalveolar apocrine sweat glands overlying the pectoralis major muscle. Composed of 15–20 glandular lobes separated by adipose connective tissue and fibrous Cooper suspensory ligaments. Alveoli are lined by milk-secreting cuboidal epithelial cells surrounded by contractile myoepithelial cells. Neuroendocrine regulation: Anterior pituitary Prolactin stimulates continuous alveolar milk synthesis; infant suckling stimulates posterior pituitary Oxytocin release inducing myoepithelial contraction and rapid milk ejection ("let-down" reflex). First milk (Colostrum) delivers vital secretory IgA antibodies.',
+    clinicalSignificance:
+      'Invasive Ductal Carcinoma (most common female cancer; screened via mammography, biopsied for ER/PR/HER2 expression) and Fibroadenoma.',
+    keyBiomolecules: ['Prolactin (PRL)', 'Oxytocin', 'Secretory Immunoglobulin A (sIgA)', 'Alpha-Lactalbumin & Casein'],
+  },
+
+  // ==========================================
+  // MUSCULOSKELETAL & LOCOMOTIVE APPARATUS
+  // ==========================================
+  {
+    id: 'limb-arm-biceps',
+    name: 'Deltoid, Biceps Brachii & Humerus',
+    system: 'Muscular',
+    mode: 'full-body',
+    position: [-0.28, 0.38, 0.05],
+    cameraFocus: [-0.28, 0.38, 0.8],
+    lookAt: [-0.28, 0.38, 0],
+    ncertReference: 'NCERT Class 11, Chapter 20, Section 20.2: Mechanism of Muscle Contraction',
+    physiologicalRole:
+      'Upper limb muscular apparatus. Biceps brachii (two-headed anterior compartment flexor innervated by musculocutaneous nerve C5-C6) produces powerful elbow flexion and forearm supination; multi-pennate Deltoid (axillary nerve C5-C6) drives glenohumeral arm abduction past 15°. Operates via sliding filament theory: sarcoplasmic reticulum releases Ca2+ binding Troponin C, shifting Tropomyosin to expose Actin active sites for Myosin cross-bridge power strokes powered by ATP hydrolysis.',
+    clinicalSignificance:
+      'Rotator Cuff Tears (supraspinatus tendon impingement causing painful arc syndrome) and Duchenne Muscular Dystrophy (X-linked dystrophin gene mutation).',
+    keyBiomolecules: ['Actin & Myosin Cross-Bridges', 'Troponin C & Tropomyosin', 'Sarcoplasmic Reticulum Ca2+ ATPase (SERCA)'],
+  },
+  {
+    id: 'limb-thigh-femur',
+    name: 'Quadriceps Femoris & Femur',
+    system: 'Muscular',
+    mode: 'full-body',
+    position: [0.12, -0.28, 0.06],
+    cameraFocus: [0.12, -0.28, 0.85],
+    lookAt: [0.12, -0.28, 0],
+    ncertReference: 'NCERT Class 11, Chapter 20, Section 20.3: Appendicular Skeleton & Limbs',
+    physiologicalRole:
+      'The massive anterior extensor compartment of the human thigh. Four vast muscular bellies: Rectus femoris, Vastus lateralis, Vastus medialis, and Vastus intermedius converging into the common quadriceps tendon inserting across the patella onto the tibial tuberosity. Serves as the primary knee extensor essential for upright bipedal posture, walking, sprinting, and jumping. Wraps around the Femur (longest, heaviest, and strongest cortical bone in the human skeleton).',
+    clinicalSignificance:
+      'Femoral Neck Fractures (common in osteoporotic elderly, risking avascular femoral head necrosis due to disruption of retinacular arterial branches) and Quadriceps tendon rupture.',
+    keyBiomolecules: ['Type I Collagen', 'Hydroxyapatite Crystals Ca10(PO4)6(OH)2', 'Myoglobin', 'Creatine Phosphate'],
+  },
+  {
+    id: 'limb-knee-joint',
+    name: 'Knee Joint (Synovial Hinge Biomechanics)',
+    system: 'Skeletal',
+    mode: 'full-body',
+    position: [0.12, -0.48, 0.06],
+    cameraFocus: [0.12, -0.48, 0.75],
+    lookAt: [0.12, -0.48, 0],
+    ncertReference: 'NCERT Class 11, Chapter 20, Section 20.4: Synovial Joints',
+    physiologicalRole:
+      'The largest and most complex synovial modified hinge joint in the body. Articulation between femoral condyles and tibial plateau, stabilized by anterior and posterior cruciate ligaments (ACL and PCL preventing anteroposterior translation), medial and lateral collateral ligaments (MCL and LCL resisting valgus/varus stress), and shock-absorbing fibrocartilaginous medial and lateral menisci bathed in viscous hyaluronic-acid-rich synovial fluid.',
+    clinicalSignificance:
+      'Anterior Cruciate Ligament (ACL) rupture (frequent in athletic decelerating pivot injuries, assessed by positive Lachman and anterior drawer tests) and Osteoarthritis (progressive articular hyaline cartilage degeneration).',
+    keyBiomolecules: ['Hyaluronic Acid', 'Type II Collagen (Articular Cartilage)', 'Aggrecan Proteoglycans', 'Lubricin'],
   },
 
   // ==========================================

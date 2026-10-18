@@ -9,6 +9,9 @@ import {
   FULL_ADDER_SPEC,
   HALF_ADDER_SPEC,
   TruthTableVerifier,
+  decodeResistorValue,
+  solveCircuitBranch,
+  ArduinoInterpreter,
 } from '../src/ece';
 
 describe('ECE Virtual Lab — Circuit Engine & Evaluator', () => {
@@ -186,4 +189,62 @@ describe('ECE Virtual Lab — Circuit Engine & Evaluator', () => {
       expect(failedRow?.discrepancies[0]).toContain('Sum');
     });
   });
+
+  describe('Circuit Sandbox & Virtual Arduino Engine', () => {
+    it('should correctly decode 4-band resistor color codes', () => {
+      // Red (2), Red (2), Brown (10^1) = 220 Ω
+      expect(decodeResistorValue(2, 2, 1)).toBe(220);
+      // Brown (1), Black (0), Red (10^2) = 1,000 Ω (1 kΩ)
+      expect(decodeResistorValue(1, 0, 2)).toBe(1000);
+      // Yellow (4), Violet (7), Orange (10^3) = 47,000 Ω (47 kΩ)
+      expect(decodeResistorValue(4, 7, 3)).toBe(47000);
+    });
+
+    it('should solve DC branch with LED and compute forward current & illumination', () => {
+      // 9V battery with 330 ohm resistor and red LED (Vf = 2.0V)
+      // I = (9 - 2) / 330 = 7 / 330 ≈ 21.2 mA
+      const res = solveCircuitBranch(9, [{ resistance: 330 }, { resistance: 0, isLed: true, ledVf: 2.0 }]);
+      expect(res.totalResistance).toBe(330);
+      expect(res.totalCurrentMa).toBeCloseTo(21.21, 1);
+      expect(res.ledIlluminated).toBe(true);
+      expect(res.ledBurnt).toBe(false);
+
+      // Over-current test: 9V directly across LED with 10 ohm resistor -> I = 7 / 10 = 700 mA -> Burnt!
+      const overCurrentRes = solveCircuitBranch(9, [{ resistance: 10 }, { resistance: 0, isLed: true, ledVf: 2.0 }]);
+      expect(overCurrentRes.ledBurnt).toBe(true);
+      expect(overCurrentRes.ledIlluminated).toBe(false);
+    });
+
+    it('should execute virtual Arduino Uno instructions and toggle digital pins', () => {
+      const code = `
+        pinMode(13, OUTPUT);
+        digitalWrite(13, HIGH);
+        Serial.println("LED Pin 13 Active");
+      `;
+      const arduino = new ArduinoInterpreter(code);
+      arduino.step();
+
+      expect(arduino.state.pins[13]?.mode).toBe('OUTPUT');
+      expect(arduino.state.pins[13]?.digitalValue).toBe(true);
+      expect(arduino.state.builtInLed).toBe(true);
+      expect(arduino.state.serialLog.some((l) => l.includes('LED Pin 13 Active'))).toBe(true);
+    });
+
+    it('should handle PWM analogWrite and analogRead ADC channels', () => {
+      const code = `
+        pinMode(9, OUTPUT);
+        analogWrite(9, 128);
+      `;
+      const arduino = new ArduinoInterpreter(code);
+      arduino.step();
+
+      expect(arduino.state.pins[9]?.pwmValue).toBe(128);
+      expect(arduino.state.pins[9]?.digitalValue).toBe(true);
+
+      // Analog input A0
+      arduino.setAnalogInput(0, 512);
+      expect(arduino.state.analogPins[0]).toBe(512);
+    });
+  });
 });
+

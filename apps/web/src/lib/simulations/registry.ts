@@ -410,6 +410,58 @@ export const SIMULATION_REGISTRY: readonly SimulationRegistryEntry[] = [
     ],
   },
 
+  // ECE Circuit Studio & Virtual Arduino Uno R3 Workstation (TinkerCAD + PhET)
+  {
+    id: 'ece-circuit-studio',
+    title: 'ECE Circuit Studio & Virtual Arduino Uno (TinkerCAD + PhET DC/AC)',
+    shortTitle: 'Circuit Studio & Arduino',
+    description:
+      'Interactive electronic circuit designer and embedded hardware studio. Features Lifelike, Schematic, and PCB view modes, AC/DC sources, 4-band resistor color decoder, glowing filaments, spinning DC motors, SG90 servo angle sweep, and a Virtual Arduino Uno R3 ATmega328P C++ execution engine with live Serial Monitor.',
+    laboratoryId: 'ece',
+    category: 'Electrical Fundamentals and Network Analysis',
+    difficulty: 'Intermediate',
+    status: 'available',
+    route: '/experiments/ece/circuit-studio',
+    disciplineColor: '#0284C7',
+    featured: true,
+    tags: [
+      'Circuit Construction',
+      'Virtual Arduino Uno',
+      'TinkerCAD',
+      'PhET DC/AC',
+      'Embedded C++',
+      'PCB Design',
+      'Oscilloscope',
+      'Digital Multimeter',
+      'PWM',
+      'Servos',
+      'DC Motors',
+    ],
+    learningObjectives: [
+      'Design, wire, and simulate complete AC and DC circuits using realistic, schematic, and PCB layouts',
+      'Program and interpret C++ microcode on a virtual ATmega328P microcontroller with digital and analog I/O',
+      'Decode 4-band resistor color codes and verify Ohm\'s Law and Kirchhoff\'s laws dynamically',
+      'Observe LED forward voltage drops, current thresholds, and over-current burnout protection',
+      'Analyze dynamic pulse-width modulation (PWM) controlling LED fading and servo angular positioning',
+      'Measure AC/DC signals using virtual dual-channel oscilloscope and digital multimeter',
+    ],
+    capabilities: [
+      'Virtual Arduino Uno R3 Workstation with live C++ interpreter and Serial Monitor',
+      'Multi-mode Canvas: Lifelike Components, IEEE Schematics, and KiCad-style 2D PCB view',
+      'Interactive 4-Band Resistor Color Code Decoder with real-time value calculator',
+      'Comprehensive AC/DC components: 1.5V/9V batteries, AC sine generator, resistors, capacitors, inductors, diodes, LEDs, bulbs, DC motors, servos, 7-segments, switches, buttons, 2N2222, LM741, 555 timers',
+      'Virtual Measuring Lab: Bench Digital Multimeter (V/A/Ω) and Dual-Channel Animated Oscilloscope',
+      'Built-in Guided Hardware Projects: Blink, Push Button LED, Potentiometer PWM Fading, Traffic Light FSM, Servo Sweep',
+    ],
+    equations: [
+      'V = I \\cdot R',
+      'P = V \\cdot I = I^2 \\cdot R',
+      'V_{out} = \\text{map}(\\text{analogRead}(A_0), 0, 1023, 0, 255)',
+      'f_{PWM} = 490 \\text{ Hz}, \\quad D = \\frac{\\text{PWM}}{255}',
+      'Z_{RLC} = \\sqrt{R^2 + \\left(\\omega L - \\frac{1}{\\omega C}\\right)^2}',
+    ],
+  },
+
   ...ECE_CURRICULUM_SPECIFICATIONS,
 
   // 5. Harmonic Oscillator (Mechanical Vibrations)

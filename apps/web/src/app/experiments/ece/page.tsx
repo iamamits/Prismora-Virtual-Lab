@@ -216,6 +216,56 @@ export default function ECELabCatalogPage() {
             </span>
           </div>
 
+          {/* Crown Jewel Studio Spotlight: Circuit Construction & Virtual Arduino Uno */}
+          <div className="rounded-2xl border-2 border-sky-300 bg-gradient-to-r from-sky-50 via-white to-blue-50 p-6 shadow-md relative overflow-hidden">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="space-y-3 max-w-3xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-sky-600 text-white shadow-xs">
+                    FLAGSHIP HARDWARE STUDIO
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                    TinkerCAD + PhET DC/AC + Arduino Uno
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    3 View Modes: Lifelike • Schematic • PCB
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  ECE Circuit Construction Studio & Virtual Arduino Uno R3
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  Design, wire, and simulate complete AC and DC circuits with realistic components or 2D KiCad-style PCB soldermask.
+                  Execute genuine C++ microcode on a virtual ATmega328P microcontroller with digital and PWM analog pins, 
+                  live Serial Monitor, 4-band resistor color decoder, glowing filaments, spinning DC motors, SG90 servo angle sweep,
+                  and dual-channel oscilloscope traces.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1 text-[11px] font-mono font-semibold text-slate-600">
+                  <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg">C++ Sketch Runner</span>
+                  <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg">Real Serial Monitor</span>
+                  <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg">4-Band Resistor Decoder</span>
+                  <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg">Dual-Trace Oscilloscope</span>
+                  <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg">Digital Multimeter</span>
+                  <span className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg">Over-Current Protection</span>
+                </div>
+              </div>
+
+              <div className="shrink-0 flex flex-col gap-2 w-full lg:w-auto">
+                <Link
+                  href="/experiments/ece/circuit-studio"
+                  className="py-3 px-6 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
+                >
+                  <Cpu className="w-5 h-5" />
+                  <span>Launch Circuit Studio</span>
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Link>
+                <span className="text-[11px] text-center text-slate-500 font-medium">
+                  Zero setup required • Runs in browser
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Spotlight 1: Adders */}
             <div className="flex flex-col justify-between rounded-xl border-2 border-blue-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
