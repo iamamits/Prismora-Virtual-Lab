@@ -4,3 +4,4 @@ export * from './dfa-minimization';
 export * from './regex';
 export * from './cfg';
 export * from './turing-machine';
+export * from './cybershield-automata';

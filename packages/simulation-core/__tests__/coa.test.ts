@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CacheSimulator, PipelinedCPU, RISCVAssembler, SingleCycleCPU } from '../src/coa';
+import { CacheSimulator, InsideCPU, PipelinedCPU, RISCVAssembler, SingleCycleCPU } from '../src/coa';
 
 describe('Computer Organization & Architecture Simulation Engine', () => {
   describe('RISC-V Assembler & Disassembler', () => {
@@ -145,4 +145,78 @@ describe('Computer Organization & Architecture Simulation Engine', () => {
       expect(cache.getStats().hitRate).toBe(50.0);
     });
   });
+
+  describe('Inside the CPU — 8-Bit Architecture Engine', () => {
+    it('should assemble and execute basic arithmetic with stage stepping', () => {
+      const prog = `
+        MOV R1, 15
+        MOV R2, 10
+        ADD R1, R2
+        HALT
+      `;
+      const cpu = new InsideCPU(prog);
+
+      // Step whole instructions
+      cpu.stepInstruction(); // MOV R1, 15
+      expect(cpu.registers[1]).toBe(15);
+
+      cpu.stepInstruction(); // MOV R2, 10
+      expect(cpu.registers[2]).toBe(10);
+
+      cpu.stepInstruction(); // ADD R1, R2
+      expect(cpu.registers[1]).toBe(25);
+      expect(cpu.flags.Z).toBe(false);
+      expect(cpu.flags.C).toBe(false);
+    });
+
+    it('should handle memory store and load through 8-bit cache with hit/miss timing', () => {
+      const prog = `
+        MOV R1, 42
+        STORE R1, 64
+        LOAD R2, 64
+        HALT
+      `;
+      const cpu = new InsideCPU(prog, { cacheLines: 4, blockSize: 4 });
+
+      cpu.stepInstruction(); // MOV R1, 42
+      cpu.stepInstruction(); // STORE R1, 64 (compulsory miss, 3 cycles)
+      expect(cpu.ram[64]).toBe(42);
+      expect(cpu.cache.stats.misses).toBe(1);
+
+      cpu.stepInstruction(); // LOAD R2, 64 (cache hit! 1 cycle)
+      expect(cpu.registers[2]).toBe(42);
+      expect(cpu.cache.stats.hits).toBe(1);
+    });
+
+    it('should detect RAW data hazards in 5-stage pipeline', () => {
+      const prog = `
+        MOV R1, 10
+        ADD R2, R1
+        HALT
+      `;
+      const cpu = new InsideCPU(prog);
+      while (!cpu.halted && cpu.executed < 3) {
+        cpu.stepInstruction();
+      }
+      expect(cpu.pipeline.events.some((e) => e.text.includes('RAW data hazard'))).toBe(true);
+    });
+
+    it('should handle branch instructions and conditional jumps', () => {
+      const prog = `
+        MOV R1, 5
+        LOOP: DEC R1
+        JNZ LOOP
+        HALT
+      `;
+      const cpu = new InsideCPU(prog);
+      let steps = 0;
+      while (!cpu.halted && steps < 100) {
+        cpu.step();
+        steps++;
+      }
+      expect(cpu.registers[1]).toBe(0);
+      expect(cpu.flags.Z).toBe(true);
+    });
+  });
 });
+

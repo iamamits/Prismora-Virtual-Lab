@@ -3,6 +3,8 @@ import {
   AutomataEngine,
   BINARY_INCREMENTER_TM,
   CFGEngine,
+  CyberSecurityAnalyzer,
+  CyberThompsonEngine,
   DFAMinimization,
   FiniteAutomaton,
   RegexEngine,
@@ -159,4 +161,63 @@ describe('Theory of Computation Simulation Engine', () => {
       expect(tapeStr).toBe('1100');
     });
   });
+
+  describe('CyberShield Automata & Security Engine', () => {
+    it('should build ε-NFA via Thompson construction with explainable steps', () => {
+      const { enfa, steps } = CyberThompsonEngine.buildEpsilonNFA('(a|b)*abb');
+      expect(enfa.alphabet).toContain('a');
+      expect(enfa.alphabet).toContain('b');
+      expect(steps.length).toBeGreaterThan(0);
+      expect(steps[0]?.phase).toBe('Parsing');
+    });
+
+    it('should eliminate epsilons and convert to NFA', () => {
+      const { enfa } = CyberThompsonEngine.buildEpsilonNFA('a*b');
+      const nfa = CyberThompsonEngine.removeEpsilon(enfa);
+      expect(nfa.alphabet).toEqual(['a', 'b']);
+      expect(nfa.finalStates.length).toBeGreaterThan(0);
+    });
+
+    it('should convert NFA to DFA via subset construction and minimize with Hopcroft', () => {
+      const { enfa } = CyberThompsonEngine.buildEpsilonNFA('ab');
+      const nfa = CyberThompsonEngine.removeEpsilon(enfa);
+      const { dfa } = CyberThompsonEngine.subsetConstruction(nfa);
+      expect(dfa.states.length).toBeGreaterThan(0);
+
+      const { minimalDfa } = CyberThompsonEngine.minimizeDFA(dfa);
+      expect(minimalDfa.states.length).toBeLessThanOrEqual(dfa.states.length);
+
+      // Trace valid and invalid strings
+      const acceptedTrace = CyberThompsonEngine.traceString(minimalDfa, 'ab');
+      expect(acceptedTrace.accepted).toBe(true);
+
+      const rejectedTrace = CyberThompsonEngine.traceString(minimalDfa, 'a');
+      expect(rejectedTrace.accepted).toBe(false);
+    });
+
+    it('should detect security patterns with automata security scanner', () => {
+      const sqliResult = CyberSecurityAnalyzer.scanPayload(
+        'SQL-injection-like',
+        "admin' or '1'='1' --",
+      );
+      expect(sqliResult.detected).toBe(true);
+      expect(sqliResult.highestSeverity).toBe('critical');
+      expect(sqliResult.matchedPatterns.some((p) => p.literal === "' or '")).toBe(true);
+      expect(sqliResult.matchedPatterns.some((p) => p.literal === '--')).toBe(true);
+
+      const xssResult = CyberSecurityAnalyzer.scanPayload(
+        'XSS-like',
+        "<img src=x onerror=alert('PWNED')>",
+      );
+      expect(xssResult.detected).toBe(true);
+      expect(xssResult.matchedPatterns.some((p) => p.literal === 'onerror=')).toBe(true);
+
+      const cleanResult = CyberSecurityAnalyzer.scanPayload(
+        'SQL-injection-like',
+        'john_doe_99',
+      );
+      expect(cleanResult.detected).toBe(false);
+    });
+  });
 });
+

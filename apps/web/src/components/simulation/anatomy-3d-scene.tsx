@@ -323,6 +323,7 @@ export function Anatomy3DScene() {
   // State
   const [activeMode, setActiveMode] = useState<AnatomySystemMode>('full-body');
   const [gender, setGender] = useState<AnatomyGender>('male');
+  const [shadingMode, setShadingMode] = useState<'skin' | 'muscle' | 'hologram' | 'xray'>('skin');
   const [transparency, setTransparency] = useState(false);
   const [wireframe, setWireframe] = useState(false);
   const [autoRotate, setAutoRotate] = useState(false);
@@ -444,14 +445,64 @@ export function Anatomy3DScene() {
     rimLight.position.set(0, -3, -3);
     scene.add(rimLight);
 
-    // 6. Ground Grid & Pedestal Ring
-    const grid = new THREE.GridHelper(4, 40, 0x38bdf8, 0x1e293b);
+    // 6. Cybernetic Virtual Lab Pedestal & Holographic Ring
+    const pedestalGroup = new THREE.Group();
+    const pedestalBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.3, 1.4, 0.08, 48),
+      new THREE.MeshStandardMaterial({
+        color: 0x0f172a,
+        roughness: 0.35,
+        metalness: 0.8,
+      })
+    );
+    pedestalBase.position.y = -0.99;
+    pedestalGroup.add(pedestalBase);
+
+    // Glowing Concentric Ring
+    const ringGeo = new THREE.RingGeometry(1.22, 1.28, 48);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.75,
+    });
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = Math.PI / 2;
+    ringMesh.position.y = -0.94;
+    pedestalGroup.add(ringMesh);
+
+    // Floor Sci-Fi Grid
+    const grid = new THREE.GridHelper(5, 50, 0x38bdf8, 0x1e293b);
     grid.position.y = -0.95;
-    scene.add(grid);
+    pedestalGroup.add(grid);
+    scene.add(pedestalGroup);
+
+    // Floating Atmospheric Ambient Particles
+    const particleCount = 200;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      particlePositions[i] = (Math.random() - 0.5) * 4;
+      particlePositions[i + 1] = Math.random() * 2.5 - 0.8;
+      particlePositions[i + 2] = (Math.random() - 0.5) * 4;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    const particleMat = new THREE.PointsMaterial({
+      color: 0x38bdf8,
+      size: 0.02,
+      transparent: true,
+      opacity: 0.55,
+      blending: THREE.AdditiveBlending,
+    });
+    const particlePoints = new THREE.Points(particleGeo, particleMat);
+    scene.add(particlePoints);
 
     // 7. Animation Loop with Smooth Camera Lerp
     const animate = () => {
       animFrameRef.current = requestAnimationFrame(animate);
+
+      // Rotate particle cloud gently
+      particlePoints.rotation.y += 0.0006;
 
       // Handle Camera Lerp Glide
       if (cameraAnimRef.current?.isAnimating) {
@@ -550,7 +601,42 @@ export function Anatomy3DScene() {
           if (child.material) {
             const mats = Array.isArray(child.material) ? child.material : [child.material];
             mats.forEach((m) => {
-              if (m instanceof THREE.MeshStandardMaterial || m instanceof THREE.MeshBasicMaterial) {
+              if (m instanceof THREE.MeshStandardMaterial) {
+                if (activeMode === 'full-body') {
+                  if (shadingMode === 'skin') {
+                    m.color.setHex(gender === 'male' ? 0xd69b82 : 0xe2a893);
+                    m.roughness = 0.52;
+                    m.metalness = 0.04;
+                    m.transparent = transparency;
+                    m.opacity = transparency ? 0.4 : 1.0;
+                    m.wireframe = wireframe;
+                  } else if (shadingMode === 'muscle') {
+                    m.color.setHex(0x991b1b);
+                    m.roughness = 0.38;
+                    m.metalness = 0.08;
+                    m.transparent = transparency;
+                    m.opacity = transparency ? 0.4 : 1.0;
+                    m.wireframe = wireframe;
+                  } else if (shadingMode === 'hologram') {
+                    m.color.setHex(0x06b6d4);
+                    m.roughness = 0.1;
+                    m.metalness = 0.8;
+                    m.transparent = true;
+                    m.opacity = 0.45;
+                    m.wireframe = wireframe;
+                  } else if (shadingMode === 'xray') {
+                    m.color.setHex(0x94a3b8);
+                    m.roughness = 0.8;
+                    m.transparent = true;
+                    m.opacity = 0.35;
+                    m.wireframe = true;
+                  }
+                } else {
+                  m.transparent = transparency;
+                  m.opacity = transparency ? 0.4 : 1.0;
+                  m.wireframe = wireframe;
+                }
+              } else if (m instanceof THREE.MeshBasicMaterial) {
                 m.transparent = transparency;
                 m.opacity = transparency ? 0.4 : 1.0;
                 m.wireframe = wireframe;
@@ -758,7 +844,7 @@ export function Anatomy3DScene() {
       currentModelGroupRef.current = g;
       setLoadingModel(false);
     }
-  }, [activeMode, gender, transparency, wireframe]);
+  }, [activeMode, gender, shadingMode, transparency, wireframe]);
 
   // Handle Raycasting click on Landmark Pins
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -911,6 +997,36 @@ export function Anatomy3DScene() {
                 }`}
               >
                 Female
+              </button>
+            </div>
+          )}
+
+          {/* Shading / Material mode if full-body */}
+          {activeMode === 'full-body' && (
+            <div className="inline-flex rounded-xl bg-slate-900/90 p-1 border border-slate-700/60 shadow-lg backdrop-blur-md">
+              <button
+                onClick={() => setShadingMode('skin')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-bold transition-all ${
+                  shadingMode === 'skin' ? 'bg-amber-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Skin (PBR)
+              </button>
+              <button
+                onClick={() => setShadingMode('muscle')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-bold transition-all ${
+                  shadingMode === 'muscle' ? 'bg-red-800 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Muscular
+              </button>
+              <button
+                onClick={() => setShadingMode('hologram')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-bold transition-all ${
+                  shadingMode === 'hologram' ? 'bg-cyan-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Hologram
               </button>
             </div>
           )}
