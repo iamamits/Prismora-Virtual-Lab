@@ -25,12 +25,14 @@ import {
   Filter,
   RotateCcw,
   BookOpen,
+  Heart,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button, PrismoraLogo, PrismoraIcon } from '@prismora/ui';
 import { SIMULATION_REGISTRY, LABORATORIES, type SimulationRegistryEntry } from '@/lib/simulations/registry';
 import { SimulationCard } from '@/components/catalog/simulation-card';
 import { FeaturedSimulationSpotlight } from '@/components/catalog/featured-simulation-spotlight';
 import { ExperimentConceptModal } from '@/components/catalog/experiment-concept-modal';
+import { Hero3DSimulationShowcase } from '@/components/home/hero-3d-simulation-showcase';
 
 import {
   Building2,
@@ -122,9 +124,22 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-900 bg-blue-50/80 dark:bg-blue-950/60 text-xs font-mono font-bold text-blue-700 dark:text-blue-300 shadow-xs">
-                <PrismoraIcon size={14} minimal />
-                <span>Next-Generation Open Source Scientific Simulation &amp; Virtual Labs</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-900 bg-blue-50/80 dark:bg-blue-950/60 text-xs font-mono font-bold text-blue-700 dark:text-blue-300 shadow-xs">
+                  <PrismoraIcon size={14} minimal />
+                  <span>Next-Generation Open Source Scientific Simulation &amp; Virtual Labs</span>
+                </div>
+                <a
+                  href="https://github.com/iamamits"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-pink-200 dark:border-pink-900/60 bg-pink-50/80 dark:bg-pink-950/40 hover:bg-pink-100 text-xs font-medium text-pink-700 dark:text-pink-300 transition-colors group shadow-xs"
+                >
+                  <span>Designed &amp; Engineered with</span>
+                  <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 group-hover:scale-125 transition-transform" />
+                  <span>by</span>
+                  <span className="font-bold underline decoration-pink-300">Amit Singh</span>
+                </a>
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-[#172033] dark:text-white uppercase font-sans leading-none">
@@ -193,9 +208,12 @@ export default function HomePage() {
 
       {/* 2. Main Content Container */}
       <main className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-10">
-        {/* If user is NOT searching/filtering, show the editorial Spotlight + Curated Collections */}
+        {/* If user is NOT searching/filtering, show the 3D Motion Graphics Showcase + Spotlight + Curated Collections */}
         {!isFiltering ? (
           <>
+            {/* 3D Motion Graphics Flagship Showcase: 6 Flagship Live Simulations with 3D Depth & Motion Transitions */}
+            <Hero3DSimulationShowcase />
+
             {/* Featured Simulation Spotlight (Wide Interactive Editorial Card) */}
             <FeaturedSimulationSpotlight onSelectConcept={(sim) => setSelectedConcept(sim)} />
 

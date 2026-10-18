@@ -680,6 +680,19 @@ export const Navbar: React.FC = () => {
 
         {/* Right Action Buttons */}
         <div className="flex items-center gap-2">
+          {/* Creator & Architect Badge */}
+          <a
+            href="https://github.com/iamamits"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-pink-200/80 bg-pink-50/80 hover:bg-pink-100/90 text-pink-700 text-xs font-semibold transition-all group shadow-2xs"
+            title="Crafted & Architected with ❤️ by Amit Singh"
+          >
+            <Heart className="w-3.5 h-3.5 text-pink-500 fill-pink-500 group-hover:scale-110 transition-transform" />
+            <span className="hidden xl:inline text-[11px] text-pink-600 font-normal">Crafted by</span>
+            <span className="font-bold">Amit Singh</span>
+          </a>
+
           {/* Search Pill / Quick Filter */}
           <Link
             href="/library"
@@ -843,6 +856,21 @@ export const Navbar: React.FC = () => {
               >
                 Math Studio
               </Link>
+            </div>
+
+            {/* Mobile Creator Attribution */}
+            <div className="pt-2 border-t border-zinc-100 flex items-center justify-center">
+              <a
+                href="https://github.com/iamamits"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium"
+              >
+                <span>Crafted with</span>
+                <Heart className="w-3.5 h-3.5 text-pink-500 fill-pink-500" />
+                <span>by</span>
+                <span className="font-bold underline">Amit Singh</span>
+              </a>
             </div>
           </motion.div>
         )}

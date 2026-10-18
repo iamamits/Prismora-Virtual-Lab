@@ -237,18 +237,35 @@ export function Footer() {
         </div>
 
         {/* 3. Bottom Accreditation & Copyright Bar */}
-        <div className="mt-10 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <span>© 2026 Prismora Virtual Laboratory. All rights reserved.</span>
+        <div className="mt-10 pt-6 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div className="flex flex-wrap items-center gap-2">
+            <span>© 2026 Prismora Virtual Laboratory.</span>
             <span className="text-slate-300">•</span>
-            <span>Non-profit Open Science Education</span>
+            <span className="inline-flex items-center gap-1.5 font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md border border-slate-200 transition-colors">
+              <span>Designed &amp; Engineered with</span>
+              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" />
+              <span>by</span>
+              <a
+                href="https://github.com/iamamits"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sky-600 hover:text-sky-700 font-bold underline decoration-sky-300 hover:decoration-sky-600"
+              >
+                Amit Singh
+              </a>
+            </span>
           </div>
 
           <div className="flex items-center gap-4 text-slate-600 font-medium">
-            <Link href="https://github.com/iamamits/Prismora-Virtual-Lab" target="_blank" className="hover:text-slate-900 flex items-center gap-1">
+            <a
+              href="https://github.com/iamamits/Prismora-Virtual-Lab"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-slate-900 flex items-center gap-1 font-semibold text-slate-800"
+            >
               <Github className="w-3.5 h-3.5" />
-              GitHub Repository
-            </Link>
+              <span>GitHub</span>
+            </a>
             <Link href="/library" className="hover:text-slate-900">
               All 200+ Experiments
             </Link>
