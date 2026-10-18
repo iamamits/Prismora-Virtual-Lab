@@ -6,7 +6,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://prismora.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://prismoravirtuallab.vercel.app'),
   title: {
     default: 'Prismora — Advanced 3D Scientific Simulation & Virtual Laboratory',
     template: '%s | Prismora Virtual Lab',
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://prismora.app',
+    url: 'https://prismoravirtuallab.vercel.app',
     title: 'Prismora — Advanced 3D Scientific Simulation & Virtual Laboratory',
     description:
       'Explore, experiment, and understand science through authentic 3D interactive simulations for Physics, Chemistry, Biology, and ECE Engineering.',
@@ -78,21 +78,21 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'EducationalOrganization',
-      '@id': 'https://prismora.app/#organization',
+      '@id': 'https://prismoravirtuallab.vercel.app/#organization',
       name: 'Prismora Virtual Laboratory',
-      url: 'https://prismora.app',
+      url: 'https://prismoravirtuallab.vercel.app',
       description: 'Open-access interactive scientific simulation and virtual engineering laboratory.',
       sameAs: ['https://github.com/iamamits/Prismora-Virtual-Lab'],
     },
     {
       '@type': 'WebSite',
-      '@id': 'https://prismora.app/#website',
-      url: 'https://prismora.app',
+      '@id': 'https://prismoravirtuallab.vercel.app/#website',
+      url: 'https://prismoravirtuallab.vercel.app',
       name: 'Prismora',
-      publisher: { '@id': 'https://prismora.app/#organization' },
+      publisher: { '@id': 'https://prismoravirtuallab.vercel.app/#organization' },
       potentialAction: {
         '@type': 'SearchAction',
-        target: 'https://prismora.app/explore?q={search_term_string}',
+        target: 'https://prismoravirtuallab.vercel.app/explore?q={search_term_string}',
         'query-input': 'required name=search_term_string',
       },
     },
