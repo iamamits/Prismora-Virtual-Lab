@@ -31,6 +31,7 @@ import {
   CoupledOscillatorEngine,
   DEFAULT_COUPLED_PARAMS,
   type CoupledOscillatorParameters,
+  RutherfordScatteringEngine,
 } from '@prismora/simulation-core';
 import {
   Activity,
@@ -40,6 +41,7 @@ import {
   ChevronRight,
   Download,
   Lightbulb,
+  Radio,
   RotateCcw,
   Sliders,
   Sparkles,
@@ -48,7 +50,12 @@ import {
   Zap,
 } from 'lucide-react';
 
-type PhysicsExpId = 'photoelectric' | 'newtons-rings' | 'diffraction-grating' | 'coupled-oscillators';
+type PhysicsExpId =
+  | 'photoelectric'
+  | 'rutherford'
+  | 'newtons-rings'
+  | 'diffraction-grating'
+  | 'coupled-oscillators';
 
 interface PhysicsExperimentDef {
   readonly id: PhysicsExpId;
@@ -74,6 +81,20 @@ const PHYSICS_EXPERIMENTS: readonly PhysicsExperimentDef[] = [
       'K_{max} = h \\nu - \\Phi = e V_0',
       'V_0 = \\left(\\frac{h}{e}\\right) \\nu - \\frac{\\Phi}{e}',
       'I_{sat} \\propto \\text{Light Intensity}',
+    ],
+  },
+  {
+    id: 'rutherford',
+    title: 'Rutherford Alpha Particle Scattering & Atomic Model',
+    shortTitle: 'Rutherford Scattering',
+    courseCode: 'NCERT Class 12 Chapter 12 (Atoms & Nuclei)',
+    benchmark: 'Geiger-Marsden Experiment & IIT Kanpur',
+    description: 'Gold foil target nucleus (Z=79, Au), Coulomb electrostatic repulsion, hyperbolic trajectories, distance of closest approach r0, impact parameter b, and 180° backscattering detection.',
+    color: '#EAB308',
+    equations: [
+      'r_0 = \\frac{2 Z e^2}{4\\pi\\varepsilon_0 K_\\alpha} \\quad (\\text{Closest Approach})',
+      'b = \\frac{r_0}{2} \\cot\\left(\\frac{\\theta}{2}\\right) \\quad (\\text{Impact Parameter})',
+      'N(\\theta) \\propto \\frac{1}{\\sin^4(\\theta / 2)} \\quad (\\text{Rutherford Cross-Section})',
     ],
   },
   {
@@ -179,6 +200,17 @@ function PhysicsWorkbenchContent() {
   // ==========================================
   const [coupledParams, setCoupledParams] = useState<CoupledOscillatorParameters>(DEFAULT_COUPLED_PARAMS);
   const coupledResult = useMemo(() => CoupledOscillatorEngine.compute(coupledParams), [coupledParams]);
+
+  // ==========================================
+  // EXP 5: Rutherford Alpha Scattering States
+  // ==========================================
+  const [targetNucleusZ, setTargetNucleusZ] = useState<number>(79); // Gold (Au)
+  const [alphaEnergyMev, setAlphaEnergyMev] = useState<number>(5.5);
+  const [beamAlphaCount, setBeamAlphaCount] = useState<number>(20);
+  const rutherfordResult = useMemo(
+    () => RutherfordScatteringEngine.simulateBeam(targetNucleusZ, alphaEnergyMev, beamAlphaCount),
+    [targetNucleusZ, alphaEnergyMev, beamAlphaCount],
+  );
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-zinc-900 flex flex-col font-sans">
@@ -355,6 +387,205 @@ function PhysicsWorkbenchContent() {
 
                   <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80 space-y-2">
                     <span className="text-[10px] font-mono font-bold text-amber-800 uppercase block">Quantum Equations</span>
+                    {activeExp.equations.map((eq, i) => (
+                      <div key={i} className="text-xs text-zinc-800 overflow-x-auto py-1">
+                        <MathView math={eq} display={false} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB: RUTHERFORD ALPHA SCATTERING */}
+          {activeExpId === 'rutherford' && (
+            <motion.div
+              key="rutherford"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+            >
+              <div className="lg:col-span-8 space-y-4">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-2xs space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-base font-bold text-zinc-900">{activeExp.title}</h2>
+                      <p className="text-xs text-zinc-500 mt-0.5">{activeExp.description}</p>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                      r₀ = {rutherfordResult.closestApproachFm} fm
+                    </span>
+                  </div>
+
+                  {/* Rutherford Scattering Interactive Chamber SVG */}
+                  <div className="w-full h-80 rounded-xl bg-slate-950 border border-slate-800 relative overflow-hidden flex items-center justify-center p-4">
+                    <svg className="w-full h-full" viewBox="-280 -140 560 280">
+                      <defs>
+                        <radialGradient id="goldNucleusGlow" cx="50%" cy="50%" r="50%">
+                          <stop offset="0%" stopColor="#FACC15" />
+                          <stop offset="60%" stopColor="#CA8A04" />
+                          <stop offset="100%" stopColor="transparent" />
+                        </radialGradient>
+                      </defs>
+
+                      {/* Gold Foil Target Nucleus (Center) */}
+                      <circle cx="0" cy="0" r="28" fill="url(#goldNucleusGlow)" opacity="0.4" />
+                      <circle cx="0" cy="0" r="14" fill="#FACC15" stroke="#CA8A04" strokeWidth="2" />
+                      <text x="0" y="4" fill="#713F12" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
+                        +{targetNucleusZ}e
+                      </text>
+
+                      {/* Distance of Closest Approach Circle */}
+                      <circle
+                        cx="0"
+                        cy="0"
+                        r={Math.min(90, Math.max(16, rutherfordResult.closestApproachFm * 1.4))}
+                        fill="none"
+                        stroke="#38BDF8"
+                        strokeWidth="1"
+                        strokeDasharray="4 4"
+                        opacity="0.6"
+                      />
+
+                      {/* Circular Fluorescent ZnS Detector Screen */}
+                      <circle cx="0" cy="0" r="130" fill="none" stroke="#334155" strokeWidth="2" strokeDasharray="6 6" />
+
+                      {/* Incoming Alpha Particle Gun */}
+                      <rect x="-270" y="-12" width="28" height="24" rx="4" fill="#3B82F6" stroke="#60A5FA" strokeWidth="1.5" />
+                      <text x="-256" y="3" fill="#FFFFFF" fontSize="8" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
+                        α Beam
+                      </text>
+
+                      {/* Alpha Particle Trajectories */}
+                      {rutherfordResult.trajectories.map((traj) => {
+                        const pathD = traj.points.reduce((acc, pt, idx) => {
+                          return idx === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`;
+                        }, '');
+
+                        return (
+                          <g key={traj.id}>
+                            <path
+                              d={pathD}
+                              fill="none"
+                              stroke={traj.isBackscattered ? '#EF4444' : '#F59E0B'}
+                              strokeWidth={traj.isBackscattered ? 2.2 : 1.4}
+                              opacity={traj.isBackscattered ? 0.95 : 0.65}
+                            />
+                            {/* Scintillation flash at detector screen */}
+                            {traj.isBackscattered && (
+                              <circle cx={traj.points[traj.points.length - 1]?.x} cy={traj.points[traj.points.length - 1]?.y} r="4" fill="#EF4444" />
+                            )}
+                          </g>
+                        );
+                      })}
+                    </svg>
+
+                    <div className="absolute bottom-2 left-3 text-[10px] font-mono text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">
+                      Geiger-Marsden ZnS Fluorescent Screen (r = 130mm) | Red = Large Angle Backscattering (θ &gt; 90°)
+                    </div>
+                  </div>
+
+                  {/* Quantitative Physics Statistics */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                    <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
+                      <span className="text-[10px] font-mono text-zinc-500 uppercase block">Closest Approach (r₀)</span>
+                      <span className="text-base font-mono font-black text-amber-600">{rutherfordResult.closestApproachFm} fm</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
+                      <span className="text-[10px] font-mono text-zinc-500 uppercase block">Target Nucleus Z</span>
+                      <span className="text-base font-mono font-black text-zinc-900">Z = {targetNucleusZ} ({rutherfordResult.targetName.split(' ')[0]})</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
+                      <span className="text-[10px] font-mono text-zinc-500 uppercase block">Alpha Particle Energy</span>
+                      <span className="text-base font-mono font-black text-blue-600">{alphaEnergyMev.toFixed(1)} MeV</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-center">
+                      <span className="text-[10px] font-mono text-zinc-500 uppercase block">Backscatter Rate</span>
+                      <span className="text-base font-mono font-black text-rose-600">
+                        {rutherfordResult.trajectories.filter((t) => t.isBackscattered).length} / {rutherfordResult.trajectories.length}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Controls */}
+              <div className="lg:col-span-4 space-y-4">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-2xs space-y-4">
+                  <div className="flex items-center gap-2 text-xs font-mono font-bold text-zinc-700 uppercase">
+                    <Sliders className="w-4 h-4 text-amber-600" />
+                    <span>Scattering Parameters</span>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-zinc-600 font-mono text-xs block mb-1">Target Foil Material:</span>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        <button
+                          onClick={() => setTargetNucleusZ(79)}
+                          className={`p-2 rounded-lg text-xs font-mono font-bold border ${
+                            targetNucleusZ === 79 ? 'bg-amber-50 border-amber-500 text-amber-900' : 'bg-white border-zinc-200 text-zinc-600'
+                          }`}
+                        >
+                          Gold (Z=79)
+                        </button>
+                        <button
+                          onClick={() => setTargetNucleusZ(29)}
+                          className={`p-2 rounded-lg text-xs font-mono font-bold border ${
+                            targetNucleusZ === 29 ? 'bg-amber-50 border-amber-500 text-amber-900' : 'bg-white border-zinc-200 text-zinc-600'
+                          }`}
+                        >
+                          Copper (Z=29)
+                        </button>
+                        <button
+                          onClick={() => setTargetNucleusZ(13)}
+                          className={`p-2 rounded-lg text-xs font-mono font-bold border ${
+                            targetNucleusZ === 13 ? 'bg-amber-50 border-amber-500 text-amber-900' : 'bg-white border-zinc-200 text-zinc-600'
+                          }`}
+                        >
+                          Aluminum (Z=13)
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between font-mono text-xs mb-1">
+                        <span className="text-zinc-600">Kinetic Energy (K_α):</span>
+                        <span className="font-bold text-amber-600">{alphaEnergyMev.toFixed(1)} MeV</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="2.0"
+                        max="10.0"
+                        step="0.5"
+                        value={alphaEnergyMev}
+                        onChange={(e) => setAlphaEnergyMev(parseFloat(e.target.value))}
+                        className="w-full accent-amber-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between font-mono text-xs mb-1">
+                        <span className="text-zinc-600">Alpha Beam Flux:</span>
+                        <span className="font-bold text-blue-600">{beamAlphaCount} particles</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="10"
+                        max="35"
+                        step="5"
+                        value={beamAlphaCount}
+                        onChange={(e) => setBeamAlphaCount(parseInt(e.target.value))}
+                        className="w-full accent-blue-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80 space-y-2">
+                    <span className="text-[10px] font-mono font-bold text-amber-800 uppercase block">NCERT Governing Formulas</span>
                     {activeExp.equations.map((eq, i) => (
                       <div key={i} className="text-xs text-zinc-800 overflow-x-auto py-1">
                         <MathView math={eq} display={false} />

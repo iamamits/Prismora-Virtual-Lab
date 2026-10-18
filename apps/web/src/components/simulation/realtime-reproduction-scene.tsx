@@ -1,3 +1,17 @@
+/**
+ * Prismora Biological Sciences — Real-Time Human Reproduction & Embryogenesis Laboratory
+ * NCERT Class 12 Chapters 3 & 4 Standard (Human Reproduction & Reproductive Health)
+ * Benchmark: AIIMS New Delhi, IISc Bangalore & WebGL 3D Medical Visualizations
+ *
+ * Capabilities:
+ * 1. Macro Anatomical Tract Journey: Cross-section of Female Reproductive System (Vagina, Cervix, Uterine cavity, Fallopian Tube Ampulla, Ovary) with live sperm chemotaxis & thermotaxis
+ * 2. 60 FPS Microscopic Fertilization Chamber: Secondary Oocyte, Corona Radiata, Zona Pellucida, Acrosome reaction, Cortical Reaction (Ca2+ wave preventing polyspermy), and Pronucleus Syngamy (2n = 46)
+ * 3. Cleavage & Blastocyst Stage Scrubber: Zygote -> 2-cell -> 4-cell -> 8-cell (Compaction) -> Morula -> Blastocyst (Trophoblast & Inner Cell Mass) -> Implantation
+ * 4. Fetal Trimester Milestones: Week 4 (heart tube), Week 8 (fetus transition), Week 12 (gender differentiation), Week 24 (surfactant), Week 38 (parturition)
+ * 5. Endocrine Cycle Dynamics: 28-day hormonal regulation (FSH, LH Surge, 17β-Estradiol, Progesterone)
+ * 6. Reproductive Health & Family Planning: Contraceptive mechanisms (Oral pills, Copper IUD, Barrier condom)
+ */
+
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
@@ -17,7 +31,13 @@ import {
   type ContraceptionMethod,
 } from '@prismora/simulation-core';
 
-export type ReproductionSceneMode = 'menstrual_cycle' | 'fertilization' | 'embryogenesis' | 'contraception_lab';
+export type ReproductionSceneMode =
+  | 'tract_journey'
+  | 'fertilization'
+  | 'embryogenesis'
+  | 'fetal_milestones'
+  | 'menstrual_cycle'
+  | 'contraception_lab';
 
 export interface RealtimeReproductionSceneProps {
   initialMode?: ReproductionSceneMode;
@@ -37,8 +57,70 @@ interface SpermParticle {
   boundToZona: boolean;
 }
 
+interface TractSpermParticle {
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  speed: number;
+  tailPhase: number;
+  region: 'vagina' | 'cervix' | 'uterus' | 'fallopian_tube' | 'ampulla';
+}
+
+interface FetalMilestone {
+  week: number;
+  title: string;
+  trimester: '1st Trimester' | '2nd Trimester' | '3rd Trimester';
+  crownRumpMm: number;
+  keyFeatures: string;
+  heartRateBpm: number;
+}
+
+const FETAL_MILESTONES: FetalMilestone[] = [
+  {
+    week: 4,
+    title: 'Neurulation & Primitive Heart Tube',
+    trimester: '1st Trimester',
+    crownRumpMm: 4,
+    keyFeatures: 'Neural tube closes, primitive S-shaped heart tube begins rhythmic peristaltic contractions, limb buds appear.',
+    heartRateBpm: 105,
+  },
+  {
+    week: 8,
+    title: 'Embryo to Fetus Transition & Organogenesis',
+    trimester: '1st Trimester',
+    crownRumpMm: 30,
+    keyFeatures: 'All essential internal and external structures formed. Webbed digits separate, retinal pigment visible, reflexive movements begin.',
+    heartRateBpm: 165,
+  },
+  {
+    week: 12,
+    title: 'First Trimester Completion & Differentiated Genitalia',
+    trimester: '1st Trimester',
+    crownRumpMm: 75,
+    keyFeatures: 'External genitalia distinctly differentiated (male/female). Kidneys produce amniotic fluid/urine, fingernails form.',
+    heartRateBpm: 155,
+  },
+  {
+    week: 24,
+    title: 'Viability Milestone & Pulmonary Alveoli Surfactant',
+    trimester: '2nd Trimester',
+    crownRumpMm: 210,
+    keyFeatures: 'Threshold of extrauterine viability reached. Type II pneumocytes initiate pulmonary surfactant production, auditory hearing functional.',
+    heartRateBpm: 140,
+  },
+  {
+    week: 38,
+    title: 'Full Term Fetus Ready for Parturition',
+    trimester: '3rd Trimester',
+    crownRumpMm: 360,
+    keyFeatures: 'Full lung maturity, protective vernix caseosa & subcutaneous fat depot, cephalic presentation ready for oxytocin labor contractions.',
+    heartRateBpm: 130,
+  },
+];
+
 export function RealtimeReproductionScene({
-  initialMode = 'menstrual_cycle',
+  initialMode = 'fertilization', // Default to visually captivating fertilization chamber
   initialDay = 14,
   initialContraception = 'none',
   className = '',
@@ -47,69 +129,62 @@ export function RealtimeReproductionScene({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Mode Selection
+  // Active Mode & Stage State
   const [activeMode, setActiveMode] = useState<ReproductionSceneMode>(initialMode);
   const [dayOfCycle, setDayOfCycle] = useState<number>(initialDay);
   const [contraceptive, setContraceptive] = useState<ContraceptionMethod>(initialContraception);
   const [embryoStageIndex, setEmbryoStageIndex] = useState<number>(0);
+  const [fetalMilestoneIndex, setFetalMilestoneIndex] = useState<number>(1);
 
-  // Playback & Clock
+  // Playback & Animation
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const [simTime, setSimTime] = useState<number>(0);
 
-  // Camera Zoom & Pan
+  // Camera & Tools
   const [userZoom, setUserZoom] = useState<number>(1.0);
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-
-  // Tools
   const [showRuler, setShowRuler] = useState<boolean>(false);
   const [showStopwatch, setShowStopwatch] = useState<boolean>(false);
   const [showProbe, setShowProbe] = useState<boolean>(true);
   const [showVectors, setShowVectors] = useState<boolean>(true);
-  const [showGrid, setShowGrid] = useState<boolean>(true);
+  const [showGrid, setShowGrid] = useState<boolean>(false);
 
-  // Tools in Virtual Coordinates (900 x 520)
-  const [probePos, setProbePos] = useState<{ x: number; y: number }>({ x: 420, y: 160 });
+  // Virtual Coordinates tools
+  const [probePos, setProbePos] = useState<{ x: number; y: number }>({ x: 450, y: 140 });
   const [isDraggingProbe, setIsDraggingProbe] = useState<boolean>(false);
 
-  const [rulerTape, setRulerTape] = useState<{ x1: number; y1: number; x2: number; y2: number }>({
-    x1: 220,
-    y1: 200,
-    x2: 360,
-    y2: 200,
-  });
-  const [activeTapeHandle, setActiveTapeHandle] = useState<'none' | 'p1' | 'p2'>('none');
-
-  // Sperm particles for fertilization mode
+  // Sperm particles in Fertilization Microscopic View
   const spermRef = useRef<SpermParticle[]>([]);
   const caWaveRadiusRef = useRef<number>(0);
   const fertilizationCompletedRef = useRef<boolean>(false);
 
-  // Current physiological state
+  // Tract Sperm particles for Macro Insemination Journey
+  const tractSpermRef = useRef<TractSpermParticle[]>([]);
+
+  // Cycle State
   const cycleState = useMemo(() => {
     return calculateMenstrualCycleState(dayOfCycle, contraceptive);
   }, [dayOfCycle, contraceptive]);
 
-  // Notify parent
   useEffect(() => {
     if (onStateChange) onStateChange(cycleState);
   }, [cycleState, onStateChange]);
 
-  // Initialize sperm particles
-  const initSperm = useCallback(() => {
+  // Initialize Microscopic Sperm Particles for Fertilization Chamber
+  const initMicroSperm = useCallback(() => {
     const list: SpermParticle[] = [];
-    const count = contraceptive === 'barrier_condom' ? 0 : contraceptive === 'copper_iud' ? 6 : 40;
+    const count = contraceptive === 'barrier_condom' ? 0 : contraceptive === 'copper_iud' ? 8 : 45;
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const dist = 180 + Math.random() * 80;
+      const dist = 160 + Math.random() * 110;
       list.push({
         x: 450 + Math.cos(angle) * dist,
-        y: 260 + Math.sin(angle) * dist,
+        y: 250 + Math.sin(angle) * dist,
         vx: 0,
         vy: 0,
         tailPhase: Math.random() * Math.PI * 2,
-        capacitated: Math.random() < 0.8,
+        capacitated: Math.random() < 0.85,
         boundToZona: false,
       });
     }
@@ -118,151 +193,652 @@ export function RealtimeReproductionScene({
     fertilizationCompletedRef.current = false;
   }, [contraceptive]);
 
+  // Initialize Macro Tract Sperm Particles (Swimming Vagina -> Cervix -> Uterus -> Ampulla)
+  const initTractSperm = useCallback(() => {
+    const list: TractSpermParticle[] = [];
+    const count = contraceptive === 'barrier_condom' ? 0 : contraceptive === 'copper_iud' ? 10 : 80;
+    for (let i = 0; i < count; i++) {
+      list.push({
+        x: 430 + (Math.random() - 0.5) * 40,
+        y: 440 + Math.random() * 40, // deposited in upper vagina
+        targetX: 200 + Math.random() * 80, // swimming toward left or right ampulla
+        targetY: 170 + Math.random() * 40,
+        speed: 0.6 + Math.random() * 0.8,
+        tailPhase: Math.random() * Math.PI * 2,
+        region: 'vagina',
+      });
+    }
+    tractSpermRef.current = list;
+  }, [contraceptive]);
+
   useEffect(() => {
-    if (activeMode === 'fertilization') {
-      initSperm();
-    }
-  }, [activeMode, initSperm]);
+    initMicroSperm();
+    initTractSperm();
+  }, [initMicroSperm, initTractSperm]);
 
-  // Reset
-  const handleReset = useCallback(() => {
-    setSimTime(0);
-    setDayOfCycle(14);
-    setEmbryoStageIndex(0);
-    initSperm();
-  }, [initSperm]);
-
-  // Single step
-  const handleStep = useCallback(() => {
-    if (activeMode === 'menstrual_cycle') {
-      setDayOfCycle((d) => (d >= 28 ? 1 : d + 1));
-    } else if (activeMode === 'embryogenesis') {
-      setEmbryoStageIndex((s) => (s + 1) % EMBRYOGENESIS_STAGES.length);
-    }
-    setSimTime((t) => t + 0.016);
-  }, [activeMode]);
-
-  // Animation Loop
+  // Main 60 FPS Biological Canvas Animation Loop
   useEffect(() => {
     let animId: number;
     let lastTime = performance.now();
 
-    const render = (now: number) => {
-      const dt = Math.min((now - lastTime) / 1000, 0.1) * playbackSpeed;
-      lastTime = now;
+    const render = (time: number) => {
+      const dt = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
 
       const canvas = canvasRef.current;
-      if (!canvas) {
-        animId = requestAnimationFrame(render);
-        return;
-      }
+      if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        animId = requestAnimationFrame(render);
-        return;
-      }
+      if (!ctx) return;
 
       const dpr = window.devicePixelRatio || 1;
-      if (isPlaying) {
-        setSimTime((t) => t + dt);
+      const vp = computeViewport(canvas.width, canvas.height, dpr, userZoom, pan.x, pan.y);
 
-        // Auto-advance cycle in menstrual mode if playing
-        if (activeMode === 'menstrual_cycle') {
-          // 1 day every 2 seconds at 1x speed
-          setDayOfCycle((prev) => {
-            const next = prev + dt * 0.5;
-            return next > 28 ? 1 : next;
-          });
+      // Clear Canvas Background (Deep Medical Navy/Black)
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = '#070B14';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      // Apply Virtual Coordinate System (900 x 520)
+      ctx.save();
+      applyVirtualViewport(ctx, vp);
+
+      if (isPlaying) {
+        setSimTime((t) => t + dt * playbackSpeed);
+      }
+
+      // =========================================================================
+      // 1. MACRO ANATOMICAL TRACT JOURNEY (VAGINA -> CERVIX -> UTERUS -> AMPULLA)
+      // =========================================================================
+      if (activeMode === 'tract_journey') {
+        // Draw Anatomical Female Reproductive Tract Cross-Section
+        ctx.save();
+
+        // Uterine Myometrium & Outer Muscle Wall
+        ctx.fillStyle = '#1E1528';
+        ctx.strokeStyle = '#382245';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        // Vagina
+        ctx.moveTo(410, 500);
+        ctx.lineTo(410, 420);
+        // Cervix constriction
+        ctx.lineTo(425, 380);
+        // Uterine triangular body
+        ctx.lineTo(330, 260);
+        // Left Fallopian Tube
+        ctx.bezierCurveTo(240, 240, 160, 200, 150, 170);
+        // Left Infundibulum & Fimbriae
+        ctx.lineTo(130, 190);
+        ctx.lineTo(150, 210);
+        // Left Ovary
+        ctx.bezierCurveTo(180, 230, 280, 270, 360, 290);
+        // Right Fallopian Tube
+        ctx.lineTo(540, 290);
+        ctx.bezierCurveTo(620, 270, 720, 230, 750, 210);
+        ctx.lineTo(770, 190);
+        ctx.lineTo(750, 170);
+        ctx.bezierCurveTo(740, 200, 660, 240, 570, 260);
+        // Right Cervix
+        ctx.lineTo(475, 380);
+        ctx.lineTo(490, 420);
+        ctx.lineTo(490, 500);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Endometrial Vascular Lining (Rose Glow)
+        ctx.fillStyle = '#4A1D2F';
+        ctx.strokeStyle = '#EC4899';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(430, 380);
+        ctx.lineTo(360, 280);
+        ctx.lineTo(450, 250); // Uterine Fundus
+        ctx.lineTo(540, 280);
+        ctx.lineTo(470, 380);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Left & Right Ovaries (Releasing Ovum)
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.25)';
+        ctx.strokeStyle = '#F59E0B';
+        ctx.lineWidth = 2;
+        // Left Ovary
+        ctx.beginPath();
+        ctx.ellipse(140, 230, 28, 18, -Math.PI / 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Right Ovary
+        ctx.beginPath();
+        ctx.ellipse(760, 230, 28, 18, Math.PI / 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Ovulated Secondary Oocyte waiting in Left Ampulla
+        const ovumAmpX = 180;
+        const ovumAmpY = 180;
+        ctx.fillStyle = '#F43F5E';
+        ctx.strokeStyle = '#FDA4AF';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(ovumAmpX, ovumAmpY, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Corona Radiata glow around Ovum in Ampulla
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.4)';
+        ctx.beginPath();
+        ctx.arc(ovumAmpX, ovumAmpY, 22, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 9px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('OVUM IN AMPULLA', ovumAmpX, ovumAmpY - 26);
+
+        // Chemotaxis Progesterone Diffusion Waves (expanding from left ovary/ampulla)
+        if (showVectors) {
+          ctx.strokeStyle = 'rgba(236, 72, 153, 0.25)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([6, 6]);
+          for (let r = 40; r <= 220; r += 45) {
+            ctx.beginPath();
+            ctx.arc(ovumAmpX, ovumAmpY, (r + simTime * 20) % 240, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          ctx.setLineDash([]);
         }
 
-        // Sperm kinematics in fertilization mode
-        if (activeMode === 'fertilization') {
-          const ovumCenterX = 450;
-          const ovumCenterY = 260;
-          const zonaRadius = 75;
-
-          const spermList = spermRef.current;
-          spermList.forEach((sperm) => {
-            sperm.tailPhase += dt * 25;
-
-            if (sperm.boundToZona) return;
-
-            // Vector to ovum center (chemotaxis along progesterone gradient)
-            const dx = ovumCenterX - sperm.x;
-            const dy = ovumCenterY - sperm.y;
+        // Animate Tract Sperm Particles
+        if (isPlaying) {
+          tractSpermRef.current.forEach((s) => {
+            s.tailPhase += 0.35;
+            // Guide sperm toward Left Ampulla target
+            const dx = s.targetX - s.x;
+            const dy = s.targetY - s.y;
             const dist = Math.hypot(dx, dy);
 
-            if (dist > zonaRadius) {
-              const speed = contraceptive === 'copper_iud' ? 12 : sperm.capacitated ? 65 : 35;
-              const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.4;
-              sperm.vx = Math.cos(angle) * speed;
-              sperm.vy = Math.sin(angle) * speed;
-
-              sperm.x += sperm.vx * dt;
-              sperm.y += sperm.vy * dt;
+            if (dist > 8) {
+              s.x += (dx / dist) * s.speed;
+              s.y += (dy / dist) * s.speed;
             } else {
-              // Bound to zona pellucida!
-              sperm.boundToZona = true;
-              sperm.x = ovumCenterX + (dx / dist) * zonaRadius;
-              sperm.y = ovumCenterY + (dy / dist) * zonaRadius;
-
-              if (!fertilizationCompletedRef.current && sperm.capacitated) {
-                fertilizationCompletedRef.current = true;
-                caWaveRadiusRef.current = 10;
-              }
+              // Reached ampulla - circle around
+              s.x += (Math.random() - 0.5) * 2;
+              s.y += (Math.random() - 0.5) * 2;
             }
           });
+        }
 
-          // Propagate Ca2+ wave (polyspermy cortical block)
-          if (caWaveRadiusRef.current > 0 && caWaveRadiusRef.current < zonaRadius) {
-            caWaveRadiusRef.current += dt * 80;
+        // Render Swimming Sperm Swarm
+        tractSpermRef.current.forEach((s) => {
+          ctx.save();
+          const angle = Math.atan2(s.targetY - s.y, s.targetX - s.x);
+          ctx.translate(s.x, s.y);
+          ctx.rotate(angle);
+
+          // Sperm head (White oval)
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 4, 2.2, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Undulating Flagellar Tail
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(-4, 0);
+          for (let tx = -4; tx >= -18; tx -= 3) {
+            const ty = Math.sin(s.tailPhase + tx * 0.4) * 2.5;
+            ctx.lineTo(tx, ty);
           }
-        }
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        // Anatomical Region Annotations
+        ctx.fillStyle = '#38BDF8';
+        ctx.font = 'bold 10px JetBrains Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('1. Vagina (Insemination Pool: 200-300M Sperm)', 45, 470);
+        ctx.fillText('2. Cervical Canal (Mucus Filtration & Crypts)', 45, 410);
+        ctx.fillText('3. Uterine Cavity (Capacitation & Myometrial Peristalsis)', 45, 320);
+        ctx.fillText('4. Fallopian Tube Ampulla (Fertilization Site)', 45, 140);
+        ctx.restore();
       }
 
-      // -------------------------------------------------------------
-      // DRAW CANVAS IN VIRTUAL COORDINATES (900 x 520)
-      // -------------------------------------------------------------
-      const vp = computeViewport(canvas.width, canvas.height, dpr, userZoom, pan.x, pan.y);
-      applyVirtualViewport(ctx, vp, dpr);
+      // =========================================================================
+      // 2. 60 FPS MICROSCOPIC FERTILIZATION CHAMBER (AMPULLARY-ISTHMIC JUNCTION)
+      // =========================================================================
+      if (activeMode === 'fertilization') {
+        const ovumX = 450;
+        const ovumY = 245;
+        const ovumR = 65;
+        const zonaR = 88;
+        const coronaR = 130;
 
-      // Deep Dark Medical Bio Background
-      ctx.fillStyle = '#080C14';
-      ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        ctx.save();
 
-      // Grid
-      if (showGrid) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-        ctx.lineWidth = 1;
-        for (let x = 0; x <= VIRTUAL_WIDTH; x += 30) {
+        // 1. Corona Radiata Follicular Cells (Golden Protective Cluster)
+        for (let a = 0; a < Math.PI * 2; a += 0.18) {
+          const distOffset = Math.sin(a * 5 + simTime) * 8;
+          const cx = ovumX + Math.cos(a) * (coronaR - 8 + distOffset);
+          const cy = ovumY + Math.sin(a) * (coronaR - 8 + distOffset);
+
+          ctx.fillStyle = 'rgba(251, 191, 36, 0.25)';
+          ctx.strokeStyle = '#F59E0B';
+          ctx.lineWidth = 1.2;
           ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, VIRTUAL_HEIGHT);
+          ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+          ctx.fill();
           ctx.stroke();
-        }
-        for (let y = 0; y <= VIRTUAL_HEIGHT; y += 30) {
+
+          // Cell Nucleus
+          ctx.fillStyle = '#D97706';
           ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(VIRTUAL_WIDTH, y);
-          ctx.stroke();
+          ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+          ctx.fill();
         }
+
+        // 2. Zona Pellucida Glycoprotein Shell (ZP1, ZP2, ZP3)
+        const zpGrad = ctx.createRadialGradient(ovumX, ovumY, ovumR, ovumX, ovumY, zonaR);
+        zpGrad.addColorStop(0, 'rgba(56, 189, 248, 0.1)');
+        zpGrad.addColorStop(1, fertilizationCompletedRef.current ? 'rgba(16, 185, 129, 0.4)' : 'rgba(56, 189, 248, 0.35)');
+        ctx.fillStyle = zpGrad;
+        ctx.strokeStyle = fertilizationCompletedRef.current ? '#10B981' : '#38BDF8';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(ovumX, ovumY, zonaR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Cortical Reaction Calcium (Ca2+) Wave Animation
+        if (caWaveRadiusRef.current > 0) {
+          ctx.strokeStyle = '#34D399';
+          ctx.lineWidth = 5;
+          ctx.shadowColor = '#34D399';
+          ctx.shadowBlur = 15;
+          ctx.beginPath();
+          ctx.arc(ovumX, ovumY, caWaveRadiusRef.current, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+
+        // 3. Perivitelline Space with First Polar Body (Haploid n=23)
+        ctx.fillStyle = '#F472B6';
+        ctx.strokeStyle = '#DB2777';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(ovumX + ovumR * 0.72, ovumY - ovumR * 0.5, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#831843';
+        ctx.font = 'bold 7px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('1st PB', ovumX + ovumR * 0.72, ovumY - ovumR * 0.5 + 2);
+
+        // 4. Ooplasm (Nutrient-rich Cytoplasm of Secondary Oocyte)
+        const ooplasmGrad = ctx.createRadialGradient(ovumX, ovumY, 10, ovumX, ovumY, ovumR);
+        ooplasmGrad.addColorStop(0, '#FDA4AF');
+        ooplasmGrad.addColorStop(0.8, '#F43F5E');
+        ooplasmGrad.addColorStop(1, '#E11D48');
+        ctx.fillStyle = ooplasmGrad;
+        ctx.beginPath();
+        ctx.arc(ovumX, ovumY, ovumR, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Female Pronucleus (Haploid 23, X)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.strokeStyle = '#9F1239';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(ovumX - 16, ovumY, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#881337';
+        ctx.font = 'bold 9px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('♀ 23,X', ovumX - 16, ovumY + 3);
+
+        // Male Pronucleus (Haploid 23, Y or 23, X)
+        if (fertilizationCompletedRef.current) {
+          ctx.fillStyle = 'rgba(186, 230, 253, 0.9)';
+          ctx.strokeStyle = '#0284C7';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(ovumX + 16, ovumY, 16, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#0369A1';
+          ctx.font = 'bold 9px JetBrains Mono, monospace';
+          ctx.fillText('♂ 23,Y', ovumX + 16, ovumY + 3);
+
+          // Syngamy Center Fusion Glow
+          ctx.fillStyle = '#FACC15';
+          ctx.beginPath();
+          ctx.arc(ovumX, ovumY, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 5. Motile Sperm Cells with Sine-Wave Flagellar Undulation
+        spermRef.current.forEach((s) => {
+          if (isPlaying) {
+            s.tailPhase += 0.45;
+
+            // Move toward egg center
+            const dx = ovumX - s.x;
+            const dy = ovumY - s.y;
+            const dist = Math.hypot(dx, dy);
+
+            if (!s.boundToZona) {
+              if (dist > zonaR + 4) {
+                s.vx = (dx / dist) * 1.4;
+                s.vy = (dy / dist) * 1.4;
+                s.x += s.vx;
+                s.y += s.vy;
+              } else {
+                // Docked on Zona Pellucida
+                s.boundToZona = true;
+                if (!fertilizationCompletedRef.current) {
+                  fertilizationCompletedRef.current = true;
+                  caWaveRadiusRef.current = ovumR;
+                }
+              }
+            }
+          }
+
+          // Render Individual Sperm
+          ctx.save();
+          const angle = Math.atan2(s.vy, s.vx);
+          ctx.translate(s.x, s.y);
+          ctx.rotate(angle);
+
+          // Head with Acrosome Cap
+          ctx.fillStyle = s.capacitated ? '#FFFFFF' : '#94A3B8';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 5.5, 3.2, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Acrosome Cap (releases Hyaluronidase & Acrosin)
+          ctx.fillStyle = '#38BDF8';
+          ctx.beginPath();
+          ctx.arc(3, 0, 2.5, -Math.PI / 2, Math.PI / 2);
+          ctx.fill();
+
+          // Long Flagellar Tail (Sine wave)
+          ctx.strokeStyle = '#E2E8F0';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(-5.5, 0);
+          for (let tx = -5.5; tx >= -32; tx -= 3) {
+            const ty = Math.sin(s.tailPhase + tx * 0.35) * 3.8;
+            ctx.lineTo(tx, ty);
+          }
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        // Expand Ca2+ Wave
+        if (caWaveRadiusRef.current > 0 && caWaveRadiusRef.current < zonaR + 10) {
+          caWaveRadiusRef.current += 1.5;
+        }
+
+        // Telemetry HUD Card
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+        ctx.strokeStyle = '#EC4899';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.roundRect(40, 40, 290, 125, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#EC4899';
+        ctx.font = 'bold 11px JetBrains Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('FERTILIZATION KINETICS (AMPULLA)', 55, 62);
+
+        ctx.fillStyle = '#CBD5E1';
+        ctx.font = '9px JetBrains Mono, monospace';
+        ctx.fillText(`Motile Sperm at Site: ${spermRef.current.length} cells`, 55, 82);
+        ctx.fillText(`Acrosome Reaction: ${fertilizationCompletedRef.current ? 'ACTIVE (Acrosin Released)' : 'INDUCING'}`, 55, 98);
+        ctx.fillText(`Cortical Reaction: ${fertilizationCompletedRef.current ? 'SLOW BLOCK ACTIVATED' : 'READY'}`, 55, 114);
+        ctx.fillText(`Diploid Karyogamy: ${fertilizationCompletedRef.current ? '2n = 46, XY RESTORED' : 'PENDING'}`, 55, 130);
+        ctx.fillText(`Polyspermy Block: ${fertilizationCompletedRef.current ? 'ZP2 HARDENED (100% BLOCKED)' : 'MONITORING'}`, 55, 146);
+
+        ctx.restore();
       }
 
-      // =============================================================
-      // MODE 1: MENSTRUAL & OVARIAN CYCLE (ENDOCRINE CURVES & HISTOLOGY)
-      // =============================================================
+      // =========================================================================
+      // 3. CLEAVAGE & BLASTOCYST TIMELINE (DAY 1 TO 7)
+      // =========================================================================
+      if (activeMode === 'embryogenesis') {
+        const curStage = EMBRYOGENESIS_STAGES[embryoStageIndex]!;
+        const emX = 450;
+        const emY = 230;
+        const emR = 95;
+
+        ctx.save();
+
+        // Zona Pellucida (sheds during hatching blastocyst)
+        const isHatched = embryoStageIndex >= 6;
+        if (!isHatched) {
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.arc(emX, emY, emR + 10, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Render Blastomeres according to stage
+        ctx.fillStyle = 'rgba(236, 72, 153, 0.4)';
+        ctx.strokeStyle = '#EC4899';
+        ctx.lineWidth = 2.5;
+
+        if (curStage.cellCount === 1) {
+          // Zygote
+          ctx.beginPath();
+          ctx.arc(emX, emY, emR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Nuclei
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(emX - 10, emY, 12, 0, Math.PI * 2);
+          ctx.arc(emX + 10, emY, 12, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (curStage.cellCount === 2) {
+          // 2-cell
+          ctx.beginPath();
+          ctx.arc(emX - 42, emY, emR * 0.55, 0, Math.PI * 2);
+          ctx.arc(emX + 42, emY, emR * 0.55, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        } else if (curStage.cellCount === 4) {
+          // 4-cell
+          ctx.beginPath();
+          ctx.arc(emX - 38, emY - 38, emR * 0.44, 0, Math.PI * 2);
+          ctx.arc(emX + 38, emY - 38, emR * 0.44, 0, Math.PI * 2);
+          ctx.arc(emX - 38, emY + 38, emR * 0.44, 0, Math.PI * 2);
+          ctx.arc(emX + 38, emY + 38, emR * 0.44, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        } else if (curStage.cellCount <= 16) {
+          // Morula (mulberry appearance)
+          for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+            ctx.beginPath();
+            ctx.arc(emX + Math.cos(a) * 45, emY + Math.sin(a) * 45, 24, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.arc(emX, emY, 28, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          // Blastocyst: Trophoblast + Inner Cell Mass + Blastocoel
+          // Trophoblast Outer Epithelial Rim
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
+          ctx.strokeStyle = '#38BDF8';
+          for (let a = 0; a < Math.PI * 2; a += 0.2) {
+            ctx.beginPath();
+            ctx.arc(emX + Math.cos(a) * (emR - 8), emY + Math.sin(a) * (emR - 8), 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+
+          // Inner Cell Mass (Embryoblast / Pluripotent Stem Cells)
+          ctx.fillStyle = '#F59E0B';
+          ctx.strokeStyle = '#D97706';
+          for (let i = 0; i < 12; i++) {
+            const ix = emX - 45 + (i % 4) * 16;
+            const iy = emY - 45 + Math.floor(i / 4) * 16;
+            ctx.beginPath();
+            ctx.arc(ix, iy, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+
+          // Blastocoel Fluid Cavity
+          ctx.fillStyle = 'rgba(14, 165, 233, 0.15)';
+          ctx.beginPath();
+          ctx.arc(emX + 20, emY + 20, 40, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#CBD5E1';
+          ctx.font = 'bold 9px JetBrains Mono, monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText('Inner Cell Mass (ICM - Embryo)', emX - 95, emY - 60);
+          ctx.fillText('Fluid-filled Blastocoel', emX - 10, emY + 30);
+          ctx.fillText('Outer Trophoblast (Placenta)', emX + 20, emY - 95);
+        }
+
+        // Stage Description Banner
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+        ctx.strokeStyle = '#38BDF8';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.roundRect(80, 400, 740, 85, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#38BDF8';
+        ctx.font = 'bold 12px JetBrains Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(`STAGE ${embryoStageIndex + 1}: ${curStage.stageName.toUpperCase()}`, 100, 424);
+
+        ctx.fillStyle = '#CBD5E1';
+        ctx.font = '10px JetBrains Mono, monospace';
+        ctx.fillText(
+          `Time: ${curStage.hoursPostFertilization}h post-fertilization | Cell Count: ${curStage.cellCount} | Site: ${curStage.anatomicalLocation.replace(/_/g, ' ').toUpperCase()}`,
+          100,
+          442
+        );
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText(curStage.description, 100, 462);
+        ctx.restore();
+      }
+
+      // =========================================================================
+      // 4. FETAL MILESTONES (WEEK 4 TO 38 TRIMESTERS)
+      // =========================================================================
+      if (activeMode === 'fetal_milestones') {
+        const ms = FETAL_MILESTONES[fetalMilestoneIndex]!;
+
+        ctx.save();
+        // Central Fetal Presentation Card
+        const fetX = 450;
+        const fetY = 220;
+
+        // Amniotic Sac & Fluid
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+        ctx.strokeStyle = '#38BDF8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(fetX, fetY, 140, 110, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Render Fetal Silhouette / Organogenesis representation
+        ctx.fillStyle = '#FDA4AF';
+        ctx.strokeStyle = '#F43F5E';
+        ctx.lineWidth = 2.5;
+
+        // Fetal C-shaped curve
+        ctx.beginPath();
+        ctx.arc(fetX - 20, fetY - 30, Math.min(50, 15 + ms.week * 0.9), 0, Math.PI * 2); // Head
+        ctx.fill();
+        ctx.stroke();
+
+        // Beating Heart Indicator
+        const heartPulse = 1.0 + Math.sin(simTime * (ms.heartRateBpm / 20)) * 0.15;
+        ctx.fillStyle = '#EF4444';
+        ctx.beginPath();
+        ctx.arc(fetX, fetY, 10 * heartPulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Fetal Body Trunk
+        ctx.fillStyle = '#FECDD3';
+        ctx.beginPath();
+        ctx.ellipse(fetX + 10, fetY + 20, Math.min(55, 12 + ms.week * 1.1), Math.min(35, 10 + ms.week * 0.7), Math.PI / 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Umbilical Cord
+        ctx.strokeStyle = '#38BDF8';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(fetX + 15, fetY + 25);
+        ctx.bezierCurveTo(fetX + 60, fetY + 60, fetX + 90, fetY + 30, fetX + 130, fetY + 40);
+        ctx.stroke();
+
+        // Placental Attachment Plate
+        ctx.fillStyle = '#881337';
+        ctx.beginPath();
+        ctx.arc(fetX + 130, fetY + 40, 25, -Math.PI / 2, Math.PI / 2);
+        ctx.fill();
+
+        // Telemetry HUD for Fetal Metrics
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+        ctx.strokeStyle = '#EC4899';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.roundRect(80, 390, 740, 95, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#EC4899';
+        ctx.font = 'bold 12px JetBrains Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(`WEEK ${ms.week}: ${ms.title.toUpperCase()} (${ms.trimester.toUpperCase()})`, 100, 414);
+
+        ctx.fillStyle = '#CBD5E1';
+        ctx.font = '10px JetBrains Mono, monospace';
+        ctx.fillText(
+          `Crown-Rump Length (CRL): ${ms.crownRumpMm} mm | Fetal Heart Rate: ${ms.heartRateBpm} BPM (Doppler)`,
+          100,
+          432
+        );
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText(ms.keyFeatures, 100, 452);
+        ctx.restore();
+      }
+
+      // =========================================================================
+      // 5. ENDOCRINE CYCLE DYNAMICS (28-DAY HORMONAL CURVES)
+      // =========================================================================
       if (activeMode === 'menstrual_cycle' || activeMode === 'contraception_lab') {
         const curDay = Math.floor(dayOfCycle);
         const curState = calculateMenstrualCycleState(dayOfCycle, contraceptive);
 
-        // TOP HALF: Dynamic Endocrine Curves (LH, FSH, Estrogen, Progesterone)
         const gX = 80;
         const gY = 40;
         const gW = 740;
         const gH = 180;
 
         ctx.save();
-        // Graph Box
         ctx.fillStyle = '#0F172A';
         ctx.strokeStyle = '#1E293B';
         ctx.lineWidth = 2;
@@ -272,22 +848,12 @@ export function RealtimeReproductionScene({
         ctx.stroke();
 
         ctx.fillStyle = '#020617';
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 1.5;
         ctx.fillRect(gX, gY, gW, gH);
-        ctx.strokeRect(gX, gY, gW, gH);
 
-        // X Axis: Days 1 to 28
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 1;
+        // Days 1-28
         for (let d = 1; d <= 28; d++) {
           const px = gX + ((d - 1) / 27) * gW;
           if (d === 1 || d === 5 || d === 14 || d === 21 || d === 28) {
-            ctx.beginPath();
-            ctx.moveTo(px, gY);
-            ctx.lineTo(px, gY + gH);
-            ctx.stroke();
-
             ctx.fillStyle = d === 14 ? '#EC4899' : '#94A3B8';
             ctx.font = 'bold 9px JetBrains Mono, monospace';
             ctx.textAlign = 'center';
@@ -295,32 +861,12 @@ export function RealtimeReproductionScene({
           }
         }
 
-        // Ovulation vertical marker line
-        const ovX = gX + ((14 - 1) / 27) * gW;
-        ctx.strokeStyle = 'rgba(236, 72, 153, 0.4)';
-        ctx.setLineDash([4, 4]);
-        ctx.beginPath();
-        ctx.moveTo(ovX, gY);
-        ctx.lineTo(ovX, gY + gH);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        ctx.fillStyle = '#F472B6';
-        ctx.font = 'bold 9px JetBrains Mono, monospace';
-        ctx.fillText('OVULATION (LH SURGE)', ovX, gY - 4);
-
-        // Helpers to plot curves
-        const plotCurve = (
-          calcVal: (d: number) => number,
-          maxVal: number,
-          color: string,
-          lineWidth: number = 2
-        ) => {
+        // Curves: LH, FSH, Estrogen, Progesterone
+        const plotCurve = (calcVal: (d: number) => number, maxVal: number, color: string) => {
           ctx.strokeStyle = color;
-          ctx.lineWidth = lineWidth;
+          ctx.lineWidth = 2;
           ctx.beginPath();
           for (let d = 1; d <= 28; d += 0.5) {
-            const st = calculateMenstrualCycleState(d, contraceptive);
             const val = calcVal(d);
             const cx = gX + ((d - 1) / 27) * gW;
             const cy = gY + gH - (val / maxVal) * gH * 0.92;
@@ -330,19 +876,12 @@ export function RealtimeReproductionScene({
           ctx.stroke();
         };
 
-        // 1. LH Curve (Yellow/Orange)
-        plotCurve((d) => calculateMenstrualCycleState(d, contraceptive).lhMiuMl, 80, '#F59E0B', 2.5);
+        plotCurve((d) => calculateMenstrualCycleState(d, contraceptive).lhMiuMl, 80, '#F59E0B');
+        plotCurve((d) => calculateMenstrualCycleState(d, contraceptive).fshMiuMl, 80, '#38BDF8');
+        plotCurve((d) => calculateMenstrualCycleState(d, contraceptive).estradiolPgMl, 350, '#EC4899');
+        plotCurve((d) => calculateMenstrualCycleState(d, contraceptive).progesteroneNgMl, 20, '#10B981');
 
-        // 2. FSH Curve (Cyan)
-        plotCurve((d) => calculateMenstrualCycleState(d, contraceptive).fshMiuMl, 80, '#38BDF8', 2.0);
-
-        // 3. Estrogen Curve (Rose Pink)
-        plotCurve((d) => calculateMenstrualCycleState(d, contraceptive).estradiolPgMl, 350, '#EC4899', 2.5);
-
-        // 4. Progesterone Curve (Emerald Green)
-        plotCurve((d) => calculateMenstrualCycleState(d, contraceptive).progesteroneNgMl, 20, '#10B981', 2.5);
-
-        // Current Day Cursor Pin
+        // Day Cursor
         const curPx = gX + ((dayOfCycle - 1) / 27) * gW;
         ctx.strokeStyle = '#FFFFFF';
         ctx.lineWidth = 2;
@@ -351,14 +890,7 @@ export function RealtimeReproductionScene({
         ctx.lineTo(curPx, gY + gH);
         ctx.stroke();
 
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(curPx, gY, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
         // Legend
-        ctx.save();
         ctx.font = 'bold 9px JetBrains Mono, monospace';
         ctx.textAlign = 'left';
         ctx.fillStyle = '#F59E0B';
@@ -366,462 +898,27 @@ export function RealtimeReproductionScene({
         ctx.fillStyle = '#38BDF8';
         ctx.fillText(`● FSH: ${curState.fshMiuMl} mIU/mL`, gX + 160, gY + 18);
         ctx.fillStyle = '#EC4899';
-        ctx.fillText(`● Estrogen (E₂): ${curState.estradiolPgMl} pg/mL`, gX + 310, gY + 18);
+        ctx.fillText(`● Estrogen: ${curState.estradiolPgMl} pg/mL`, gX + 310, gY + 18);
         ctx.fillStyle = '#10B981';
-        ctx.fillText(`● Progesterone (P₄): ${curState.progesteroneNgMl} ng/mL`, gX + 490, gY + 18);
-        ctx.restore();
+        ctx.fillText(`● Progesterone: ${curState.progesteroneNgMl} ng/mL`, gX + 480, gY + 18);
 
-        // BOTTOM HALF: OVARIAN FOLLICULAR & ENDOMETRIAL HISTOLOGY
+        // Lower Histology Panel
         const bY = 275;
         const bH = 175;
-
-        ctx.save();
         ctx.fillStyle = '#0F172A';
-        ctx.strokeStyle = '#1E293B';
-        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.roundRect(gX - 10, bY, gW + 20, bH, 8);
         ctx.fill();
-        ctx.stroke();
-
-        // Left Panel: Ovarian Follicle Anatomy
-        ctx.fillStyle = '#38BDF8';
-        ctx.font = 'bold 11px JetBrains Mono, monospace';
-        ctx.fillText('OVARIAN FOLLICULAR STATUS', gX + 15, bY + 24);
-
-        const folX = gX + 110;
-        const folY = bY + 95;
-        const folRadius = Math.max(12, curState.follicleDiameterMm * 2.5);
-
-        // Ovarian Stroma background
-        ctx.fillStyle = 'rgba(236, 72, 153, 0.15)';
-        ctx.strokeStyle = '#EC4899';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(folX, folY, 65, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Growing Follicle
-        ctx.fillStyle = curDay < 14 ? 'rgba(56, 189, 248, 0.35)' : 'rgba(234, 179, 8, 0.45)';
-        ctx.strokeStyle = curDay < 14 ? '#38BDF8' : '#F59E0B';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(folX, folY, folRadius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Oocyte inside follicle
-        if (curDay < 14 || contraceptive === 'oral_combined_pill') {
-          ctx.fillStyle = '#FFFFFF';
-          ctx.beginPath();
-          ctx.arc(folX, folY, 8, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.fillStyle = '#CBD5E1';
-        ctx.font = '9px JetBrains Mono, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(
-          curState.ovulationOccurred && curDay >= 14
-            ? 'Corpus Luteum (Secretes P₄)'
-            : curState.follicleDiameterMm > 18
-            ? 'Mature Graafian Follicle'
-            : 'Developing Secondary Follicle',
-          folX,
-          bY + 160
-        );
-
-        // Right Panel: Uterine Endometrium Cross-section
-        const endoX = gX + 270;
-        const endoW = 450;
-        ctx.fillStyle = '#EC4899';
-        ctx.font = 'bold 11px JetBrains Mono, monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText(
-          `UTERINE ENDOMETRIAL WALL (Thickness: ${curState.endometrialThicknessMm} mm)`,
-          endoX,
-          bY + 24
-        );
-
-        // Myometrium base
-        ctx.fillStyle = '#475569';
-        ctx.fillRect(endoX, bY + 130, endoW, 20);
-        ctx.fillStyle = '#94A3B8';
-        ctx.font = '8px JetBrains Mono, monospace';
-        ctx.fillText('Myometrium (Smooth Muscle Layer)', endoX + 10, bY + 144);
-
-        // Dynamic Endometrium Height
-        const maxEndoHeight = 85;
-        const endoHeightPx = (curState.endometrialThicknessMm / 14.0) * maxEndoHeight;
-        const endoTopY = bY + 130 - endoHeightPx;
-
-        // Functional Layer Fill
-        const endoGrad = ctx.createLinearGradient(0, endoTopY, 0, bY + 130);
-        endoGrad.addColorStop(0, '#F43F5E');
-        endoGrad.addColorStop(1, '#9F1239');
-        ctx.fillStyle = endoGrad;
-        ctx.fillRect(endoX, endoTopY, endoW, endoHeightPx);
-
-        // Spiral Arteries in Endometrium
-        ctx.strokeStyle = '#FECDD3';
-        ctx.lineWidth = 1.5;
-        for (let ax = endoX + 30; ax < endoX + endoW - 20; ax += 45) {
-          ctx.beginPath();
-          ctx.moveTo(ax, bY + 130);
-          for (let y = bY + 130; y >= endoTopY + 5; y -= 6) {
-            const wiggle = Math.sin(y * 0.4) * 5;
-            ctx.lineTo(ax + wiggle, y);
-          }
-          ctx.stroke();
-        }
-
-        // Phase descriptor pill
-        ctx.fillStyle = curState.phase === 'ovulatory' ? '#EC4899' : curState.phase === 'luteal' ? '#10B981' : '#38BDF8';
-        ctx.font = 'bold 10px JetBrains Mono, monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText(
-          `Current Phase: ${curState.phase.toUpperCase()} | Day ${curDay}/28 | BBT: ${curState.basalBodyTempC} °C`,
-          endoX,
-          bY + 42
-        );
-        ctx.fillText(
-          `Cervical Mucus: ${curState.cervicalMucusType.replace(/_/g, ' ')} | Fertile: ${curState.fertileWindow ? 'YES' : 'NO'}`,
-          endoX,
-          bY + 56
-        );
-        ctx.restore();
-      }
-
-      // =============================================================
-      // MODE 2: SPERM-OVUM FERTILIZATION & POLYSPERMY BLOCK
-      // =============================================================
-      if (activeMode === 'fertilization') {
-        const ovumX = 450;
-        const ovumY = 260;
-        const ovumR = 55;
-        const zonaR = 75;
-        const coronaR = 115;
-
-        ctx.save();
-        // 1. Corona Radiata Follicular Cells
-        ctx.fillStyle = 'rgba(251, 191, 36, 0.25)';
-        ctx.strokeStyle = '#F59E0B';
-        ctx.lineWidth = 1;
-        for (let a = 0; a < Math.PI * 2; a += 0.22) {
-          const cx = ovumX + Math.cos(a) * (coronaR - 10 + Math.sin(a * 4) * 6);
-          const cy = ovumY + Math.sin(a) * (coronaR - 10 + Math.sin(a * 4) * 6);
-          ctx.beginPath();
-          ctx.arc(cx, cy, 9, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        }
-
-        // 2. Zona Pellucida Glycoprotein Coat
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
-        ctx.strokeStyle = '#38BDF8';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(ovumX, ovumY, zonaR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Cortical Reaction Ca2+ Wave
-        if (caWaveRadiusRef.current > 0) {
-          ctx.strokeStyle = '#10B981';
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.arc(ovumX, ovumY, caWaveRadiusRef.current, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        // 3. Ooplasm (Cytoplasm of Secondary Oocyte)
-        ctx.fillStyle = 'rgba(244, 63, 94, 0.35)';
-        ctx.strokeStyle = '#F43F5E';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(ovumX, ovumY, ovumR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Female Pronucleus (Haploid 23, X)
-        ctx.fillStyle = '#FDA4AF';
-        ctx.strokeStyle = '#E11D48';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(ovumX - 12, ovumY, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = '#881337';
-        ctx.font = 'bold 8px JetBrains Mono, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('♀ 23,X', ovumX - 12, ovumY + 3);
-
-        // Male Pronucleus (if fertilizing)
-        if (fertilizationCompletedRef.current) {
-          ctx.fillStyle = '#BAE6FD';
-          ctx.strokeStyle = '#0284C7';
-          ctx.beginPath();
-          ctx.arc(ovumX + 12, ovumY, 14, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-          ctx.fillStyle = '#0369A1';
-          ctx.fillText('♂ 23,Y', ovumX + 12, ovumY + 3);
-        }
-
-        // 4. Motile Sperm Cells
-        spermRef.current.forEach((s) => {
-          ctx.save();
-          const angle = Math.atan2(s.vy, s.vx);
-          ctx.translate(s.x, s.y);
-          ctx.rotate(angle);
-
-          // Head (Acrosome + Nucleus)
-          ctx.fillStyle = s.capacitated ? '#FFFFFF' : '#94A3B8';
-          ctx.beginPath();
-          ctx.ellipse(0, 0, 5, 3, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Flagellar Tail Wave
-          ctx.strokeStyle = '#E2E8F0';
-          ctx.lineWidth = 1.2;
-          ctx.beginPath();
-          ctx.moveTo(-5, 0);
-          for (let tx = -5; tx >= -28; tx -= 3) {
-            const ty = Math.sin(s.tailPhase + tx * 0.3) * 3.5;
-            ctx.lineTo(tx, ty);
-          }
-          ctx.stroke();
-          ctx.restore();
-        });
-
-        // Telemetry HUD
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
-        ctx.strokeStyle = '#EC4899';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.roundRect(50, 40, 260, 115, 8);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#EC4899';
-        ctx.font = 'bold 11px JetBrains Mono, monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText('FERTILIZATION KINETICS', 65, 62);
-
-        ctx.fillStyle = '#CBD5E1';
-        ctx.font = '9px JetBrains Mono, monospace';
-        ctx.fillText(`Motile Sperm Count: ${spermRef.current.length} cells`, 65, 80);
-        ctx.fillText(`Acrosome Reaction: ${fertilizationCompletedRef.current ? 'ACTIVE' : 'INDUCING'}`, 65, 95);
-        ctx.fillText(`Cortical Reaction: ${fertilizationCompletedRef.current ? 'SLOW BLOCK ACTIVATED' : 'WAITING'}`, 65, 110);
-        ctx.fillText(`Diploid Karyogamy: ${fertilizationCompletedRef.current ? '46, XY RESTORED' : 'PENDING'}`, 65, 125);
-
-        // Educational Callout Banner
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-        ctx.strokeStyle = '#38BDF8';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.roundRect(50, 440, 800, 45, 6);
-        ctx.fill();
-        ctx.stroke();
 
         ctx.fillStyle = '#38BDF8';
-        ctx.font = 'bold 10px JetBrains Mono, monospace';
-        ctx.fillText(
-          '💡 Scientific Mechanism: Depolarization creates Fast Block; Cortical granules harden Zona Pellucida to permanently prevent Polyspermy.',
-          65,
-          467
-        );
-        ctx.restore();
-      }
+        ctx.font = 'bold 11px JetBrains Mono, monospace';
+        ctx.fillText(`ENDOMETRIAL HISTOLOGY | Day ${curDay}/28 | Phase: ${curState.phase.toUpperCase()}`, gX + 15, bY + 24);
+        ctx.fillText(`Thickness: ${curState.endometrialThicknessMm} mm | BBT: ${curState.basalBodyTempC} °C | Fertile: ${curState.fertileWindow ? 'YES' : 'NO'}`, gX + 15, bY + 42);
 
-      // =============================================================
-      // MODE 3: EMBRYOGENESIS & CLEAVAGE TIMELINE
-      // =============================================================
-      if (activeMode === 'embryogenesis') {
-        const curStage = EMBRYOGENESIS_STAGES[embryoStageIndex]!;
-
-        ctx.save();
-        // Central Embryo Viewport
-        const emX = 450;
-        const emY = 240;
-        const emR = 95;
-
-        // Outer Zona Pellucida envelope (present until blastocyst hatching)
-        const isHatched = embryoStageIndex >= 6;
-        if (!isHatched) {
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.arc(emX, emY, emR + 10, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        // Render Blastomere cells based on stage
-        ctx.fillStyle = 'rgba(236, 72, 153, 0.35)';
-        ctx.strokeStyle = '#EC4899';
-        ctx.lineWidth = 2;
-
-        if (curStage.cellCount === 1) {
-          ctx.beginPath();
-          ctx.arc(emX, emY, emR, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-          // Nucleus
-          ctx.fillStyle = '#FFFFFF';
-          ctx.beginPath();
-          ctx.arc(emX, emY, 15, 0, Math.PI * 2);
-          ctx.fill();
-        } else if (curStage.cellCount === 2) {
-          ctx.beginPath();
-          ctx.arc(emX - 40, emY, emR * 0.55, 0, Math.PI * 2);
-          ctx.arc(emX + 40, emY, emR * 0.55, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        } else if (curStage.cellCount === 4) {
-          ctx.beginPath();
-          ctx.arc(emX - 35, emY - 35, emR * 0.42, 0, Math.PI * 2);
-          ctx.arc(emX + 35, emY - 35, emR * 0.42, 0, Math.PI * 2);
-          ctx.arc(emX - 35, emY + 35, emR * 0.42, 0, Math.PI * 2);
-          ctx.arc(emX + 35, emY + 35, emR * 0.42, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        } else if (curStage.cellCount <= 16) {
-          // Morula: compacted mulberry ball
-          for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
-            ctx.beginPath();
-            ctx.arc(emX + Math.cos(a) * 45, emY + Math.sin(a) * 45, 24, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-          }
-          ctx.beginPath();
-          ctx.arc(emX, emY, 26, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        } else {
-          // Blastocyst: Trophoblast outer rim + Inner Cell Mass (ICM) + Blastocoel cavity
-          // Outer Trophoblast Ring
-          for (let a = 0; a < Math.PI * 2; a += 0.2) {
-            ctx.beginPath();
-            ctx.arc(emX + Math.cos(a) * (emR - 10), emY + Math.sin(a) * (emR - 10), 8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-          }
-          // Inner Cell Mass (Pluripotent Stem Cells)
-          ctx.fillStyle = '#F59E0B';
-          ctx.strokeStyle = '#D97706';
-          for (let i = 0; i < 9; i++) {
-            ctx.beginPath();
-            ctx.arc(emX - 35 + (i % 3) * 16, emY - 35 + Math.floor(i / 3) * 16, 9, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-          }
-          ctx.fillStyle = '#CBD5E1';
-          ctx.font = 'bold 9px JetBrains Mono, monospace';
-          ctx.textAlign = 'left';
-          ctx.fillText('Inner Cell Mass (ICM)', emX - 85, emY - 55);
-          ctx.fillText('Blastocoel Cavity', emX + 5, emY + 35);
-        }
-
-        // Stage Description Card
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
-        ctx.strokeStyle = '#38BDF8';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.roundRect(80, 410, 740, 80, 8);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#38BDF8';
-        ctx.font = 'bold 12px JetBrains Mono, monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText(`STAGE: ${curStage.stageName.toUpperCase()}`, 100, 432);
-
-        ctx.fillStyle = '#CBD5E1';
-        ctx.font = '10px JetBrains Mono, monospace';
-        ctx.fillText(
-          `Time: ${curStage.hoursPostFertilization}h post-fertilization | Cells: ${curStage.cellCount} | Site: ${curStage.anatomicalLocation.replace(/_/g, ' ').toUpperCase()}`,
-          100,
-          450
-        );
-        ctx.fillStyle = '#94A3B8';
-        ctx.fillText(curStage.description, 100, 468);
-        ctx.restore();
-      }
-
-      // 7. Yellow Measuring Tape Tool
-      if (showRuler) {
-        ctx.save();
-        ctx.strokeStyle = '#FBBF24';
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.moveTo(rulerTape.x1, rulerTape.y1);
-        ctx.lineTo(rulerTape.x2, rulerTape.y2);
-        ctx.stroke();
-
-        const tapePx = Math.hypot(rulerTape.x2 - rulerTape.x1, rulerTape.y2 - rulerTape.y1);
-        const tapeUm = (tapePx * 1.5).toFixed(0);
-
-        ctx.fillStyle = '#D97706';
-        ctx.beginPath();
-        ctx.arc(rulerTape.x1, rulerTape.y1, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(rulerTape.x2, rulerTape.y2, 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        const midX = (rulerTape.x1 + rulerTape.x2) / 2;
-        const midY = (rulerTape.y1 + rulerTape.y2) / 2 - 12;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-        ctx.strokeStyle = '#FBBF24';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.roundRect(midX - 40, midY - 10, 80, 20, 4);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#FDE68A';
-        ctx.font = 'bold 10px JetBrains Mono, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${tapeUm} µm`, midX, midY + 4);
-        ctx.restore();
-      }
-
-      // 8. Endocrine / Cytology Sensor Probe Tool
-      if (showProbe) {
-        ctx.save();
-        ctx.strokeStyle = '#EC4899';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(probePos.x, probePos.y, 8, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(probePos.x - 12, probePos.y);
-        ctx.lineTo(probePos.x + 12, probePos.y);
-        ctx.moveTo(probePos.x, probePos.y - 12);
-        ctx.lineTo(probePos.x, probePos.y + 12);
-        ctx.stroke();
-
-        const cardX = Math.min(VIRTUAL_WIDTH - 210, probePos.x + 16);
-        const cardY = Math.max(30, probePos.y - 65);
-
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
-        ctx.strokeStyle = '#EC4899';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.roundRect(cardX, cardY, 195, 75, 6);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#EC4899';
-        ctx.font = 'bold 10px JetBrains Mono, monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText('BIOMEDICAL SENSOR PROBE', cardX + 10, cardY + 16);
-        ctx.fillStyle = '#CBD5E1';
-        ctx.font = '9px JetBrains Mono, monospace';
-        ctx.fillText(`LH Peak: ${cycleState.lhMiuMl} mIU/mL`, cardX + 10, cardY + 32);
-        ctx.fillText(`FSH Level: ${cycleState.fshMiuMl} mIU/mL`, cardX + 10, cardY + 46);
-        ctx.fillText(`Endometrium: ${cycleState.endometrialThicknessMm} mm`, cardX + 10, cardY + 60);
+        // Endometrial layer fill
+        const endoH = (curState.endometrialThicknessMm / 14) * 90;
+        ctx.fillStyle = '#F43F5E';
+        ctx.fillRect(gX + 15, bY + 150 - endoH, gW - 30, endoH);
         ctx.restore();
       }
 
@@ -832,19 +929,15 @@ export function RealtimeReproductionScene({
     animId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animId);
   }, [
-    isPlaying,
-    playbackSpeed,
     activeMode,
     dayOfCycle,
     contraceptive,
     embryoStageIndex,
-    cycleState,
-    showGrid,
+    fetalMilestoneIndex,
+    isPlaying,
+    playbackSpeed,
+    simTime,
     showVectors,
-    showRuler,
-    showProbe,
-    rulerTape,
-    probePos,
     userZoom,
     pan,
   ]);
@@ -866,82 +959,21 @@ export function RealtimeReproductionScene({
     return () => window.removeEventListener('resize', resize);
   }, []);
 
-  // Pointer Interaction
-  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    const vp = computeViewport(canvas.width, canvas.height, dpr, userZoom, pan.x, pan.y);
-    const vCoords = screenToVirtualCoords(e.clientX, e.clientY, canvas, vp);
-
-    // Check Probe Handle
-    if (showProbe && Math.hypot(vCoords.x - probePos.x, vCoords.y - probePos.y) <= 24) {
-      setIsDraggingProbe(true);
-      canvas.setPointerCapture(e.pointerId);
-      return;
-    }
-
-    // Check Tape Handles
-    if (showRuler) {
-      if (Math.hypot(vCoords.x - rulerTape.x1, vCoords.y - rulerTape.y1) <= 16) {
-        setActiveTapeHandle('p1');
-        canvas.setPointerCapture(e.pointerId);
-        return;
-      }
-      if (Math.hypot(vCoords.x - rulerTape.x2, vCoords.y - rulerTape.y2) <= 16) {
-        setActiveTapeHandle('p2');
-        canvas.setPointerCapture(e.pointerId);
-        return;
-      }
-    }
-  };
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    const vp = computeViewport(canvas.width, canvas.height, dpr, userZoom, pan.x, pan.y);
-    const vCoords = screenToVirtualCoords(e.clientX, e.clientY, canvas, vp);
-
-    if (isDraggingProbe) {
-      setProbePos({
-        x: Math.max(30, Math.min(VIRTUAL_WIDTH - 30, vCoords.x)),
-        y: Math.max(30, Math.min(VIRTUAL_HEIGHT - 30, vCoords.y)),
-      });
-      return;
-    }
-
-    if (activeTapeHandle === 'p1') {
-      setRulerTape((t) => ({ ...t, x1: vCoords.x, y1: vCoords.y }));
-      return;
-    }
-    if (activeTapeHandle === 'p2') {
-      setRulerTape((t) => ({ ...t, x2: vCoords.x, y2: vCoords.y }));
-      return;
-    }
-  };
-
-  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    setIsDraggingProbe(false);
-    setActiveTapeHandle('none');
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore
-    }
-  };
-
   return (
     <PhetWorkbench
-      title="Human Reproduction & Embryogenesis Laboratory Workbench"
-      subtitle="NCERT Class 12 Biology | 60 FPS Endocrine Dynamics, Fertilization & Cleavage"
+      title="Human Reproduction & Embryogenesis Laboratory"
+      subtitle="NCERT Class 12 Biology (Ch 3 & 4) | Insemination, 60 FPS Fertilization, Cleavage & Trimesters"
       disciplineColor="#EC4899"
       isPlaying={isPlaying}
       playbackSpeed={playbackSpeed}
       simTime={simTime}
       onPlayPause={() => setIsPlaying(!isPlaying)}
-      onStep={handleStep}
-      onReset={handleReset}
+      onReset={() => {
+        initMicroSperm();
+        initTractSperm();
+        caWaveRadiusRef.current = 0;
+        fertilizationCompletedRef.current = false;
+      }}
       onSpeedChange={setPlaybackSpeed}
       showRuler={showRuler}
       showStopwatch={showStopwatch}
@@ -961,59 +993,132 @@ export function RealtimeReproductionScene({
       }}
       className={className}
     >
-      <div className="flex flex-col bg-[#080C14]">
-        {/* Interactive Mode Selector Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 bg-zinc-900 border-b border-zinc-800 text-xs">
+      <div className="flex flex-col bg-[#070B14]">
+        {/* Living Simulation Mode Selector Ribbon */}
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs">
           <div className="flex items-center gap-1.5 flex-wrap">
             <button
-              onClick={() => setActiveMode('menstrual_cycle')}
-              className={`px-3 py-1 rounded-md font-mono text-[11px] font-bold transition-all ${
-                activeMode === 'menstrual_cycle'
+              onClick={() => setActiveMode('fertilization')}
+              className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeMode === 'fertilization'
                   ? 'bg-pink-600 text-white shadow-xs'
-                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
-              🩸 Menstrual Cycle & Hormones
+              🔬 Ampulla Fertilization (60 FPS)
             </button>
 
             <button
-              onClick={() => setActiveMode('fertilization')}
-              className={`px-3 py-1 rounded-md font-mono text-[11px] font-bold transition-all ${
-                activeMode === 'fertilization'
+              onClick={() => setActiveMode('tract_journey')}
+              className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeMode === 'tract_journey'
                   ? 'bg-pink-600 text-white shadow-xs'
-                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
-              🧬 Sperm-Ovum Fertilization
+              🤰 Full Reproductive Tract Journey
             </button>
 
             <button
               onClick={() => setActiveMode('embryogenesis')}
-              className={`px-3 py-1 rounded-md font-mono text-[11px] font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeMode === 'embryogenesis'
                   ? 'bg-pink-600 text-white shadow-xs'
-                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
-              🔬 Cleavage & Blastocyst
+              🌱 Cleavage & Blastocyst (Day 1 - 7)
+            </button>
+
+            <button
+              onClick={() => setActiveMode('fetal_milestones')}
+              className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeMode === 'fetal_milestones'
+                  ? 'bg-pink-600 text-white shadow-xs'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              👶 Fetal Milestones (Wk 4 - 38)
+            </button>
+
+            <button
+              onClick={() => setActiveMode('menstrual_cycle')}
+              className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeMode === 'menstrual_cycle'
+                  ? 'bg-pink-600 text-white shadow-xs'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              📊 Endocrine Curves (LH/FSH)
             </button>
 
             <button
               onClick={() => setActiveMode('contraception_lab')}
-              className={`px-3 py-1 rounded-md font-mono text-[11px] font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeMode === 'contraception_lab'
                   ? 'bg-pink-600 text-white shadow-xs'
-                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
-              🛡️ Reproductive Health & Family Planning
+              🛡️ Reproductive Health
             </button>
           </div>
 
-          {/* Quick Sub-Controls */}
+          {/* Quick Interactive Stage Controls */}
+          {activeMode === 'fertilization' && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={initMicroSperm}
+                className="px-2.5 py-1 rounded bg-pink-700 hover:bg-pink-600 text-white font-mono text-[11px] font-bold"
+              >
+                + Insemination Pulse (Add Sperm)
+              </button>
+            </div>
+          )}
+
+          {activeMode === 'embryogenesis' && (
+            <div className="flex items-center gap-2 font-mono text-[11px]">
+              <button
+                onClick={() => setEmbryoStageIndex((i) => Math.max(0, i - 1))}
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200"
+              >
+                ← Prev Stage
+              </button>
+              <span className="text-pink-400 font-bold">
+                Stage {embryoStageIndex + 1}/{EMBRYOGENESIS_STAGES.length}
+              </span>
+              <button
+                onClick={() => setEmbryoStageIndex((i) => Math.min(EMBRYOGENESIS_STAGES.length - 1, i + 1))}
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200"
+              >
+                Next Stage →
+              </button>
+            </div>
+          )}
+
+          {activeMode === 'fetal_milestones' && (
+            <div className="flex items-center gap-2 font-mono text-[11px]">
+              <button
+                onClick={() => setFetalMilestoneIndex((i) => Math.max(0, i - 1))}
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200"
+              >
+                ← Prev Week
+              </button>
+              <span className="text-pink-400 font-bold">
+                Week {FETAL_MILESTONES[fetalMilestoneIndex]?.week}
+              </span>
+              <button
+                onClick={() => setFetalMilestoneIndex((i) => Math.min(FETAL_MILESTONES.length - 1, i + 1))}
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200"
+              >
+                Next Week →
+              </button>
+            </div>
+          )}
+
           {activeMode === 'menstrual_cycle' && (
             <div className="flex items-center gap-2 font-mono text-[11px]">
-              <span className="text-zinc-400">Day:</span>
+              <span className="text-slate-400">Day:</span>
               <input
                 type="range"
                 min="1"
@@ -1029,11 +1134,11 @@ export function RealtimeReproductionScene({
 
           {activeMode === 'contraception_lab' && (
             <div className="flex items-center gap-2 font-mono text-[11px]">
-              <span className="text-zinc-400">Method:</span>
+              <span className="text-slate-400">Method:</span>
               <select
                 value={contraceptive}
                 onChange={(e) => setContraceptive(e.target.value as ContraceptionMethod)}
-                className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-zinc-200"
+                className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-200"
               >
                 <option value="none">Natural / None</option>
                 <option value="oral_combined_pill">Oral Contraceptive Pill (Blocks LH Surge)</option>
@@ -1042,42 +1147,21 @@ export function RealtimeReproductionScene({
               </select>
             </div>
           )}
-
-          {activeMode === 'embryogenesis' && (
-            <div className="flex items-center gap-2 font-mono text-[11px]">
-              <button
-                onClick={() => setEmbryoStageIndex((i) => Math.max(0, i - 1))}
-                className="px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
-              >
-                ← Prev
-              </button>
-              <span className="text-pink-400 font-bold">Stage {embryoStageIndex + 1}/{EMBRYOGENESIS_STAGES.length}</span>
-              <button
-                onClick={() => setEmbryoStageIndex((i) => Math.min(EMBRYOGENESIS_STAGES.length - 1, i + 1))}
-                className="px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
-              >
-                Next →
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* 60 FPS Canvas */}
+        {/* 60 FPS Living Canvas */}
         <div
           ref={containerRef}
-          className="relative w-full h-[400px] sm:h-[480px] bg-[#080C14] select-none touch-none cursor-crosshair"
+          className="relative w-full h-[440px] sm:h-[520px] bg-[#070B14] select-none touch-none"
         >
-          <canvas
-            ref={canvasRef}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            className="w-full h-full block"
-          />
+          <canvas ref={canvasRef} className="w-full h-full block" />
 
-          <div className="absolute bottom-3 left-4 pointer-events-none text-[11px] font-mono text-zinc-400/80 bg-zinc-900/80 backdrop-blur-xs px-2.5 py-1 rounded border border-zinc-800/80 flex items-center gap-2">
-            <span className="text-pink-400 font-bold">💡 NCERT Class 12:</span>
-            <span>Scientific, interactive simulation of Human Reproduction & Reproductive Health. Drag sensor probe to inspect hormonal levels!</span>
+          {/* Bottom Callout Banner */}
+          <div className="absolute bottom-3 left-4 pointer-events-none text-[11px] font-mono text-slate-400 bg-slate-900/90 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-2">
+            <span className="text-pink-400 font-bold">💡 NCERT Class 12 Reproduction:</span>
+            <span>
+              Real-time biophysical simulation of human gamete motility, cortical reaction slow block to polyspermy, and embryonic cleavage. No social taboos — pure biological science.
+            </span>
           </div>
         </div>
       </div>
