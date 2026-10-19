@@ -29,6 +29,7 @@ import {
   solveCircuitBranch,
 } from '@prismora/simulation-core';
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, MathView, Slider } from '@prismora/ui';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 import {
   Activity,
   AlertTriangle,
@@ -199,6 +200,7 @@ export default function CircuitStudioPage() {
     ARDUINO_PROJECT_PRESETS['Blink Built-in LED']?.code ?? '',
   );
   const [isArduinoRunning, setIsArduinoRunning] = useState<boolean>(true);
+  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
   const [serialBaud, setSerialBaud] = useState<number>(9600);
   const [serialLogs, setSerialLogs] = useState<string[]>([
     '[0ms] Prismora Virtual Arduino Uno R3 Ready.',
@@ -532,6 +534,15 @@ export default function CircuitStudioPage() {
                   {isArduinoRunning ? '● RUNNING' : '⏸ PAUSED'}
                 </span>
               </div>
+
+              {/* Lab Manual & How to Use Guide Button */}
+              <button
+                onClick={() => setIsGuideOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm shrink-0"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Lab Guide &amp; Manual</span>
+              </button>
             </div>
           </div>
 
@@ -1648,6 +1659,13 @@ export default function CircuitStudioPage() {
           </div>
         </section>
       </main>
+
+      {/* Universal Lab Manual & How to Use Guide Modal */}
+      <SimulationGuideModal
+        simulationId="circuit-studio"
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }

@@ -562,94 +562,132 @@ function drawEnvironment(
   const { width, height } = vp;
 
   if (theme === 'earth') {
-    // Solid atmospheric sky blue (Zero gradients)
-    ctx.fillStyle = '#38bdf8';
+    // Realistic Atmospheric Sky Gradient: deep azure blue fading to warm horizon haze
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.75);
+    skyGrad.addColorStop(0, '#0284c7'); // Rich stratosphere blue
+    skyGrad.addColorStop(0.4, '#38bdf8'); // Sky blue
+    skyGrad.addColorStop(0.75, '#bae6fd'); // Atmospheric haze
+    skyGrad.addColorStop(1, '#fef08a'); // Warm golden horizon glow
+    ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, width, height);
 
-    // Distant mountain silhouettes (Solid blocking)
-    ctx.fillStyle = '#0284c7';
+    // Subtle sun flare in upper-left
+    const sunGrad = ctx.createRadialGradient(width * 0.15, height * 0.15, 10, width * 0.15, height * 0.15, 140);
+    sunGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+    sunGrad.addColorStop(0.3, 'rgba(254, 240, 138, 0.4)');
+    sunGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+    ctx.fillStyle = sunGrad;
+    ctx.beginPath();
+    ctx.arc(width * 0.15, height * 0.15, 140, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Distant mountain silhouettes (Atmospheric aerial perspective)
+    const mountainGrad = ctx.createLinearGradient(0, height * 0.45, 0, height * 0.75);
+    mountainGrad.addColorStop(0, '#0369a1');
+    mountainGrad.addColorStop(1, '#38bdf8');
+    ctx.fillStyle = mountainGrad;
     ctx.beginPath();
     ctx.moveTo(0, height * 0.75);
-    ctx.lineTo(width * 0.25, height * 0.58);
-    ctx.lineTo(width * 0.55, height * 0.72);
-    ctx.lineTo(width * 0.85, height * 0.55);
+    ctx.lineTo(width * 0.18, height * 0.52);
+    ctx.lineTo(width * 0.35, height * 0.64);
+    ctx.lineTo(width * 0.58, height * 0.48);
+    ctx.lineTo(width * 0.82, height * 0.62);
+    ctx.lineTo(width, height * 0.54);
     ctx.lineTo(width, height * 0.75);
     ctx.closePath();
     ctx.fill();
 
-    // Midground hills (Solid emerald)
-    ctx.fillStyle = '#16a34a';
+    // Midground rolling hills (Verdant lush greens with subtle shading)
+    const hillGrad = ctx.createLinearGradient(0, height * 0.6, 0, height);
+    hillGrad.addColorStop(0, '#22c55e');
+    hillGrad.addColorStop(0.6, '#16a34a');
+    hillGrad.addColorStop(1, '#15803d');
+    ctx.fillStyle = hillGrad;
     ctx.beginPath();
     ctx.moveTo(0, height * 0.75);
-    ctx.bezierCurveTo(width * 0.3, height * 0.65, width * 0.6, height * 0.78, width, height * 0.72);
+    ctx.bezierCurveTo(width * 0.25, height * 0.62, width * 0.65, height * 0.74, width, height * 0.68);
     ctx.lineTo(width, height);
     ctx.lineTo(0, height);
     ctx.closePath();
     ctx.fill();
   } else if (theme === 'moon') {
-    // Deep starry vacuum space
-    ctx.fillStyle = '#030712';
+    // Deep starry vacuum space with subtle nebula
+    const moonSky = ctx.createLinearGradient(0, 0, 0, height);
+    moonSky.addColorStop(0, '#020617');
+    moonSky.addColorStop(1, '#0f172a');
+    ctx.fillStyle = moonSky;
     ctx.fillRect(0, 0, width, height);
 
-    // Stars
-    ctx.fillStyle = '#ffffff';
-    for (let i = 0; i < 40; i++) {
+    // Starfield with variable brightness
+    for (let i = 0; i < 50; i++) {
       const sx = (i * 137.5) % width;
       const sy = (i * 269.3) % (height * 0.65);
-      const r = (i % 3 === 0 ? 1.5 : 1) * vp.dpr;
+      const r = (i % 3 === 0 ? 1.5 : 0.8) * vp.dpr;
+      ctx.fillStyle = i % 4 === 0 ? '#93c5fd' : '#ffffff';
       ctx.beginPath();
       ctx.arc(sx, sy, r, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Blue Earth in lunar sky with solid atmospheric halo
-    const earthX = width * 0.8;
+    // Glowing Earth in lunar sky with atmospheric corona
+    const earthX = width * 0.82;
     const earthY = height * 0.22;
-    const earthR = 28 * vp.dpr;
+    const earthR = 30 * vp.dpr;
 
-    // Solid outer atmosphere ring
-    ctx.strokeStyle = '#0284c7';
-    ctx.lineWidth = 2 * vp.dpr;
+    const earthAtmosphere = ctx.createRadialGradient(earthX, earthY, earthR * 0.9, earthX, earthY, earthR * 1.3);
+    earthAtmosphere.addColorStop(0, 'rgba(56, 189, 248, 0.6)');
+    earthAtmosphere.addColorStop(1, 'rgba(56, 189, 248, 0)');
+    ctx.fillStyle = earthAtmosphere;
     ctx.beginPath();
-    ctx.arc(earthX, earthY, earthR * 1.2, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.arc(earthX, earthY, earthR * 1.3, 0, Math.PI * 2);
+    ctx.fill();
 
-    ctx.fillStyle = '#2563eb';
+    const earthBody = ctx.createRadialGradient(earthX - 8, earthY - 8, 4, earthX, earthY, earthR);
+    earthBody.addColorStop(0, '#60a5fa');
+    earthBody.addColorStop(0.6, '#1d4ed8');
+    earthBody.addColorStop(1, '#0f172a');
+    ctx.fillStyle = earthBody;
     ctx.beginPath();
     ctx.arc(earthX, earthY, earthR, 0, Math.PI * 2);
     ctx.fill();
-
-    ctx.fillStyle = '#22c55e';
-    ctx.beginPath();
-    ctx.arc(earthX - 4 * vp.dpr, earthY - 4 * vp.dpr, earthR * 0.4, 0, Math.PI * 2);
-    ctx.fill();
   } else if (theme === 'mars') {
-    // Martian terracotta sky (Solid)
-    ctx.fillStyle = '#ea580c';
+    // Martian terracotta sky with dusty atmospheric scattering
+    const marsSky = ctx.createLinearGradient(0, 0, 0, height * 0.75);
+    marsSky.addColorStop(0, '#7c2d12');
+    marsSky.addColorStop(0.5, '#c2410c');
+    marsSky.addColorStop(1, '#fed7aa');
+    ctx.fillStyle = marsSky;
     ctx.fillRect(0, 0, width, height);
 
-    // Distant Martian crater rims (Solid rust)
-    ctx.fillStyle = '#9a3412';
+    // Distant Martian crater rim ridges
+    const ridgeGrad = ctx.createLinearGradient(0, height * 0.55, 0, height * 0.75);
+    ridgeGrad.addColorStop(0, '#9a3412');
+    ridgeGrad.addColorStop(1, '#7c2d12');
+    ctx.fillStyle = ridgeGrad;
     ctx.beginPath();
     ctx.moveTo(0, height * 0.75);
-    ctx.lineTo(width * 0.35, height * 0.6);
-    ctx.lineTo(width * 0.7, height * 0.74);
-    ctx.lineTo(width, height * 0.62);
-    ctx.lineTo(width, height);
-    ctx.lineTo(0, height);
+    ctx.lineTo(width * 0.35, height * 0.58);
+    ctx.lineTo(width * 0.65, height * 0.7);
+    ctx.lineTo(width * 0.88, height * 0.6);
+    ctx.lineTo(width, height * 0.75);
     ctx.closePath();
     ctx.fill();
   } else {
-    // Zero-G Deep Space (Solid midnight navy)
-    ctx.fillStyle = '#0f172a';
+    // Zero-G Deep Space with cosmic nebula
+    const spaceGrad = ctx.createLinearGradient(0, 0, width, height);
+    spaceGrad.addColorStop(0, '#090d16');
+    spaceGrad.addColorStop(0.5, '#0f172a');
+    spaceGrad.addColorStop(1, '#1e1b4b');
+    ctx.fillStyle = spaceGrad;
     ctx.fillRect(0, 0, width, height);
 
-    // Distant galaxy nebula (Solid violet ellipse with crisp stroke)
-    ctx.strokeStyle = '#8b5cf6';
-    ctx.lineWidth = 2 * vp.dpr;
-    ctx.beginPath();
-    ctx.ellipse(width * 0.7, height * 0.3, width * 0.25, height * 0.15, Math.PI / 4, 0, Math.PI * 2);
-    ctx.stroke();
+    // Glowing cosmic dust cloud
+    const nebula = ctx.createRadialGradient(width * 0.7, height * 0.35, 10, width * 0.7, height * 0.35, width * 0.3);
+    nebula.addColorStop(0, 'rgba(168, 85, 247, 0.25)');
+    nebula.addColorStop(0.5, 'rgba(56, 189, 248, 0.12)');
+    nebula.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = nebula;
+    ctx.fillRect(0, 0, width, height);
   }
 }
 
@@ -713,7 +751,7 @@ function drawCoordinateGrid(
 }
 
 /**
- * 3. Ground & Geological Cross-section
+ * 3. Ground & Geological Cross-section (Realistic Strata & Gradients)
  */
 function drawGround(
   ctx: CanvasRenderingContext2D,
@@ -725,39 +763,51 @@ function drawGround(
   const groundScreen = camera.worldToScreen(0, 0, vp);
   const groundY = groundScreen.y;
 
-  // Ground layer colors
-  let topColor = '#15803d'; // Earth lush grass green
-  let bodyColor = '#78350f'; // Rich soil
-  let bedrockColor = '#451a03';
+  // Ground layer colors based on celestial theme
+  let topColorStart = '#22c55e'; // Vibrant turf
+  let topColorEnd = '#15803d'; // Deep turf
+  let bodyColorStart = '#92400e'; // Warm subsoil
+  let bodyColorEnd = '#451a03'; // Compacted earth
+  let bedrockColor = '#1c1917'; // Hard granite bedrock
 
   if (theme === 'moon') {
-    topColor = '#94a3b8';
-    bodyColor = '#475569';
-    bedrockColor = '#1e293b';
+    topColorStart = '#cbd5e1';
+    topColorEnd = '#94a3b8';
+    bodyColorStart = '#64748b';
+    bodyColorEnd = '#334155';
+    bedrockColor = '#0f172a';
   } else if (theme === 'mars') {
-    topColor = '#c2410c';
-    bodyColor = '#9a3412';
-    bedrockColor = '#7c2d12';
+    topColorStart = '#ea580c';
+    topColorEnd = '#c2410c';
+    bodyColorStart = '#9a3412';
+    bodyColorEnd = '#7c2d12';
+    bedrockColor = '#431407';
   } else if (theme === 'space') {
-    topColor = '#4338ca';
-    bodyColor = '#312e81';
-    bedrockColor = '#1e1b4b';
+    topColorStart = '#6366f1';
+    topColorEnd = '#4338ca';
+    bodyColorStart = '#3730a3';
+    bodyColorEnd = '#1e1b4b';
+    bedrockColor = '#090d16';
   }
 
-  // Top surface strip
-  ctx.fillStyle = topColor;
-  ctx.fillRect(0, groundY, vp.width, 10 * dpr);
+  // Top surface strip with lighting gradient
+  const turfGrad = ctx.createLinearGradient(0, groundY, 0, groundY + 12 * dpr);
+  turfGrad.addColorStop(0, topColorStart);
+  turfGrad.addColorStop(1, topColorEnd);
+  ctx.fillStyle = turfGrad;
+  ctx.fillRect(0, groundY, vp.width, 12 * dpr);
 
-  // Subsurface strata (Crisp solid geological layers - zero gradients)
-  const strata1Height = 35 * dpr;
-  ctx.fillStyle = bodyColor;
-  ctx.fillRect(0, groundY + 10 * dpr, vp.width, strata1Height);
+  // Subsurface strata with organic geological gradient
+  const strataHeight = Math.max(1, vp.height - (groundY + 12 * dpr));
+  const strataGrad = ctx.createLinearGradient(0, groundY + 12 * dpr, 0, groundY + 12 * dpr + Math.min(180 * dpr, strataHeight));
+  strataGrad.addColorStop(0, bodyColorStart);
+  strataGrad.addColorStop(0.35, bodyColorEnd);
+  strataGrad.addColorStop(1, bedrockColor);
+  ctx.fillStyle = strataGrad;
+  ctx.fillRect(0, groundY + 12 * dpr, vp.width, strataHeight);
 
-  ctx.fillStyle = bedrockColor;
-  ctx.fillRect(0, groundY + 10 * dpr + strata1Height, vp.width, vp.height - (groundY + 10 * dpr + strata1Height));
-
-  // Surface datum baseline
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+  // Surface datum baseline - glowing coordinate reference
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
   ctx.lineWidth = 2 * dpr;
   ctx.beginPath();
   ctx.moveTo(0, groundY);
@@ -784,16 +834,24 @@ function drawArticulatedLauncher(
   // Elevation pillar (if height > 0)
   if (heightMeters > 0) {
     const pillarWidth = 24 * dpr;
-    // Solid hydraulic cylinder with precision specular stripe (zero gradients)
-    ctx.fillStyle = '#64748b';
+    // Hydraulic cylinder with cylindrical metallic chrome gradient
+    const pillarGrad = ctx.createLinearGradient(
+      pivotPt.x - pillarWidth / 2,
+      0,
+      pivotPt.x + pillarWidth / 2,
+      0,
+    );
+    pillarGrad.addColorStop(0, '#1e293b');
+    pillarGrad.addColorStop(0.2, '#64748b');
+    pillarGrad.addColorStop(0.45, '#e2e8f0'); // Specular highlight
+    pillarGrad.addColorStop(0.7, '#94a3b8');
+    pillarGrad.addColorStop(1, '#334155');
+
+    ctx.fillStyle = pillarGrad;
     ctx.fillRect(pivotPt.x - pillarWidth / 2, pivotPt.y, pillarWidth, groundPt.y - pivotPt.y);
 
-    // Vertical specular highlight line
-    ctx.fillStyle = '#cbd5e1';
-    ctx.fillRect(pivotPt.x - pillarWidth / 4, pivotPt.y, 4 * dpr, groundPt.y - pivotPt.y);
-
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 2 * dpr;
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 1.5 * dpr;
     ctx.strokeRect(pivotPt.x - pillarWidth / 2, pivotPt.y, pillarWidth, groundPt.y - pivotPt.y);
 
     // Height markings on pillar
@@ -806,18 +864,32 @@ function drawArticulatedLauncher(
   // Heavy Base Carriage with Wheels
   const carriageWidth = 44 * dpr;
   const carriageHeight = 16 * dpr;
-  ctx.fillStyle = '#334155';
+  const carriageGrad = ctx.createLinearGradient(0, groundPt.y - carriageHeight, 0, groundPt.y);
+  carriageGrad.addColorStop(0, '#475569');
+  carriageGrad.addColorStop(1, '#1e293b');
+  ctx.fillStyle = carriageGrad;
   ctx.fillRect(groundPt.x - carriageWidth / 2, groundPt.y - carriageHeight, carriageWidth, carriageHeight);
 
-  // Wheels
+  // Wheels with hubcaps
   ctx.fillStyle = '#0f172a';
   ctx.beginPath();
   ctx.arc(groundPt.x - carriageWidth * 0.35, groundPt.y - 4 * dpr, 8 * dpr, 0, Math.PI * 2);
   ctx.arc(groundPt.x + carriageWidth * 0.35, groundPt.y - 4 * dpr, 8 * dpr, 0, Math.PI * 2);
   ctx.fill();
 
-  // Launcher Platform Head / Turret Mount
-  ctx.fillStyle = '#475569';
+  // Launcher Platform Head / Turret Mount with metallic radial shading
+  const turretGrad = ctx.createRadialGradient(
+    pivotPt.x - 3 * dpr,
+    pivotPt.y - 3 * dpr,
+    2 * dpr,
+    pivotPt.x,
+    pivotPt.y,
+    14 * dpr,
+  );
+  turretGrad.addColorStop(0, '#94a3b8');
+  turretGrad.addColorStop(0.6, '#475569');
+  turretGrad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = turretGrad;
   ctx.beginPath();
   ctx.arc(pivotPt.x, pivotPt.y, 14 * dpr, 0, Math.PI * 2);
   ctx.fill();
@@ -838,8 +910,15 @@ function drawArticulatedLauncher(
   const barrelLength = camera.metersToPixels(2.4, dpr);
   const barrelThickness = 14 * dpr;
 
-  // Solid Metallic Barrel with specular line (zero gradients)
-  ctx.fillStyle = '#334155';
+  // Realistic Gunmetal Cannon Barrel with cylindrical specular lighting
+  const barrelGrad = ctx.createLinearGradient(0, -barrelThickness / 2, 0, barrelThickness / 2);
+  barrelGrad.addColorStop(0, '#1e293b');
+  barrelGrad.addColorStop(0.2, '#64748b');
+  barrelGrad.addColorStop(0.35, '#cbd5e1'); // Bright specular gleam
+  barrelGrad.addColorStop(0.6, '#334155');
+  barrelGrad.addColorStop(1, '#0f172a');
+
+  ctx.fillStyle = barrelGrad;
   ctx.strokeStyle = '#020617';
   ctx.lineWidth = 1.5 * dpr;
   ctx.beginPath();
@@ -847,12 +926,13 @@ function drawArticulatedLauncher(
   ctx.fill();
   ctx.stroke();
 
-  // Longitudinal specular highlight stripe
-  ctx.fillStyle = '#94a3b8';
-  ctx.fillRect(-2 * dpr, -barrelThickness / 4, barrelLength - 6 * dpr, 2.5 * dpr);
-
-  // Muzzle Ring
-  ctx.fillStyle = '#e2e8f0';
+  // Golden Brass Muzzle Ring
+  const brassGrad = ctx.createLinearGradient(0, -barrelThickness / 2, 0, barrelThickness / 2);
+  brassGrad.addColorStop(0, '#78350f');
+  brassGrad.addColorStop(0.35, '#fef08a');
+  brassGrad.addColorStop(0.7, '#d97706');
+  brassGrad.addColorStop(1, '#451a03');
+  ctx.fillStyle = brassGrad;
   ctx.fillRect(barrelLength - 4 * dpr, -barrelThickness / 2 - 2 * dpr, 5 * dpr, barrelThickness + 4 * dpr);
 
   ctx.restore();
@@ -1016,29 +1096,47 @@ function drawProjectile(
   ctx.ellipse(currentScreen.x, groundY, 8 * dpr * shadowScale, 3 * dpr * shadowScale, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Projectile Halo Ring (Crisp solid color - zero gradients)
-  const haloR = 12 * dpr;
-  ctx.strokeStyle = 'rgba(37, 99, 235, 0.45)';
-  ctx.lineWidth = 2 * dpr;
+  // Projectile Atmospheric Energy Halo
+  const haloR = 14 * dpr;
+  const haloGrad = ctx.createRadialGradient(
+    currentScreen.x,
+    currentScreen.y,
+    6 * dpr,
+    currentScreen.x,
+    currentScreen.y,
+    haloR,
+  );
+  haloGrad.addColorStop(0, 'rgba(56, 189, 248, 0.5)');
+  haloGrad.addColorStop(0.5, 'rgba(37, 99, 235, 0.25)');
+  haloGrad.addColorStop(1, 'rgba(37, 99, 235, 0)');
+  ctx.fillStyle = haloGrad;
   ctx.beginPath();
   ctx.arc(currentScreen.x, currentScreen.y, haloR, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.fill();
 
-  // Projectile Solid Sphere (Prismora Electric Blue)
-  const ballR = 7 * dpr;
-  ctx.fillStyle = '#2563eb';
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 2 * dpr;
+  // Projectile 3D Metallic/Luminescent Sphere with Phong-like specular lighting
+  const ballR = 8 * dpr;
+  const sphereGrad = ctx.createRadialGradient(
+    currentScreen.x - 2.5 * dpr,
+    currentScreen.y - 2.5 * dpr,
+    1 * dpr,
+    currentScreen.x,
+    currentScreen.y,
+    ballR,
+  );
+  sphereGrad.addColorStop(0, '#ffffff'); // Specular highlight pinpoint
+  sphereGrad.addColorStop(0.25, '#60a5fa'); // Vibrant highlight rim
+  sphereGrad.addColorStop(0.65, '#2563eb'); // Core color
+  sphereGrad.addColorStop(0.9, '#1d4ed8'); // Ambient rim
+  sphereGrad.addColorStop(1, '#0f172a'); // Shadowed limb
+
+  ctx.fillStyle = sphereGrad;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.lineWidth = 1 * dpr;
   ctx.beginPath();
   ctx.arc(currentScreen.x, currentScreen.y, ballR, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
-
-  // Crisp Solid Specular Highlight Dot
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(currentScreen.x - 2 * dpr, currentScreen.y - 2 * dpr, 2 * dpr, 0, Math.PI * 2);
-  ctx.fill();
 
   // Helper function to draw crisp vector arrows
   const drawArrow = (

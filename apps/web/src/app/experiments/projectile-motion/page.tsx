@@ -23,6 +23,7 @@ import { LiveEquations } from '@/components/simulation/live-equations';
 import { TrajectoryGraph } from '@/components/simulation/trajectory-graph';
 import { ObservationPanel, type Observation } from '@/components/simulation/observation-panel';
 import { ExportDialog } from '@/components/simulation/export-dialog';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 import {
   Play,
   Pause,
@@ -129,6 +130,7 @@ export default function ProjectileMotionPage() {
 
   // Export/Import modal
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // Computed measurements
   const measurements = controller.getMeasurements();
@@ -339,6 +341,16 @@ export default function ProjectileMotionPage() {
               </option>
             ))}
           </select>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsGuideOpen(true)}
+            className="h-7 text-xs border-sky-500/40 bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 font-bold"
+          >
+            <BookOpen className="w-3.5 h-3.5 mr-1 text-sky-400" />
+            <span>Lab Guide</span>
+          </Button>
 
           <Button
             variant="outline"
@@ -837,6 +849,13 @@ export default function ProjectileMotionPage() {
           onImport={handleImportConfiguration}
         />
       )}
+
+      {/* Universal Lab Manual & How to Use Guide Modal */}
+      <SimulationGuideModal
+        simulationId="projectile-motion"
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }

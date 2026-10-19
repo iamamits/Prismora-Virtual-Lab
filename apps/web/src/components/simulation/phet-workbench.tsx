@@ -17,9 +17,12 @@ import {
   Minimize2,
   RefreshCw,
   Sparkles,
+  BookOpen,
 } from 'lucide-react';
+import { SimulationGuideModal, type SimulationGuideData } from './simulation-guide-modal';
 
 export interface PhetWorkbenchProps {
+  id?: string;
   title: string;
   subtitle?: string;
   disciplineColor?: string;
@@ -45,11 +48,13 @@ export interface PhetWorkbenchProps {
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onResetCamera?: () => void;
+  customGuide?: Partial<SimulationGuideData>;
   className?: string;
   children: React.ReactNode;
 }
 
 export function PhetWorkbench({
+  id,
   title,
   subtitle,
   disciplineColor = '#38BDF8',
@@ -73,11 +78,13 @@ export function PhetWorkbench({
   onZoomIn,
   onZoomOut,
   onResetCamera,
+  customGuide,
   className = '',
   children,
 }: PhetWorkbenchProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
 
   // Floating Stopwatch internal state
   const [stopwatchTime, setStopwatchTime] = useState<number>(0);
@@ -227,6 +234,16 @@ export function PhetWorkbench({
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
           )}
+
+          {/* Lab Manual & How to Use Guide Button */}
+          <button
+            onClick={() => setIsGuideOpen(true)}
+            className="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold flex items-center gap-1.5 bg-sky-500/15 text-sky-400 hover:bg-sky-500/25 border border-sky-500/35 transition-all shadow-xs"
+            title="Open Lab Manual, How to Use & Theory Guide"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Lab Guide</span>
+          </button>
 
           <button
             onClick={toggleFullscreen}
@@ -381,6 +398,14 @@ export function PhetWorkbench({
           </div>
         </div>
       </div>
+
+      {/* Universal Lab Manual & How to Use Guide Modal */}
+      <SimulationGuideModal
+        simulationId={id || title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        customGuide={customGuide}
+      />
     </div>
   );
 }
