@@ -32,7 +32,7 @@ import { SIMULATION_REGISTRY, LABORATORIES, type SimulationRegistryEntry } from 
 import { SimulationCard } from '@/components/catalog/simulation-card';
 import { FeaturedSimulationSpotlight } from '@/components/catalog/featured-simulation-spotlight';
 import { ExperimentConceptModal } from '@/components/catalog/experiment-concept-modal';
-import { Hero3DSimulationShowcase } from '@/components/home/hero-3d-simulation-showcase';
+import { HeroMotionBackground } from '@/components/home/hero-motion-background';
 
 import {
   Building2,
@@ -119,13 +119,17 @@ export default function HomePage() {
 
   return (
     <div className="flex-1 flex flex-col bg-[#F8FAFC] dark:bg-[#090D16] text-[#172033] dark:text-[#F8FAFC]">
-      {/* 1. Compact, Inspiring Scientific Header */}
-      <section className="relative border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0F172A] pt-8 pb-8 px-4 sm:px-6 lg:px-8 select-none">
-        <div className="max-w-7xl mx-auto space-y-6">
+      {/* 1. Cinematic Scientific Hero with 3D Motion Graphics Background (Gate Smashers/Sci-Fi Style) */}
+      <section className="relative overflow-hidden border-b border-zinc-800 bg-[#040711] text-white pt-10 pb-10 px-4 sm:px-6 lg:px-8 select-none shadow-2xl">
+        {/* Continuous 3D Motion Graphics Canvas running smoothly in background */}
+        <HeroMotionBackground />
+
+        {/* Foreground Content with Frosted Glass Legibility */}
+        <div className="max-w-7xl mx-auto space-y-7 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-3 max-w-2xl">
+            <div className="space-y-3.5 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-900 bg-blue-50/80 dark:bg-blue-950/60 text-xs font-mono font-bold text-blue-700 dark:text-blue-300 shadow-xs">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/30 bg-sky-500/10 backdrop-blur-md text-xs font-mono font-bold text-sky-300 shadow-xs">
                   <PrismoraIcon size={14} minimal />
                   <span>Next-Generation Open Source Scientific Simulation &amp; Virtual Labs</span>
                 </div>
@@ -133,43 +137,45 @@ export default function HomePage() {
                   href="https://github.com/iamamits"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-pink-200 dark:border-pink-900/60 bg-pink-50/80 dark:bg-pink-950/40 hover:bg-pink-100 text-xs font-medium text-pink-700 dark:text-pink-300 transition-colors group shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-pink-500/40 bg-pink-500/10 hover:bg-pink-500/20 backdrop-blur-md text-xs font-medium text-pink-300 transition-colors group shadow-xs"
                 >
                   <span>Designed &amp; Engineered with</span>
-                  <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 group-hover:scale-125 transition-transform" />
+                  <Heart className="w-3.5 h-3.5 text-pink-400 fill-pink-400 group-hover:scale-125 transition-transform" />
                   <span>by</span>
-                  <span className="font-bold underline decoration-pink-300">Amit Singh</span>
+                  <span className="font-bold underline decoration-pink-400 text-white">Amit Singh</span>
                 </a>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-[#172033] dark:text-white uppercase font-sans leading-none">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white uppercase font-sans leading-none drop-shadow-md">
                 Explore. Experiment.{' '}
-                <span className="text-[#2563EB] dark:text-[#38BDF8]">Understand.</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-300">
+                  Understand.
+                </span>
               </h1>
 
-              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 font-medium leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-xl drop-shadow-xs">
                 Step into verified physical apparatus, discrete micro-logic gates, RISC-V pipelined processors, and formal automata theory. Every experiment is driven by analytical closed-form equations and real-time matrix solvers.
               </p>
             </div>
 
-            {/* Quick Metrics Badges */}
+            {/* Quick Metrics Badges with Frosted Glass */}
             <div className="flex flex-wrap md:flex-col items-start md:items-end gap-2 shrink-0">
-              <div className="px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-mono font-bold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="px-3 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-950/40 backdrop-blur-md text-emerald-300 text-xs font-mono font-bold flex items-center gap-1.5 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>16 Working Interactive Labs</span>
               </div>
-              <div className="px-3 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-mono font-bold">
+              <div className="px-3 py-1.5 rounded-lg border border-sky-500/40 bg-sky-950/40 backdrop-blur-md text-sky-300 text-xs font-mono font-bold shadow-xs">
                 <span>11 Academic Disciplines</span>
               </div>
-              <div className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono">
+              <div className="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-900/60 backdrop-blur-md text-slate-300 text-xs font-mono">
                 <span>100% Client-Side Solvers</span>
               </div>
             </div>
           </div>
 
           {/* Search Bar & Instant Discipline Filter Ribbon */}
-          <div className="pt-2 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 border-t border-zinc-100 dark:border-zinc-800">
-            {/* Discipline Pills */}
+          <div className="pt-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 border-t border-slate-800/80">
+            {/* Discipline Pills with Glass Effect */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
               {DISCIPLINES.map((disc) => {
                 const Icon = disc.icon;
@@ -180,8 +186,8 @@ export default function HomePage() {
                     onClick={() => setSelectedDiscipline(disc.id)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 border ${
                       isSelected
-                        ? 'bg-[#172033] dark:bg-white text-white dark:text-[#172033] border-transparent shadow-xs'
-                        : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                        ? 'bg-sky-500 text-white border-sky-400 shadow-md shadow-sky-500/20'
+                        : 'bg-slate-900/60 backdrop-blur-md border-slate-700/60 text-slate-300 hover:text-white hover:border-slate-500'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" style={{ color: isSelected ? undefined : disc.color }} />
@@ -193,13 +199,13 @@ export default function HomePage() {
 
             {/* Search Input */}
             <div className="relative w-full md:w-80 shrink-0">
-              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5 pointer-events-none" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search experiments or tags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-700/80 bg-slate-900/70 backdrop-blur-md text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               />
             </div>
           </div>
@@ -208,12 +214,9 @@ export default function HomePage() {
 
       {/* 2. Main Content Container */}
       <main className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full space-y-10">
-        {/* If user is NOT searching/filtering, show the 3D Motion Graphics Showcase + Spotlight + Curated Collections */}
+        {/* If user is NOT searching/filtering, show the editorial Spotlight + Curated Collections */}
         {!isFiltering ? (
           <>
-            {/* 3D Motion Graphics Flagship Showcase: 6 Flagship Live Simulations with 3D Depth & Motion Transitions */}
-            <Hero3DSimulationShowcase />
-
             {/* Featured Simulation Spotlight (Wide Interactive Editorial Card) */}
             <FeaturedSimulationSpotlight onSelectConcept={(sim) => setSelectedConcept(sim)} />
 
