@@ -514,6 +514,171 @@ export const LAB_MANUALS: Record<string, SimulationGuideData> = {
       },
     ],
   },
+  'wave-optics': {
+    id: 'wave-optics',
+    title: "Wave Optics: Young's Double-Slit & Fraunhofer Diffraction Workbench",
+    subject: 'Physics (Electromagnetics & Optics)',
+    curriculum: 'NCERT Class 12 Chapter 10 • IIT JEE Advanced • AICTE Engineering Physics',
+    difficulty: 'Intermediate',
+    overview:
+      'Explore Fraunhofer double-slit interference modulated by single-slit diffraction envelopes. Adjust monochromatic wavelength λ (380 - 780 nm), slit separation d, slit aperture a, and screen distance D with real-time intensity profiles and optical vernier probing.',
+    learningObjectives: [
+      'Investigate spatial fringe width w = λ·D / d and verify its inverse dependence on slit separation.',
+      'Observe missing order cancellations where interference maxima coincide with diffraction minima (m = n·d/a).',
+      'Map laser wavelength across the visible electromagnetic spectrum and evaluate photodetector optical irradiance.',
+      'Conduct guided virtual vernier caliper measurements to compute unknown laser wavelength.',
+    ],
+    controlsManual: [
+      { control: 'Wavelength Slider', type: 'Slider', description: 'Vary monochromatic source between 380 nm (UV/violet) and 780 nm (near-IR) with accurate spectral RGB rendering.' },
+      { control: 'Slit Separation (d)', type: 'Slider', description: 'Adjust distance between double slits from 0.10 mm to 0.80 mm to expand or compress interference fringe spacing.' },
+      { control: 'Slit Width (a)', type: 'Slider', description: 'Modify individual aperture width from 0.02 mm to 0.15 mm to change the broad diffraction envelope curvature.' },
+      { control: 'Photodetector Probe', type: 'Draggable Sensor', description: 'Drag the blue optical sensor along the screen y-axis to sample continuous physical intensity % I₀.' },
+    ],
+    stepByStepProcedure: [
+      {
+        stepNumber: 1,
+        title: 'Calibrate Optical Rail & Slits',
+        instruction: 'Select He-Ne Red Laser (632.8 nm), set Slit Separation d = 0.25 mm, Slit Width a = 0.05 mm, and Screen Distance D = 1.5 m.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Measure Linear Fringe Width',
+        instruction: 'Using the photodetector probe, record peak-to-peak distance between adjacent bright fringes. Compare with theoretical w = λD/d = 3.80 mm.',
+      },
+      {
+        stepNumber: 3,
+        title: 'Identify Missing Orders',
+        instruction: 'Calculate the ratio d/a = 0.25 / 0.05 = 5. Verify on screen that the 5th interference order is completely extinguished by the first diffraction minimum.',
+      },
+    ],
+    theoreticalFormulas: [
+      {
+        name: 'Combined Fraunhofer Irradiance',
+        latex: 'I(\\theta) = I_0 \\left( \\frac{\\sin\\alpha}{\\alpha} \\right)^2 \\cos^2(\\beta)',
+        explanation: 'α = (π·a/λ)·sinθ (diffraction factor); β = (π·d/λ)·sinθ (interference factor).',
+      },
+      {
+        name: 'Linear Fringe Spacing',
+        latex: 'w = \\frac{\\lambda D}{d}',
+        explanation: 'Distance between consecutive constructive interference bright fringes on a distant screen.',
+      },
+      {
+        name: 'Missing Orders Cancellation',
+        latex: 'm = n \\left( \\frac{d}{a} \\right) \\quad (n = \\pm 1, \\pm 2...)',
+        explanation: 'Orders m where interference maxima coincide with diffraction minima and have zero net intensity.',
+      },
+    ],
+    guidedInquiries: [
+      {
+        question: 'What happens to the fringe width on the screen if red laser (632.8 nm) is replaced by blue laser (450 nm)?',
+        hint: 'Since fringe width w is directly proportional to wavelength λ, blue light yields significantly narrower, more tightly spaced fringes.',
+      },
+      {
+        question: 'Why does increasing slit width "a" reduce the number of visible fringes in the central diffraction maximum?',
+        hint: 'Wider slits narrow the central diffraction envelope (sinθ = λ/a), confining interference fringes to a smaller spatial angle.',
+      },
+    ],
+  },
+  'photoelectric': {
+    id: 'photoelectric',
+    title: "Einstein's Photoelectric Effect & Planck's Constant Laboratory",
+    subject: 'Physics (Quantum & Modern Physics)',
+    curriculum: 'NCERT Class 12 Chapter 11 • IIT JEE Advanced • AICTE Engineering Physics',
+    difficulty: 'Intermediate',
+    overview:
+      'Investigate photon quantum hypothesis, work functions of various cathode metals (Cesium, Potassium, Sodium, Zinc, Platinum), electron stopping potential V₀, and empirical determination of Planck’s constant h.',
+    learningObjectives: [
+      'Confirm Einstein’s photoelectric equation K_max = hν - Φ.',
+      'Demonstrate that photoelectron kinetic energy depends solely on light frequency ν, not light intensity.',
+      'Verify that photocurrent is strictly proportional to light intensity when frequency exceeds threshold ν₀.',
+      'Measure stopping potential V₀ using variable retarding voltage.',
+    ],
+    controlsManual: [
+      { control: 'Wavelength (nm)', type: 'Slider', description: 'Change radiation wavelength from UV (200 nm) to Infrared (800 nm).' },
+      { control: 'Intensity (%)', type: 'Slider', description: 'Control incident photon photon flux without changing individual photon energy.' },
+      { control: 'Retarding Voltage (V)', type: 'Slider / Dial', description: 'Apply opposing electric field to bring most energetic photoelectrons to rest.' },
+      { control: 'Cathode Material', type: 'Dropdown', description: 'Switch between Cesium (2.14 eV), Sodium (2.46 eV), Zinc (4.31 eV), Platinum (5.65 eV).' },
+    ],
+    stepByStepProcedure: [
+      {
+        stepNumber: 1,
+        title: 'Determine Threshold Wavelength',
+        instruction: 'Select Sodium (Φ = 2.46 eV). Increase wavelength until photocurrent drops to zero. Threshold wavelength λ₀ = hc/Φ = 504 nm.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Measure Stopping Potential vs Frequency',
+        instruction: 'Set wavelength to 350 nm, 400 nm, 450 nm. For each, increase retarding voltage until current reaches 0. Plot V₀ vs frequency.',
+      },
+    ],
+    theoreticalFormulas: [
+      {
+        name: "Einstein's Photoelectric Equation",
+        latex: 'K_{\\max} = h\\nu - \\Phi = e V_0',
+        explanation: 'Max kinetic energy equals incident photon energy minus metal work function.',
+      },
+      {
+        name: 'Stopping Potential Linear Slope',
+        latex: 'V_0 = \\left( \\frac{h}{e} \\right) \\nu - \\frac{\\Phi}{e}',
+        explanation: 'Slope of V₀ vs ν graph yields Planck constant divided by elementary charge (h/e).',
+      },
+    ],
+    guidedInquiries: [
+      {
+        question: 'Why does classical wave theory fail to explain why low-intensity UV light ejects electrons immediately while high-intensity red light ejects none?',
+        hint: 'Classical waves predict continuous energy accumulation over time. Quantum mechanics proves energy is transferred in discrete packets (quanta) E = hν.',
+      },
+    ],
+  },
+  'titration': {
+    id: 'titration',
+    title: 'Volumetric Acid-Base Titration & pH Neutralization Studio',
+    subject: 'Chemistry (Physical & Analytical)',
+    curriculum: 'NCERT Class 11 Chapter 7 • CBSE Practical Laboratory Manual • NEET/JEE',
+    difficulty: 'Intermediate',
+    overview:
+      'Perform virtual quantitative chemical titrations using a calibrated burette, magnetic stirrer, pH probe, and colorimetric indicators (phenolphthalein, methyl orange, bromothymol blue).',
+    learningObjectives: [
+      'Master stoichiometric equivalence calculations using N₁V₁ = N₂V₂.',
+      'Plot real-time sigmoidal titration curves (pH vs added titrant volume).',
+      'Select optimal chemical indicators based on pH transition range.',
+    ],
+    controlsManual: [
+      { control: 'Burette Stopcock', type: 'Dispenser Button', description: 'Deliver precise titrant aliquots (0.1 mL to 1.0 mL drops) into analyte flask.' },
+      { control: 'Indicator Selector', type: 'Dropdown', description: 'Add Phenolphthalein (colorless to pink at pH 8.2-10.0) or Methyl Orange.' },
+      { control: 'Analyte & Titrant Concentrator', type: 'Sliders', description: 'Set acid/base molarity and initial volume.' },
+    ],
+    stepByStepProcedure: [
+      {
+        stepNumber: 1,
+        title: 'Prepare Analyte Solution',
+        instruction: 'Fill conical flask with 25.0 mL of 0.10 M HCl. Add 2-3 drops of Phenolphthalein indicator.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Titrate to Equivalence Point',
+        instruction: 'Dispense 0.10 M NaOH from burette in 0.5 mL increments while stirring. Watch for sharp pH jump from 3.0 to 11.0 near 25.0 mL.',
+      },
+    ],
+    theoreticalFormulas: [
+      {
+        name: 'Equivalence Neutralization Relation',
+        latex: 'M_a V_a n_a = M_b V_b n_b',
+        explanation: 'Number of acid equivalents equals number of base equivalents at stoichiometric neutralization.',
+      },
+      {
+        name: 'Henderson-Hasselbalch Equation',
+        latex: '\\text{pH} = \\text{p}K_a + \\log_{10}\\left( \\frac{[A^-]}{[HA]} \\right)',
+        explanation: 'Calculates pH in the buffer region during weak acid / strong base titration.',
+      },
+    ],
+    guidedInquiries: [
+      {
+        question: 'Why is phenolphthalein suitable for strong acid-strong base titration even though its transition pH is 8.2-10.0?',
+        hint: 'Near the equivalence point, a single fraction of a drop of titrant causes a dramatic pH surge across pH 4.0 to 10.0, encompassing the indicator transition interval.',
+      },
+    ],
+  },
 };
 
 interface SimulationGuideModalProps {

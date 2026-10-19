@@ -39,9 +39,11 @@ import {
   TuringMachineEngine,
 } from '@prismora/simulation-core';
 import { Badge, BugReportModal, Button, Card, CardContent, CardHeader, CardTitle } from '@prismora/ui';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 
 export default function TOCLabPage() {
   const [activeTab, setActiveTab] = useState<'automata' | 'algorithm-studio' | 'security' | 'cfg' | 'turing'>('automata');
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // ============================================================
   // TAB 1: FINITE AUTOMATA STATE
@@ -194,6 +196,14 @@ export default function TOCLabPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-950/70 text-purple-300 hover:bg-purple-900/80 border border-purple-800/80 transition-colors shadow-xs"
+              title="Open Automata & CyberShield Lab Manual"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Lab Guide</span>
+            </button>
             <BugReportModal
               simulationId="toc-cybershield"
               moduleName="Theory of Computation & Automata Studio"
@@ -824,6 +834,13 @@ export default function TOCLabPage() {
           </div>
         )}
       </main>
+
+      {/* Universal Automata & TOC Lab Manual Modal */}
+      <SimulationGuideModal
+        simulationId="toc"
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }

@@ -491,6 +491,17 @@ export default function CircuitStudioPage() {
               2D PCB Layout
             </button>
           </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 transition-colors shadow-2xs"
+              title="Open ECE Circuit Studio Lab Guide & Manual"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Lab Guide</span>
+            </button>
+          </div>
         </div>
       </header>
 

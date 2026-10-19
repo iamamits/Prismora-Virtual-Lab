@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 import { RealtimeReproductionScene } from '@/components/simulation/realtime-reproduction-scene';
 import { RealtimeGeneticsScene } from '@/components/simulation/realtime-genetics-scene';
 import { Anatomy3DScene } from '@/components/simulation/anatomy-3d-scene';
@@ -140,6 +141,7 @@ function BiologyLabContent() {
   const searchParams = useSearchParams();
   const expParam = searchParams.get('exp') as BiologyExpId | null;
   const [activeExpId, setActiveExpId] = useState<BiologyExpId>(expParam || 'human-reproduction');
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // Human Reproduction states
   const [repDay, setRepDay] = useState<number>(14);
@@ -176,6 +178,14 @@ function BiologyLabContent() {
               NCERT / NEET Syllabus Standard
             </span>
 
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-pink-50 text-pink-700 hover:bg-pink-100 border border-pink-200 transition-colors shadow-2xs"
+              title="Open Biology & Physiology Lab Manual"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Lab Guide</span>
+            </button>
             <BugReportModal simulationId={`bio-${activeExp.id}`} moduleName={activeExp.title} />
           </div>
         </div>
@@ -684,6 +694,13 @@ function BiologyLabContent() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Universal Biological Sciences Lab Manual Modal */}
+      <SimulationGuideModal
+        simulationId="biology"
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }

@@ -37,9 +37,11 @@ import {
   SingleCycleCPU,
 } from '@prismora/simulation-core';
 import { Badge, BugReportModal, Button, Card, CardContent, CardHeader, CardTitle } from '@prismora/ui';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 
 export default function COALabPage() {
   const [activeTab, setActiveTab] = useState<'inside-cpu' | 'pipeline' | 'cache' | 'editor' | 'riscv'>('inside-cpu');
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // ============================================================
   // INSIDE THE CPU (8-BIT SIMULATION ENGINE) STATE
@@ -176,6 +178,14 @@ export default function COALabPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-950/70 text-cyan-300 hover:bg-cyan-900/80 border border-cyan-800/80 transition-colors shadow-xs"
+              title="Open Computer Architecture Lab Manual & Guide"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Lab Guide</span>
+            </button>
             <BugReportModal
               simulationId="inside-cpu-coa"
               moduleName="Computer Architecture Laboratory"
@@ -1024,6 +1034,13 @@ export default function COALabPage() {
           </div>
         )}
       </main>
+
+      {/* Universal COA Architecture Manual Modal */}
+      <SimulationGuideModal
+        simulationId="coa"
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }

@@ -327,13 +327,28 @@ export function RealtimePhotoelectricScene({
       ctx.fillRect(tubeCenterX + 110, tubeCenterY + tubeRadiusY - 6, 20, 440 - (tubeCenterY + tubeRadiusY - 6));
       ctx.restore();
 
-      // 3. Photocathode Plate (Left)
+      // 3. Photocathode Plate with material-specific metallic gradient
       const cathGrad = ctx.createLinearGradient(cathodeX - 10, 0, cathodeX, 0);
-      cathGrad.addColorStop(0, '#64748B');
-      cathGrad.addColorStop(1, '#CBD5E1');
+      const isGoldOrCesium = cathodeMaterialName.toLowerCase().includes('cesium') || cathodeMaterialName.toLowerCase().includes('gold');
+      const isZincOrPlatinum = cathodeMaterialName.toLowerCase().includes('zinc') || cathodeMaterialName.toLowerCase().includes('platinum');
+
+      if (isGoldOrCesium) {
+        cathGrad.addColorStop(0, '#78350f');
+        cathGrad.addColorStop(0.5, '#fde047');
+        cathGrad.addColorStop(1, '#b45309');
+      } else if (isZincOrPlatinum) {
+        cathGrad.addColorStop(0, '#1e293b');
+        cathGrad.addColorStop(0.5, '#cbd5e1');
+        cathGrad.addColorStop(1, '#64748b');
+      } else {
+        cathGrad.addColorStop(0, '#64748b');
+        cathGrad.addColorStop(0.4, '#f1f5f9');
+        cathGrad.addColorStop(1, '#94a3b8');
+      }
+
       ctx.fillStyle = cathGrad;
       ctx.fillRect(cathodeX - 10, tubeCenterY - plateH / 2, 10, plateH);
-      ctx.strokeStyle = '#94A3B8';
+      ctx.strokeStyle = '#e2e8f0';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(cathodeX - 10, tubeCenterY - plateH / 2, 10, plateH);
 
@@ -435,14 +450,27 @@ export function RealtimePhotoelectricScene({
       ctx.arc(155, 115, 14, -Math.PI / 2, Math.PI / 2);
       ctx.fill();
 
-      // Emitted Light Beam Cone to Cathode
-      ctx.fillStyle = `${beamColor}25`;
+      // Emitted Radiant Light Beam Cone with Gaussian intensity dispersion
+      const beamGrad = ctx.createLinearGradient(155, 115, cathodeX - 8, tubeCenterY);
+      beamGrad.addColorStop(0, `${beamColor}90`); // High-intensity source
+      beamGrad.addColorStop(0.3, `${beamColor}50`);
+      beamGrad.addColorStop(1, `${beamColor}20`); // Dispersed incident ray
+
+      ctx.fillStyle = beamGrad;
       ctx.beginPath();
       ctx.moveTo(155, 115);
       ctx.lineTo(cathodeX - 8, tubeCenterY - plateH / 2 + 10);
       ctx.lineTo(cathodeX - 8, tubeCenterY + plateH / 2 - 10);
       ctx.closePath();
       ctx.fill();
+
+      // Central focused optical axis line
+      ctx.strokeStyle = `${beamColor}80`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(155, 115);
+      ctx.lineTo(cathodeX - 8, tubeCenterY);
+      ctx.stroke();
 
       ctx.fillStyle = beamColor;
       ctx.font = 'bold 11px JetBrains Mono, monospace';

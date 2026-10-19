@@ -15,6 +15,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, MathView } from '@prismora/ui';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 import {
   ChemicalEquilibriumEngine,
   ElectrochemistryEngine,
@@ -39,6 +40,7 @@ type ChemistryExpId = 'equilibrium' | 'electrochem' | 'titration';
 
 export default function ChemistryLabPage() {
   const [activeExpId, setActiveExpId] = useState<ChemistryExpId>('equilibrium');
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // Chemical Equilibrium Parameters
   const [eqTempK, setEqTempK] = useState<number>(298.15); // 25 °C
@@ -83,6 +85,14 @@ export default function ChemistryLabPage() {
               <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
               NCERT / NEET / JEE Chemistry Standard
             </span>
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition-colors shadow-2xs"
+              title="Open Chemical Sciences Lab Manual & Guide"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Lab Guide</span>
+            </button>
           </div>
         </div>
 
@@ -517,6 +527,13 @@ export default function ChemistryLabPage() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Universal Chemical Sciences Lab Manual Modal */}
+      <SimulationGuideModal
+        simulationId="chemistry"
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }

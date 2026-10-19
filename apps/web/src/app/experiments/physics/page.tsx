@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 import { RealtimePhotoelectricScene } from '@/components/simulation/realtime-photoelectric-scene';
 import {
   PhotoelectricEngine,
@@ -147,6 +148,7 @@ function PhysicsWorkbenchContent() {
   const [activeExpId, setActiveExpId] = useState<PhysicsExpId>(
     PHYSICS_EXPERIMENTS.some((e) => e.id === initialExp) ? initialExp : 'photoelectric',
   );
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   React.useEffect(() => {
     const exp = searchParams.get('exp') as PhysicsExpId;
@@ -232,6 +234,14 @@ function PhysicsWorkbenchContent() {
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold">
               {activeExp.benchmark}
             </span>
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors shadow-2xs"
+              title="Open Physical Sciences Lab Guide & Manual"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Lab Guide</span>
+            </button>
             <BugReportModal simulationId={`phy-${activeExp.id}`} moduleName={activeExp.title} />
           </div>
         </div>
@@ -1020,6 +1030,13 @@ function PhysicsWorkbenchContent() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Universal Physical Sciences Lab Manual Modal */}
+      <SimulationGuideModal
+        simulationId={activeExpId === 'photoelectric' ? 'photoelectric' : 'physics'}
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }

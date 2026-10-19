@@ -37,6 +37,7 @@ import {
   UniversalGatesEngine,
 } from '@prismora/simulation-core';
 import { Badge, BugReportModal, Button, Card, CardContent, CardHeader, CardTitle, MathView } from '@prismora/ui';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 import {
   DIGITAL_EXPERIMENTS,
   DigitalExperimentCategory,
@@ -57,6 +58,7 @@ export function DigitalLabWorkbench({ initialExpId }: DigitalLabWorkbenchProps) 
   const [activeExpId, setActiveExpId] = useState<string>(defaultExp.id);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [viewMode, setViewMode] = useState<'schematic' | 'dip'>('schematic');
+  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
   const [labMode, setLabMode] = useState<
     'explore' | 'understand' | 'guided' | 'analyze' | 'challenge' | 'report'
   >('explore');
@@ -469,6 +471,14 @@ export function DigitalLabWorkbench({ initialExpId }: DigitalLabWorkbenchProps) 
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 transition-colors shadow-2xs"
+              title="Open Digital Electronics Lab Manual & Guide"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Lab Guide</span>
+            </button>
             <BugReportModal
               simulationId="digital-electronics"
               moduleName="Digital Electronics Laboratory (12 Experiments)"
@@ -1535,6 +1545,20 @@ export function DigitalLabWorkbench({ initialExpId }: DigitalLabWorkbenchProps) 
           </Card>
         )}
       </main>
+
+      {/* Universal Digital Electronics Lab Manual Modal */}
+      <SimulationGuideModal
+        simulationId="digital-electronics"
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        customGuide={{
+          title: currentExp.title,
+          subject: 'Digital Electronics & Logic Design',
+          curriculum: 'IIT Roorkee Virtual Labs • AICTE Model Curriculum',
+          overview: currentExp.objective,
+          learningObjectives: [currentExp.theory],
+        }}
+      />
     </div>
   );
 }

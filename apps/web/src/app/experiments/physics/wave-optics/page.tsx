@@ -30,6 +30,7 @@ import {
   OpticsScreenPoint,
 } from '@prismora/simulation-core';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 import {
   Activity,
   Award,
@@ -59,6 +60,7 @@ type WorkflowStep =
 
 export default function WaveOpticsLabPage() {
   const [activeStep, setActiveStep] = useState<WorkflowStep>('explore');
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // Optical bench parameters
   const [wavelength, setWavelength] = useState(632.8); // nm (He-Ne red laser)
@@ -142,6 +144,14 @@ export default function WaveOpticsLabPage() {
           </div>
 
           <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition-colors shadow-xs"
+              title="Open Wave Optics Lab Guide & Manual"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Lab Guide</span>
+            </button>
             <BugReportModal
               simulationId="wave-optics-physics"
               moduleName="Wave Optics Virtual Lab"
@@ -372,98 +382,258 @@ export default function WaveOpticsLabPage() {
                   </div>
                 </div>
 
-                {/* SVG Visual Workbench */}
-                <div className="relative bg-slate-950 rounded-lg p-4 overflow-hidden shadow-inner min-h-[300px]">
-                  <svg viewBox="0 0 600 280" className="w-full max-h-[280px]">
-                    {/* Laser Source Housing */}
-                    <rect x="20" y="110" width="70" height="40" fill="#1E293B" stroke="#475569" strokeWidth="2" rx="4" />
-                    <rect x="85" y="122" width="10" height="16" fill="#64748B" rx="1" />
-                    <text x="55" y="135" textAnchor="middle" fill="#94A3B8" fontSize="9" fontWeight="bold">
-                      LASER
-                    </text>
+                {/* SVG Visual Workbench - Realistic 3D Optical Bench & Phosphor Screen */}
+                <div className="relative bg-[#050811] rounded-xl p-4 overflow-hidden shadow-2xl border border-slate-800/80 min-h-[320px]">
+                  <svg viewBox="0 0 600 290" className="w-full max-h-[300px] select-none">
+                    <defs>
+                      {/* Heavy Anodized Aluminum Rail Gradient */}
+                      <linearGradient id="railGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#475569" />
+                        <stop offset="25%" stopColor="#94a3b8" />
+                        <stop offset="50%" stopColor="#cbd5e1" />
+                        <stop offset="75%" stopColor="#475569" />
+                        <stop offset="100%" stopColor="#1e293b" />
+                      </linearGradient>
 
-                    {/* Emitted Monochromatic Laser Beam */}
-                    <line
-                      x1="95"
-                      y1="130"
-                      x2="220"
-                      y2="130"
-                      stroke={characteristics.colorHex}
-                      strokeWidth="3.5"
-                      strokeOpacity="0.9"
-                    />
+                      {/* Precision Cylindrical Laser Housing Gradient */}
+                      <linearGradient id="laserBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#0f172a" />
+                        <stop offset="30%" stopColor="#334155" />
+                        <stop offset="50%" stopColor="#64748b" />
+                        <stop offset="70%" stopColor="#1e293b" />
+                        <stop offset="100%" stopColor="#020617" />
+                      </linearGradient>
 
-                    {/* Double-Slit Slide Aperture */}
-                    <g>
-                      <rect x="220" y="50" width="12" height="160" fill="#0F172A" stroke="#64748B" strokeWidth="2" rx="2" />
-                      {/* Slit gaps */}
-                      <line x1="220" y1="126" x2="232" y2="126" stroke="#000" strokeWidth="2" />
-                      <line x1="220" y1="134" x2="232" y2="134" stroke="#000" strokeWidth="2" />
-                      <text x="226" y="42" textAnchor="middle" fill="#94A3B8" fontSize="9">
-                        Double Slit
+                      {/* Brass Knurled Thumbscrew Gradient */}
+                      <linearGradient id="brassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#ca8a04" />
+                        <stop offset="40%" stopColor="#fef08a" />
+                        <stop offset="80%" stopColor="#b45309" />
+                        <stop offset="100%" stopColor="#713f12" />
+                      </linearGradient>
+
+                      {/* Laser Beam Coherence Glow Filter */}
+                      <filter id="laserBeamGlow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur stdDeviation="3.5" result="blur1" />
+                        <feGaussianBlur stdDeviation="1.5" result="blur2" />
+                        <feMerge>
+                          <feMergeNode in="blur1" />
+                          <feMergeNode in="blur2" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      {/* Screen Phosphor Reflection */}
+                      <linearGradient id="screenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#020617" />
+                        <stop offset="20%" stopColor="#0f172a" />
+                        <stop offset="80%" stopColor="#0f172a" />
+                        <stop offset="100%" stopColor="#020617" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* 1. Heavy Optical Bench Rail (IIT Roorkee Precision Rail Datum) */}
+                    <g id="optical-rail">
+                      {/* Rail Base */}
+                      <rect x="15" y="240" width="570" height="18" fill="url(#railGrad)" rx="3" stroke="#0f172a" strokeWidth="1" />
+                      {/* Metric millimeter ruler graduations along rail */}
+                      {Array.from({ length: 28 }).map((_, i) => (
+                        <g key={i}>
+                          <line x1={25 + i * 20} y1="240" x2={25 + i * 20} y2="246" stroke="#0f172a" strokeWidth="1" />
+                          {i % 4 === 0 && (
+                            <text x={25 + i * 20} y="254" textAnchor="middle" fill="#0f172a" fontSize="7" fontFamily="monospace" fontWeight="bold">
+                              {i * 5}cm
+                            </text>
+                          )}
+                        </g>
+                      ))}
+                      {/* Bench mounting feet */}
+                      <rect x="30" y="258" width="24" height="10" fill="#1e293b" rx="2" />
+                      <rect x="545" y="258" width="24" height="10" fill="#1e293b" rx="2" />
+                    </g>
+
+                    {/* 2. Precision Industrial Laser Housing with Mount Carrier */}
+                    <g id="laser-source">
+                      {/* Carrier clamp on rail */}
+                      <rect x="42" y="222" width="46" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" rx="2" />
+                      <rect x="58" y="160" width="14" height="62" fill="url(#railGrad)" stroke="#1e293b" strokeWidth="1" />
+                      
+                      {/* Laser cylindrical barrel */}
+                      <rect x="20" y="105" width="85" height="48" fill="url(#laserBodyGrad)" stroke="#475569" strokeWidth="1.5" rx="5" />
+                      {/* Heat-sink cooling fins */}
+                      <line x1="34" y1="108" x2="34" y2="150" stroke="#0f172a" strokeWidth="2" />
+                      <line x1="42" y1="108" x2="42" y2="150" stroke="#0f172a" strokeWidth="2" />
+                      <line x1="50" y1="108" x2="50" y2="150" stroke="#0f172a" strokeWidth="2" />
+                      
+                      {/* Gold laser warning sticker */}
+                      <rect x="58" y="112" width="22" height="14" fill="#facc15" rx="1.5" />
+                      <text x="69" y="122" textAnchor="middle" fill="#000000" fontSize="6" fontWeight="bold">
+                        ▲ DANGER
                       </text>
-                      <text x="226" y="225" textAnchor="middle" fill="#64748B" fontSize="8 font-mono">
+
+                      {/* Laser power status LED */}
+                      <circle cx="28" cy="116" r="3" fill="#22c55e" filter="drop-shadow(0 0 3px #22c55e)" />
+
+                      {/* Optical collimation front bezel */}
+                      <rect x="105" y="117" width="12" height="24" fill="url(#brassGrad)" rx="2" stroke="#451a03" strokeWidth="0.5" />
+                      <circle cx="117" cy="129" r="4" fill="#000" />
+                    </g>
+
+                    {/* 3. Coherent Monochromatic Laser Beam with Gaussian core */}
+                    <g id="laser-beam" filter="url(#laserBeamGlow)">
+                      {/* Outer luminous glow sheath */}
+                      <line
+                        x1="117"
+                        y1="129"
+                        x2="220"
+                        y2="129"
+                        stroke={characteristics.colorHex}
+                        strokeWidth="5"
+                        strokeOpacity="0.4"
+                        strokeLinecap="round"
+                      />
+                      {/* Intense core beam */}
+                      <line
+                        x1="117"
+                        y1="129"
+                        x2="220"
+                        y2="129"
+                        stroke="#ffffff"
+                        strokeWidth="1.5"
+                        strokeOpacity="0.9"
+                      />
+                    </g>
+
+                    {/* 4. Double-Slit Slide Carrier & Precision Aperture Plate */}
+                    <g id="double-slit-assembly">
+                      {/* Carrier clamp on rail */}
+                      <rect x="206" y="222" width="36" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" rx="2" />
+                      <rect x="219" y="175" width="10" height="47" fill="url(#railGrad)" stroke="#1e293b" strokeWidth="1" />
+                      
+                      {/* Slit slide vertical frame */}
+                      <rect x="215" y="45" width="18" height="130" fill="#0f172a" stroke="#64748b" strokeWidth="1.5" rx="3" />
+                      
+                      {/* Knurled brass thumbscrew for slit rotation */}
+                      <circle cx="224" cy="40" r="7" fill="url(#brassGrad)" stroke="#451a03" strokeWidth="0.8" />
+                      <circle cx="224" cy="40" r="2.5" fill="#451a03" />
+
+                      {/* Glass slide insert */}
+                      <rect x="218" y="75" width="12" height="70" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
+
+                      {/* Dual micro-slits with active illumination */}
+                      <line x1="218" y1="126" x2="230" y2="126" stroke="#ffffff" strokeWidth="1.5" />
+                      <line x1="218" y1="132" x2="230" y2="132" stroke="#ffffff" strokeWidth="1.5" />
+
+                      {/* Label badge */}
+                      <text x="224" y="27" textAnchor="middle" fill="#38bdf8" fontSize="9" fontWeight="bold" fontFamily="monospace">
                         d={slitSeparation}mm
+                      </text>
+                      <text x="224" y="188" textAnchor="middle" fill="#94a3b8" fontSize="8 font-mono">
+                        a={slitWidth}mm
                       </text>
                     </g>
 
-                    {/* Diverging Ray Cones to Screen */}
+                    {/* 5. Diverging Huygens-Fresnel Wave Cones with Atmospheric Glow */}
                     <polygon
-                      points="232,130 520,30 520,230"
+                      points="230,129 515,25 515,235"
                       fill={characteristics.colorHex}
-                      opacity="0.08"
+                      opacity="0.07"
                     />
 
-                    {/* Observation Projection Screen */}
-                    <g>
-                      <rect x="520" y="25" width="40" height="210" fill="#020617" stroke="#334155" strokeWidth="2" rx="4" />
-                      <text x="540" y="18" textAnchor="middle" fill="#94A3B8" fontSize="9" fontWeight="bold">
+                    {/* 6. High-Fidelity Phosphor Observation Screen */}
+                    <g id="screen-assembly">
+                      {/* Screen rail carrier */}
+                      <rect x="502" y="222" width="46" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" rx="2" />
+                      <rect x="520" y="195" width="10" height="27" fill="url(#railGrad)" stroke="#1e293b" strokeWidth="1" />
+                      
+                      {/* Heavy screen chassis */}
+                      <rect x="515" y="20" width="50" height="215" fill="url(#screenGrad)" stroke="#334155" strokeWidth="2" rx="4" />
+                      
+                      {/* Screen Title */}
+                      <text x="540" y="14" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="bold" letterSpacing="1">
                         SCREEN
                       </text>
 
-                      {/* Optical Interference & Diffraction Fringes on Screen */}
-                      {Array.from({ length: 100 }).map((_, i) => {
-                        const y = 30 + i * 2;
-                        // Map y [30..230] to screen position mm [-15..+15]
-                        const xMm = ((i - 50) / 50) * 15;
+                      {/* High-Resolution Optical Interference & Diffraction Fringes on Screen */}
+                      {Array.from({ length: 95 }).map((_, i) => {
+                        const y = 26 + i * 2.1;
+                        // Map y [26..225] to screen position mm [-15..+15]
+                        const xMm = ((i - 47) / 47) * 15;
                         const pt = WaveOpticsEvaluator.computeIntensityAt(params, xMm);
-                        const opacity = Math.max(0.02, pt.intensity);
+                        const opacity = Math.max(0.015, pt.intensity);
                         return (
                           <rect
                             key={i}
-                            x="522"
+                            x="517"
                             y={y}
-                            width="36"
-                            height="2"
+                            width="46"
+                            height="1.9"
                             fill={characteristics.colorHex}
                             opacity={opacity}
                           />
                         );
                       })}
+
+                      {/* Central Maxima Indicator Marker */}
+                      <line x1="512" y1="129" x2="517" y2="129" stroke="#facc15" strokeWidth="1.5" />
+                      <line x1="563" y1="129" x2="568" y2="129" stroke="#facc15" strokeWidth="1.5" />
                     </g>
 
-                    {/* Photodetector Probe Tool */}
-                    <g>
+                    {/* 7. Interactive Digital Photodetector Optical Probe */}
+                    <g id="photodetector-probe">
                       {(() => {
-                        // Map probePositionMm [-15..+15] to y [30..230]
-                        const probeY = 130 + (probePositionMm / 15) * 100;
+                        // Map probePositionMm [-15..+15] to y [26..225]
+                        const probeY = 129 + (probePositionMm / 15) * 98;
                         return (
                           <g>
-                            <line x1="480" y1={probeY} x2="520" y2={probeY} stroke="#38BDF8" strokeWidth="2" strokeDasharray="2 2" />
-                            <circle cx="510" cy={probeY} r="4" fill="#38BDF8" stroke="#0284C7" strokeWidth="1.5" />
-                            <rect x="420" y={probeY - 12} width="60" height="24" fill="#0F172A" stroke="#38BDF8" strokeWidth="1" rx="4" />
-                            <text x="450" y={probeY + 3} textAnchor="middle" fill="#38BDF8" fontSize="9" fontWeight="bold" fontFamily="monospace">
-                              {(probePoint.intensity * 100).toFixed(0)}% I₀
+                            {/* Probe fiber-optic laser sampling beam */}
+                            <line
+                              x1="475"
+                              y1={probeY}
+                              x2="517"
+                              y2={probeY}
+                              stroke="#0284c7"
+                              strokeWidth="2"
+                              strokeDasharray="3 2"
+                            />
+                            {/* Sensor crosshair reticle on screen */}
+                            <circle cx="517" cy={probeY} r="4.5" fill="none" stroke="#38bdf8" strokeWidth="1.5" />
+                            <circle cx="517" cy={probeY} r="1.5" fill="#facc15" />
+
+                            {/* Digital Vernier Readout Head */}
+                            <rect
+                              x="395"
+                              y={probeY - 15}
+                              width="80"
+                              height="30"
+                              fill="#090d16"
+                              stroke="#0284c7"
+                              strokeWidth="1.5"
+                              rx="5"
+                              filter="drop-shadow(0 2px 6px rgba(0,0,0,0.6))"
+                            />
+                            {/* Digital LCD screen */}
+                            <rect x="400" y={probeY - 11} width="70" height="22" fill="#020617" rx="3" />
+                            <text
+                              x="435"
+                              y={probeY + 4}
+                              textAnchor="middle"
+                              fill="#38bdf8"
+                              fontSize="11"
+                              fontWeight="bold"
+                              fontFamily="monospace"
+                            >
+                              {(probePoint.intensity * 100).toFixed(1)}% I₀
                             </text>
                           </g>
                         );
                       })()}
                     </g>
 
-                    {/* Caliper Vernier Scale Datum */}
-                    <line x1="226" y1="255" x2="540" y2="255" stroke="#475569" strokeWidth="1.5" />
-                    <text x="383" y="270" textAnchor="middle" fill="#94A3B8" fontSize="10">
-                      Screen Distance D = {screenDistance.toFixed(2)} m
+                    {/* 8. Distance D Vernier Measurement Guideline */}
+                    <line x1="224" y1="272" x2="540" y2="272" stroke="#64748b" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <text x="382" y="284" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace" fontWeight="bold">
+                      Optical Path D = {screenDistance.toFixed(2)} m
                     </text>
                   </svg>
                 </div>
@@ -934,6 +1104,13 @@ export default function WaveOpticsLabPage() {
           </div>
         )}
       </main>
+
+      {/* Universal Wave Optics Lab Manual Modal */}
+      <SimulationGuideModal
+        simulationId="wave-optics"
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }

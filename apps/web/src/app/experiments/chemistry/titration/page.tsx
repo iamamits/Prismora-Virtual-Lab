@@ -30,6 +30,7 @@ import {
   TitrationPoint,
 } from '@prismora/simulation-core';
 import { MathView, BugReportModal } from '@prismora/ui';
+import { SimulationGuideModal } from '@/components/simulation/simulation-guide-modal';
 import { RealtimeTitrationScene } from '@/components/simulation/realtime-titration-scene';
 import {
   Activity,
@@ -63,6 +64,7 @@ type WorkflowStep =
 
 export default function AcidBaseTitrationLabPage() {
   const [activeStep, setActiveStep] = useState<WorkflowStep>('explore');
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // Chemistry parameters
   const [systemType, setSystemType] = useState<TitrationSystemType>('weak-acid-strong-base');
@@ -156,6 +158,14 @@ export default function AcidBaseTitrationLabPage() {
           </div>
 
           <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-xs"
+              title="Open Acid-Base Titration Lab Manual & Guide"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Lab Guide</span>
+            </button>
             <BugReportModal
               simulationId="acid-base-titration-curve"
               moduleName="Chemical Sciences Titration Lab"
@@ -841,6 +851,13 @@ export default function AcidBaseTitrationLabPage() {
           </div>
         )}
       </main>
+
+      {/* Universal Acid-Base Titration Lab Manual Modal */}
+      <SimulationGuideModal
+        simulationId="titration"
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }

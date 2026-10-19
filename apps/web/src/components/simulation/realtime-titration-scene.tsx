@@ -310,26 +310,59 @@ export function RealtimeTitrationScene({
       const burTop = 60;
       const burH = 180;
 
-      // Outer glass cylinder
-      ctx.fillStyle = 'rgba(30, 41, 59, 0.6)';
+      // Outer glass cylinder with realistic cylindrical specular gradient
+      const glassGrad = ctx.createLinearGradient(burX, 0, burX + burW, 0);
+      glassGrad.addColorStop(0, 'rgba(15, 23, 42, 0.7)');
+      glassGrad.addColorStop(0.2, 'rgba(56, 189, 248, 0.15)');
+      glassGrad.addColorStop(0.4, 'rgba(255, 255, 255, 0.45)'); // Specular gleam
+      glassGrad.addColorStop(0.7, 'rgba(30, 41, 59, 0.6)');
+      glassGrad.addColorStop(1, 'rgba(15, 23, 42, 0.8)');
+
+      ctx.fillStyle = glassGrad;
       ctx.fillRect(burX, burTop, burW, burH);
-      ctx.strokeStyle = '#CBD5E1';
+      ctx.strokeStyle = 'rgba(203, 213, 225, 0.8)';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(burX, burTop, burW, burH);
 
-      // Titrant Liquid inside Burette (level drops as volumeAddedMl increases)
+      // Titrant Liquid inside Burette with concave capillary meniscus
       const liquidFraction = Math.max(0, 1 - volumeAddedMl / 50.0);
       const liquidHeight = liquidFraction * (burH - 10);
       const liquidTopY = burTop + burH - liquidHeight;
 
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.55)';
-      ctx.fillRect(burX + 1, liquidTopY, burW - 2, liquidHeight);
+      if (liquidHeight > 2) {
+        const titrantGrad = ctx.createLinearGradient(burX, 0, burX + burW, 0);
+        titrantGrad.addColorStop(0, '#0284c7');
+        titrantGrad.addColorStop(0.4, '#38bdf8');
+        titrantGrad.addColorStop(1, '#0369a1');
+
+        ctx.fillStyle = titrantGrad;
+        ctx.beginPath();
+        ctx.moveTo(burX + 1, liquidTopY + 2);
+        // Concave meniscus curve
+        ctx.quadraticCurveTo(burX + burW / 2, liquidTopY + 5, burX + burW - 1, liquidTopY + 2);
+        ctx.lineTo(burX + burW - 1, burTop + burH);
+        ctx.lineTo(burX + 1, burTop + burH);
+        ctx.closePath();
+        ctx.fill();
+
+        // Glowing meniscus surface ring
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(burX + 1, liquidTopY + 2);
+        ctx.quadraticCurveTo(burX + burW / 2, liquidTopY + 5, burX + burW - 1, liquidTopY + 2);
+        ctx.stroke();
+      }
+
+      // Longitudinal specular highlight stripe along glass wall
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.fillRect(burX + 3, burTop, 2.5, burH);
 
       // Graduations & mL ticks
       ctx.strokeStyle = '#94A3B8';
       ctx.lineWidth = 1;
       for (let i = 0; i <= 10; i++) {
-        const tickY = burTop + 10 + i * (burH - 20) / 10;
+        const tickY = burTop + 10 + (i * (burH - 20)) / 10;
         ctx.beginPath();
         ctx.moveTo(burX, tickY);
         ctx.lineTo(burX + (i % 5 === 0 ? 8 : 4), tickY);
@@ -337,7 +370,7 @@ export function RealtimeTitrationScene({
 
         if (i % 2 === 0) {
           ctx.fillStyle = '#CBD5E1';
-          ctx.font = '7px JetBrains Mono, monospace';
+          ctx.font = 'bold 7px JetBrains Mono, monospace';
           ctx.textAlign = 'right';
           ctx.fillText(`${i * 5}`, burX - 3, tickY + 3);
         }
@@ -422,15 +455,30 @@ export function RealtimeTitrationScene({
       const flaskBaseW = 100;
       const flaskCenterX = 212;
 
-      // Flask Solution Fluid Fill
-      ctx.fillStyle = currentColor;
+      // Flask Solution Fluid Fill with volumetric depth shading
+      const liquidTopFlaskY = flaskBaseY - 50;
+      const fluidGrad = ctx.createLinearGradient(0, liquidTopFlaskY, 0, flaskBaseY);
+      fluidGrad.addColorStop(0, currentColor);
+      fluidGrad.addColorStop(0.7, currentColor);
+      fluidGrad.addColorStop(1, 'rgba(15, 23, 42, 0.4)');
+
+      ctx.fillStyle = fluidGrad;
       ctx.beginPath();
       ctx.moveTo(flaskCenterX - flaskBaseW / 2 + 4, flaskBaseY - 2);
       ctx.lineTo(flaskCenterX + flaskBaseW / 2 - 4, flaskBaseY - 2);
-      ctx.lineTo(flaskCenterX + 28, flaskBaseY - 50);
-      ctx.lineTo(flaskCenterX - 28, flaskBaseY - 50);
+      ctx.lineTo(flaskCenterX + 28, liquidTopFlaskY);
+      // Fluid surface meniscus with slight stirring vortex depression
+      ctx.quadraticCurveTo(flaskCenterX, liquidTopFlaskY + 4, flaskCenterX - 28, liquidTopFlaskY);
       ctx.closePath();
       ctx.fill();
+
+      // Glowing liquid meniscus highlight line
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(flaskCenterX - 28, liquidTopFlaskY);
+      ctx.quadraticCurveTo(flaskCenterX, liquidTopFlaskY + 4, flaskCenterX + 28, liquidTopFlaskY);
+      ctx.stroke();
 
       // Flask Glass Contour Outline
       ctx.strokeStyle = '#E2E8F0';
@@ -448,6 +496,14 @@ export function RealtimeTitrationScene({
       // Conical wall
       ctx.lineTo(flaskNeckX, flaskTopY + 25);
       ctx.closePath();
+      ctx.stroke();
+
+      // Glass specular reflection highlight on left shoulder
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(flaskNeckX + 3, flaskTopY + 28);
+      ctx.lineTo(flaskCenterX - flaskBaseW / 2 + 8, flaskBaseY - 8);
       ctx.stroke();
 
       // Rotating Stir Bar inside flask
